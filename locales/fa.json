@@ -1,0 +1,85 @@
+{
+  "common": {
+    "welcome": "خوش آمدید",
+    "save": "ذخیره",
+    "cancel": "لغو",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "add": "اضافه",
+    "confirm": "تایید",
+    "yes": "بله",
+    "no": "خیر",
+    "loading": "در حال بارگذاری...",
+    "error": "خطا",
+    "success": "موفق",
+    "today": "امروز",
+    "tomorrow": "فردا",
+    "yesterday": "دیروز"
+  },
+  "navigation": {
+    "todayPath": "مسیر امروز",
+    "overview": "نمای کلی",
+    "settings": "تنظیمات"
+  },
+  "theme": {
+    "light": "روشن",
+    "dark": "تاریک",
+    "system": "سیستم",
+    "selectTheme": "انتخاب تم"
+  },
+  "language": {
+    "persian": "فارسی",
+    "english": "انگلیسی",
+    "selectLanguage": "انتخاب زبان"
+  },
+  "habits": {
+    "title": "عادت‌ها",
+    "addHabit": "عادت جدید",
+    "editHabit": "ویرایش عادت",
+    "deleteHabit": "حذف عادت",
+    "habitName": "نام عادت",
+    "description": "توضیحات",
+    "completed": "انجام شد",
+    "incomplete": "انجام نشد",
+    "streak": "دنباله",
+    "days": "روز"
+  },
+  "today": {
+    "goodMorning": "صبح بخیر",
+    "goodAfternoon": "ظهر بخیر",
+    "goodEvening": "عصر بخیر",
+    "goodNight": "شب بخیر",
+    "yourPath": "مسیر شما",
+    "progress": "پیشرفت",
+    "completed": "تکمیل شده",
+    "remaining": "باقی مانده"
+  },
+  "overview": {
+    "calendar": "تقویم",
+    "statistics": "آمار",
+    "weeklyProgress": "پیشرفت هفتگی",
+    "monthlyProgress": "پیشرفت ماهانه",
+    "totalHabits": "کل عادت‌ها",
+    "completedToday": "امروز انجام شده"
+  },
+  "settings": {
+    "title": "تنظیمات",
+    "appearance": "ظاهر",
+    "language": "زبان",
+    "theme": "تم",
+    "data": "داده‌ها",
+    "backup": "پشتیبان‌گیری",
+    "restore": "بازگردانی",
+    "about": "درباره",
+    "version": "نسخه"
+  },
+  "backup": {
+    "title": "پشتیبان‌گیری",
+    "description": "داده‌های خود را ذخیره کنید",
+    "export": "خروجی گرفتن",
+    "import": "وارد کردن",
+    "exportSuccess": "فایل پشتیبان ذخیره شد",
+    "importSuccess": "داده‌ها بازگردانی شد",
+    "confirmImport": "آیا مطمئن هستید؟ داده‌های فعلی جایگزین خواهد شد."
+  }
+}

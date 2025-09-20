@@ -8,7 +8,8 @@
       "@/constants/*": ["./constants/*"],
       "@/hooks/*": ["./hooks/*"],
       "@/assets/*": ["./assets/*"],
-      "@/app/*": ["./app/*"]
+      "@/app/*": ["./app/*"],
+      "@/locales/*": ["./locales/*"]
     }
   },
   "include": [

@@ -1,17 +1,25 @@
-import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { StyleSheet, View } from 'react-native';
+import { Text, Button } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+import { router } from 'expo-router';
 
 export default function ModalScreen() {
+  const { t } = useTranslation();
+
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">This is a modal</ThemedText>
-      <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
-      </Link>
-    </ThemedView>
+    <View style={styles.container}>
+      <Text variant="headlineMedium" style={styles.title}>
+        {t('settings.title')}
+      </Text>
+
+      <Text variant="bodyLarge" style={styles.description}>
+        تنظیمات و گزینه‌های بیشتر در آینده اینجا خواهد بود
+      </Text>
+
+      <Button mode="outlined" onPress={() => router.back()}>
+        {t('common.cancel')}
+      </Button>
+    </View>
   );
 }
 
@@ -22,8 +30,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
+  title: {
+    marginBottom: 20,
+  },
+  description: {
+    marginBottom: 30,
+    textAlign: 'center',
   },
 });

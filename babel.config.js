@@ -13,6 +13,7 @@ module.exports = function (api) {
             '@/hooks': './hooks',
             '@/assets': './assets',
             '@/app': './app',
+            '@/locales': './locales',
           },
         },
       ],

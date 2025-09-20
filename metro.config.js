@@ -11,6 +11,7 @@ config.resolver.alias = {
   '@/hooks': path.resolve(__dirname, './hooks'),
   '@/assets': path.resolve(__dirname, './assets'),
   '@/app': path.resolve(__dirname, './app'),
+  '@/locales': path.resolve(__dirname, './locales'),
 };
 
 module.exports = config;

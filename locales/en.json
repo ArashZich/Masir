@@ -1,0 +1,85 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday"
+  },
+  "navigation": {
+    "todayPath": "Today's Path",
+    "overview": "Overview",
+    "settings": "Settings"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "selectTheme": "Select Theme"
+  },
+  "language": {
+    "persian": "Persian",
+    "english": "English",
+    "selectLanguage": "Select Language"
+  },
+  "habits": {
+    "title": "Habits",
+    "addHabit": "Add Habit",
+    "editHabit": "Edit Habit",
+    "deleteHabit": "Delete Habit",
+    "habitName": "Habit Name",
+    "description": "Description",
+    "completed": "Completed",
+    "incomplete": "Incomplete",
+    "streak": "Streak",
+    "days": "Days"
+  },
+  "today": {
+    "goodMorning": "Good Morning",
+    "goodAfternoon": "Good Afternoon",
+    "goodEvening": "Good Evening",
+    "goodNight": "Good Night",
+    "yourPath": "Your Path",
+    "progress": "Progress",
+    "completed": "Completed",
+    "remaining": "Remaining"
+  },
+  "overview": {
+    "calendar": "Calendar",
+    "statistics": "Statistics",
+    "weeklyProgress": "Weekly Progress",
+    "monthlyProgress": "Monthly Progress",
+    "totalHabits": "Total Habits",
+    "completedToday": "Completed Today"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "language": "Language",
+    "theme": "Theme",
+    "data": "Data",
+    "backup": "Backup",
+    "restore": "Restore",
+    "about": "About",
+    "version": "Version"
+  },
+  "backup": {
+    "title": "Backup",
+    "description": "Save your data",
+    "export": "Export",
+    "import": "Import",
+    "exportSuccess": "Backup file saved",
+    "importSuccess": "Data restored",
+    "confirmImport": "Are you sure? Current data will be replaced."
+  }
+}

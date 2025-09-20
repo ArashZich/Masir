@@ -1,98 +1,114 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { StyleSheet, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Button, Text, Card, Surface, FAB, Chip } from 'react-native-paper';
+import { changeLanguage } from '@/i18n';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { t, i18n } = useTranslation();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const toggleLanguage = async () => {
+    const newLang = i18n.language === 'fa' ? 'en' : 'fa';
+    await changeLanguage(newLang);
+  };
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Surface style={styles.header} elevation={2}>
+        <Text variant="headlineLarge" style={styles.title}>
+          {t('common.welcome')}
+        </Text>
+        <Text variant="titleMedium" style={styles.subtitle}>
+          {t('navigation.todayPath')}
+        </Text>
+      </Surface>
+
+      <Card style={styles.card} mode="contained">
+        <Card.Content>
+          <Text variant="titleLarge" style={styles.cardTitle}>
+            {i18n.language === 'fa' ? '🌱 باغچه عادت‌ها' : '🌱 Habit Garden'}
+          </Text>
+          <Text variant="bodyLarge" style={styles.cardDescription}>
+            {i18n.language === 'fa'
+              ? 'اینجا مسیر امروز شما نمایش داده خواهد شد'
+              : 'Your daily path will be displayed here'
+            }
+          </Text>
+        </Card.Content>
+      </Card>
+
+      <Surface style={styles.languageSection} elevation={1}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          {t('language.selectLanguage')}
+        </Text>
+
+        <Chip
+          icon="translate"
+          mode="outlined"
+          onPress={toggleLanguage}
+          style={styles.languageChip}
+        >
+          {i18n.language === 'fa' ? 'Switch to English' : 'تغییر به فارسی'}
+        </Chip>
+      </Surface>
+
+      <FAB
+        icon="plus"
+        label={i18n.language === 'fa' ? 'عادت جدید' : 'New Habit'}
+        style={styles.fab}
+        onPress={() => console.log('Add new habit')}
+      />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
+  content: {
+    padding: 16,
+  },
+  header: {
+    padding: 24,
+    margin: 8,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  title: {
+    textAlign: 'center',
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  subtitle: {
+    textAlign: 'center',
+    opacity: 0.8,
+  },
+  card: {
+    margin: 8,
+    marginTop: 16,
+  },
+  cardTitle: {
+    marginBottom: 8,
+  },
+  cardDescription: {
+    opacity: 0.8,
+  },
+  languageSection: {
+    padding: 16,
+    margin: 8,
+    marginTop: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    marginBottom: 12,
+  },
+  languageChip: {
+    marginTop: 8,
+  },
+  fab: {
     position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
   },
 });
