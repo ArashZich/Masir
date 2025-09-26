@@ -81,5 +81,11 @@
     "exportSuccess": "Backup file saved",
     "importSuccess": "Data restored",
     "confirmImport": "Are you sure? Current data will be replaced."
+  },
+  "restart": {
+    "title": "App Restart Required",
+    "message": "To apply text direction changes, the app will restart automatically.",
+    "confirm": "Restart Now",
+    "cancel": "Cancel"
   }
 }

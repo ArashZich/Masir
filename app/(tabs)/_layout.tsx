@@ -13,7 +13,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary,
+        tabBarActiveTintColor: theme.colors.primary, // متن active هم همین رنگ
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
@@ -26,14 +26,39 @@ export default function TabLayout() {
         name="index"
         options={{
           title: t('navigation.todayPath'),
-          tabBarIcon: ({ color }) => <Ionicons size={28} name="today" color={color} />,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              size={28}
+              name="compass"
+              color={focused ? theme.colors.primary : theme.colors.onSurfaceVariant}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: t('navigation.overview'),
-          tabBarIcon: ({ color }) => <Ionicons size={28} name="calendar" color={color} />,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              size={28}
+              name="stats-chart"
+              color={focused ? theme.colors.secondary : theme.colors.onSurfaceVariant}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: t('navigation.settings'),
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              size={28}
+              name="cog"
+              color={focused ? theme.colors.tertiary : theme.colors.onSurfaceVariant}
+            />
+          ),
         }}
       />
     </Tabs>

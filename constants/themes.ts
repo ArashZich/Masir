@@ -12,16 +12,16 @@ export const lightTheme: MD3Theme = {
   fonts: configureFonts({ config: fontConfig }),
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#6750A4', // بنفش اصلی
-    primaryContainer: '#EADDFF',
-    secondary: '#625B71',
-    secondaryContainer: '#E8DEF8',
-    tertiary: '#7D5260',
-    tertiaryContainer: '#FFD8E4',
-    surface: '#FFFBFE',
-    surfaceVariant: '#E7E0EC',
+    primary: '#667eea', // آبی مسیر - جذاب اما حرفه‌ای
+    primaryContainer: '#e8eaf6',
+    secondary: '#52c41a', // سبز طبیعت - برای موفقیت
+    secondaryContainer: '#f6ffed',
+    tertiary: '#ff7043', // نارنجی گرم - برای انرژی
+    tertiaryContainer: '#fff3e0',
+    surface: '#ffffff',
+    surfaceVariant: '#f8fafc',
     surfaceDisabled: 'rgba(28, 27, 31, 0.12)',
-    background: '#FFFBFE',
+    background: '#fafbfc',
     error: '#B3261E',
     errorContainer: '#F9DEDC',
     onPrimary: '#FFFFFF',
@@ -46,11 +46,11 @@ export const lightTheme: MD3Theme = {
     backdrop: 'rgba(50, 47, 53, 0.4)',
     elevation: {
       level0: 'transparent',
-      level1: '#F7F2FA',
-      level2: '#F2ECF4',
-      level3: '#ECE6F0',
-      level4: '#EAE7F0',
-      level5: '#E6E0E9',
+      level1: '#f8fafc',
+      level2: '#f1f5f9',
+      level3: '#e2e8f0',
+      level4: '#cbd5e1',
+      level5: '#94a3b8',
     },
   },
 };
@@ -61,16 +61,16 @@ export const darkTheme: MD3Theme = {
   fonts: configureFonts({ config: fontConfig }),
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#D0BCFF',
-    primaryContainer: '#4F378B',
-    secondary: '#CCC2DC',
-    secondaryContainer: '#4A4458',
-    tertiary: '#EFB8C8',
-    tertiaryContainer: '#633B48',
-    surface: '#1C1B1F',
-    surfaceVariant: '#49454F',
+    primary: '#8c9eff', // آبی روشن‌تر در dark mode
+    primaryContainer: '#3f51b5',
+    secondary: '#69db7c', // سبز روشن در dark mode
+    secondaryContainer: '#2e7d32',
+    tertiary: '#ff8a65', // نارنجی روشن در dark mode
+    tertiaryContainer: '#bf360c',
+    surface: '#1e1e1e',
+    surfaceVariant: '#2a2a2a',
     surfaceDisabled: 'rgba(230, 225, 229, 0.12)',
-    background: '#1C1B1F',
+    background: '#121212',
     error: '#F2B8B5',
     errorContainer: '#8C1D18',
     onPrimary: '#371E73',
@@ -95,11 +95,11 @@ export const darkTheme: MD3Theme = {
     backdrop: 'rgba(50, 47, 53, 0.4)',
     elevation: {
       level0: 'transparent',
-      level1: '#222124',
-      level2: '#28272A',
-      level3: '#2D2C2F',
-      level4: '#2F2E31',
-      level5: '#322F35',
+      level1: '#262626',
+      level2: '#2a2a2a',
+      level3: '#2f2f2f',
+      level4: '#333333',
+      level5: '#404040',
     },
   },
 };
