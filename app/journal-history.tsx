@@ -48,10 +48,10 @@ export default function JournalHistoryScreen() {
         {/* Header */}
         <Surface style={[styles.header, styles.whiteCard]} elevation={4}>
           <Text variant="headlineMedium" style={styles.title}>
-            📖 تاریخچه یادداشت‌ها
+            📖 {t('journalHistory.title')}
           </Text>
           <Text variant="bodyLarge" style={styles.subtitle}>
-            خاطرات و تجربه‌هایت
+            {t('journalHistory.subtitle')}
           </Text>
         </Surface>
 
@@ -60,17 +60,17 @@ export default function JournalHistoryScreen() {
             <Card.Content style={styles.emptyContent}>
               <Text variant="headlineSmall" style={styles.emptyIcon}>📝</Text>
               <Text variant="titleLarge" style={styles.emptyTitle}>
-                هنوز یادداشتی نداری
+                {t('journalHistory.noNotesYet')}
               </Text>
               <Text variant="bodyMedium" style={styles.emptyText}>
-                برو به صفحه اصلی و اولین یادداشتت رو بنویس!
+                {t('journalHistory.noNotesDescription')}
               </Text>
               <Button
                 mode="contained"
                 onPress={() => router.back()}
                 style={styles.backButton}
               >
-                برگشت به صفحه اصلی
+                {t('journalHistory.backToMain')}
               </Button>
             </Card.Content>
           </Card>
@@ -88,7 +88,7 @@ export default function JournalHistoryScreen() {
                       style={[styles.moodChip, { backgroundColor: getMoodColor(entry.mood) + '20' }]}
                       textStyle={{ color: getMoodColor(entry.mood) }}
                     >
-                      {entry.mood ? t(`mood.${entry.mood}`) : 'بدون حالت'}
+                      {entry.mood ? t(`mood.${entry.mood}`) : t('journalHistory.noMood')}
                     </Chip>
                   </View>
                 </View>
@@ -100,7 +100,7 @@ export default function JournalHistoryScreen() {
                 {entry.completedHabits && entry.completedHabits.length > 0 && (
                   <View style={styles.habitsSection}>
                     <Text variant="bodySmall" style={styles.habitsLabel}>
-                      عادت‌های انجام شده: {entry.completedHabits.length}
+                      {t('journalHistory.completedHabits')}: {entry.completedHabits.length}
                     </Text>
                   </View>
                 )}

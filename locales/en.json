@@ -256,6 +256,15 @@
     "noHabitsForDay": "No habits recorded for this day",
     "close": "Close"
   },
+  "journalHistory": {
+    "title": "Journal History",
+    "subtitle": "Your memories and experiences",
+    "noNotesYet": "No notes yet",
+    "noNotesDescription": "Go to the main page and write your first note!",
+    "backToMain": "Back to Main Page",
+    "noMood": "No mood",
+    "completedHabits": "Completed habits"
+  },
   "restart": {
     "title": "App Restart Required",
     "message": "To apply text direction changes, the app will restart automatically.",
