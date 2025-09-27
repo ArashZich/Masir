@@ -201,6 +201,7 @@
     "appearance": "Appearance",
     "language": "Language",
     "theme": "Theme",
+    "notifications": "Notifications",
     "data": "Data",
     "backup": "Backup",
     "restore": "Restore",
@@ -240,5 +241,44 @@
     "message": "To apply text direction changes, the app will restart automatically.",
     "confirm": "Restart Now",
     "cancel": "Cancel"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "Manage reminders and notifications",
+    "enable": "Enable Notifications",
+    "dailyReminder": "Daily Reminder",
+    "dailyReminderDesc": "Daily reminder for habits",
+    "moodReminder": "Mood Reminder",
+    "moodReminderDesc": "Evening reminder to log your mood",
+    "habitReminders": "Habit Reminders",
+    "habitRemindersDesc": "Individual reminders for each habit",
+    "permission": "Notification Permission",
+    "permissionDesc": "Permission required to receive reminders",
+    "requestPermission": "Request Permission",
+    "permissionDenied": "Notification permission denied",
+    "permissionGranted": "Notification permission granted",
+    "testNotification": "Test Notification",
+    "testNotificationDesc": "Send a test notification",
+    "time": "Time",
+    "selectTime": "Select Time",
+    "sound": "Notification Sound",
+    "soundDesc": "Choose notification sound type",
+    "sounds": {
+      "default": "Default",
+      "gentle": "Gentle",
+      "chime": "Chime",
+      "bell": "Bell",
+      "none": "Silent"
+    },
+    "messages": {
+      "channelName": "Masir - Reminders",
+      "dailyTitle": "🌱 Today's Path",
+      "dailyBody": "Hello! Time to check your habits",
+      "moodTitle": "💭 Evening Reflection",
+      "moodBody": "How was your day? Log your mood",
+      "habitBody": "Time to do this habit!",
+      "testTitle": "🧪 Test Notification",
+      "testBody": "Notifications are working correctly!"
+    }
   }
 }

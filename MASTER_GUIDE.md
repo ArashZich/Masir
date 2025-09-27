@@ -43,12 +43,22 @@
 - ✅ **Settings:** theme/language با SegmentedButtons
 - ✅ **Add/Edit Habit:** فرم کامل با validation
 
-#### **📊 Analytics & Charts (جدید اضافه شد)**
+#### **📊 Analytics & Charts (کامل شد)**
 - ✅ **ProgressChart component:** Line/Bar/Pie charts
 - ✅ **Analytics service:** streak calculation + insights
 - ✅ **Monthly insights:** best/worst days + success rates
 - ✅ **Mood distribution:** pie chart برای mood ها
 - ✅ **Smart insights:** پیام‌های هوشمند بر اساس داده‌ها
+
+#### **🔔 Notifications System (جدید کامل شد)**
+- ✅ **NotificationService:** class کامل با expo-notifications
+- ✅ **Permission system:** request/check permissions
+- ✅ **Daily reminders:** یادآوری روزانه عادت‌ها
+- ✅ **Mood reminders:** یادآوری شبانه mood
+- ✅ **Habit reminders:** یادآوری فردی برای هر عادت
+- ✅ **Settings UI:** کنترل کامل در تنظیمات
+- ✅ **TimePicker integration:** انتخاب زمان یادآوری‌ها
+- ✅ **Test notifications:** قابلیت تست اعلان‌ها
 
 #### **🌍 Design System (100%)**
 - ✅ **Color scheme:** `#667eea` primary, `#52c41a` success, `#ffffff` background
@@ -59,44 +69,44 @@
 
 ---
 
-## 🚀 پیشرفت اخیر (Charts & Analytics)
+## 🚀 پیشرفت اخیر (Notifications System)
 
-### **📊 ویژگی‌های جدید اضافه شده:**
+### **🔔 ویژگی‌های جدید اضافه شده:**
 
-1. **ProgressChart Component:**
-   - Line chart برای weekly trend
-   - Bar chart برای monthly progress
-   - Pie chart برای mood distribution
-   - تنظیمات responsive برای mobile
+1. **NotificationService Class:**
+   - Permission request/check با handling کامل
+   - Daily/Mood/Habit reminder scheduling
+   - Background notification listeners
+   - Test notification functionality
 
-2. **Analytics Service:**
-   - محاسبه streak های فردی برای هر عادت
-   - تحلیل monthly insights (بهترین/بدترین روز)
-   - Success rate calculation
-   - Smart insight messages
+2. **Settings Integration:**
+   - Notification settings section کامل
+   - Switch controls برای enable/disable
+   - TimePicker برای انتخاب زمان یادآوری‌ها
+   - Permission status display و request button
 
-3. **Explore Page Enhancement:**
-   - 3 نوع chart مختلف
-   - کارت insights با آمار ماهانه
-   - نمایش streak analytics
-   - پیام‌های هوشمند بر اساس عملکرد
+3. **App-level Integration:**
+   - Notification listeners در _layout.tsx
+   - Automatic scheduling based on settings
+   - Response handling برای navigation
+   - Settings persistence با Zustand
 
-### **📦 Packages اضافه شده:**
+### **📦 Dependencies استفاده شده:**
 ```json
 {
-  "react-native-chart-kit": "^6.12.0"
+  "expo-notifications": "~0.32.11",
+  "@react-native-community/datetimepicker": "8.4.4"
 }
 ```
+
+### **📊 Charts System (قبلاً کامل شده):**
+- ProgressChart Component با Line/Bar/Pie charts
+- Analytics service و monthly insights
+- Smart messages و mood distribution
 
 ---
 
 ## ❌ کارهای باقی مانده
-
-### **🔔 Notifications (اولویت بالا)**
-- ❌ Permission request برای notifications
-- ❌ Daily reminders برای عادت‌ها
-- ❌ Smart notifications با timing
-- ❌ Mood reminder شبانه
 
 ### **💾 Export/Import Data (اولویت بالا)**
 - ❌ Export به JSON format
@@ -121,10 +131,9 @@
 
 ## 📋 اولویت‌بندی کارهای بعدی
 
-### **فاز A - Core Features (1-2 روز)**
-1. 🔔 **Notifications** - expo-notifications + daily reminders
-2. 💾 **Export/Import** - JSON/CSV export + file operations
-3. 📅 **Interactive Calendar** - tap functionality + modal
+### **فاز A - Core Features (بعدی)**
+1. 💾 **Export/Import** - JSON/CSV export + file operations
+2. 📅 **Interactive Calendar** - tap functionality + modal
 
 ### **فاز B - Polish (3-5 روز)**
 4. 🎨 **Dark Mode** - theme system کامل
@@ -221,26 +230,22 @@ interface DayEntry {
 ## 🚀 آماده برای ادامه کار
 
 ### **📋 وضعیت امروز:**
-✅ **Charts & Analytics System** کامل شد:
-- ProgressChart component (Line/Bar/Pie)
-- Analytics service کامل
-- Monthly insights
-- Smart messages
-- Mood distribution visualization
+✅ **Notifications System** کامل شد:
+- NotificationService با expo-notifications
+- Permission handling کامل
+- Daily/Mood/Habit reminders
+- Settings UI با TimePicker
+- App-level integration
+- Test notification functionality
 
 ### **🎯 گزینه‌های بعدی:**
 
-#### **گزینه 1: Notifications 🔔**
-- **اولویت:** بالا (user engagement)
-- **زمان:** 1-2 روز
-- **Dependencies:** expo-notifications (موجود)
-
-#### **گزینه 2: Export/Import 💾**
+#### **گزینه 1: Export/Import 💾**
 - **اولویت:** بالا (data safety)
 - **زمان:** 1-2 روز
 - **Dependencies:** expo-file-system, expo-sharing (موجود)
 
-#### **گزینه 3: Interactive Calendar 📅**
+#### **گزینه 2: Interactive Calendar 📅**
 - **اولویت:** متوسط (UX enhancement)
 - **زمان:** 2-3 روز
 - **Dependencies:** فعلی کافی است
@@ -257,21 +262,21 @@ interface DayEntry {
 - 💚 Soft philosophy
 
 ### **🚧 در حال پیاده‌سازی:**
-- 📊 Charts & Analytics (✅ کامل شد امروز)
-- 🔔 Notifications
 - 💾 Export/Import
+- 📅 Interactive Calendar
 
 ### **🔮 آینده:**
-- 📅 Interactive Calendar
 - 🎨 Dark Mode
+- 🏷️ Habit Categories
 - ☁️ Cloud Sync
+- 📱 Home Screen Widget
 
 ---
 
-**🎉 پروژه در وضعیت عالی! 85% کامل شده و production-ready است.**
+**🎉 پروژه در وضعیت عالی! 90% کامل شده و production-ready است.**
 
-*آخرین commit: تکمیل Charts & Analytics System*
-*آماده برای: Notifications یا Export/Import یا Interactive Calendar*
+*آخرین commit: تکمیل Notifications System*
+*آماده برای: Export/Import یا Interactive Calendar*
 
 ---
 
