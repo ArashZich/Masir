@@ -215,7 +215,22 @@
     "import": "Import",
     "exportSuccess": "Backup file saved",
     "importSuccess": "Data restored",
-    "confirmImport": "Are you sure? Current data will be replaced."
+    "confirmImport": "Are you sure? Current data will be replaced.",
+    "exportJSON": "Export JSON",
+    "exportJSONDesc": "Complete data export for backup",
+    "exportCSV": "Export CSV",
+    "exportCSVDesc": "Export for Excel and data analysis",
+    "importJSON": "Import JSON",
+    "importJSONDesc": "Restore data from JSON file",
+    "dataManagement": "Data Management",
+    "backupAndRestore": "Backup & Restore",
+    "exportInProgress": "Exporting...",
+    "importInProgress": "Importing...",
+    "exportFailed": "Export failed",
+    "importFailed": "Import failed",
+    "invalidFile": "Invalid file",
+    "importCancelled": "Import cancelled",
+    "unsupportedInExpoGo": "Not supported in Expo Go - Use Development Build instead"
   },
   "mood": {
     "title": "How are you feeling today?",
@@ -235,6 +250,11 @@
     "title": "My Garden",
     "days": "days",
     "emptyMessage": "Your garden is ready for planting! 🌱"
+  },
+  "calendar": {
+    "todayProgress": "Today's Progress",
+    "noHabitsForDay": "No habits recorded for this day",
+    "close": "Close"
   },
   "restart": {
     "title": "App Restart Required",

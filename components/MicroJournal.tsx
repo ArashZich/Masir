@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { IconButton, Text, TextInput } from "react-native-paper";
+import { useBoolean } from "@/hooks/useBoolean";
 
 interface MicroJournalProps {
   note: string;
@@ -18,7 +19,7 @@ export const MicroJournal: React.FC<MicroJournalProps> = ({
   compact = false,
 }) => {
   const { t } = useTranslation();
-  const [isFocused, setIsFocused] = useState(false);
+  const isFocused = useBoolean(false, 'journalFocus');
 
   const defaultPlaceholder = t("journal.placeholder");
 
@@ -53,8 +54,8 @@ export const MicroJournal: React.FC<MicroJournalProps> = ({
         numberOfLines={compact ? 2 : 3}
         style={styles.textInput}
         contentStyle={styles.textInputContent}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onFocus={isFocused.setTrue}
+        onBlur={isFocused.setFalse}
         maxLength={150}
         theme={{
           colors: {

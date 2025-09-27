@@ -6,7 +6,8 @@ import {
   type StreakData,
 } from "@/utils/analytics";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { useBoolean } from "@/hooks/useBoolean";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Calendar } from "react-native-calendars";
@@ -17,11 +18,18 @@ import {
   Divider,
   ProgressBar,
   Text,
+  Portal,
+  Modal,
+  Button,
 } from "react-native-paper";
 
 export default function ExploreScreen() {
   const { t } = useTranslation();
   const { habits, getHabitsForDate, history } = useHabitStore();
+
+  // Modal state for day details
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const modal = useBoolean(false, 'calendarModal');
 
   // Analytics calculations
   const streakData: StreakData[] = useMemo(
@@ -42,6 +50,29 @@ export default function ExploreScreen() {
     () => AnalyticsService.generateInsightMessages(monthlyInsights, streakData),
     [monthlyInsights, streakData]
   );
+
+  // Handle day press
+  const handleDayPress = (day: any) => {
+    setSelectedDate(day.dateString);
+    modal.setTrue();
+  };
+
+  // Get selected day data
+  const selectedDayData = useMemo(() => {
+    if (!selectedDate) return null;
+
+    const dayHabits = getHabitsForDate(selectedDate);
+    const dayEntry = history[selectedDate];
+
+    return {
+      date: selectedDate,
+      habits: dayHabits,
+      mood: dayEntry?.mood || null,
+      note: dayEntry?.note || '',
+      completedCount: dayHabits.filter(h => h.completed).length,
+      totalCount: dayHabits.length,
+    };
+  }, [selectedDate, habits, history, getHabitsForDate]);
 
   const totalHabits = habits.length;
 
@@ -118,7 +149,8 @@ export default function ExploreScreen() {
   }, [history, today, getHabitsForDate]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
       <Card style={[styles.headerCard, styles.whiteCard]} mode="elevated">
         <LinearGradient
           colors={["#667eea", "#764ba2"]}
@@ -199,6 +231,7 @@ export default function ExploreScreen() {
             current={today}
             markedDates={markedDates}
             markingType="multi-dot"
+            onDayPress={handleDayPress}
             theme={{
               backgroundColor: "#ffffff",
               calendarBackground: "#ffffff",
@@ -421,7 +454,129 @@ export default function ExploreScreen() {
           )}
         </Card.Content>
       </Card>
-    </ScrollView>
+      </ScrollView>
+
+      {/* Day Details Modal */}
+      <Portal>
+        <Modal
+          visible={modal.value}
+          onDismiss={modal.setFalse}
+          contentContainerStyle={styles.modalContainer}
+        >
+          {selectedDayData && (
+            <View style={styles.modalCard}>
+              {/* Header */}
+              <View style={styles.modalHeader}>
+                <Text variant="headlineSmall" style={styles.modalTitle}>
+                  {new Date(selectedDayData.date).toLocaleDateString('fa-IR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </Text>
+              </View>
+
+              {/* Content */}
+              <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+                {/* Mood Display */}
+                {selectedDayData.mood && (
+                  <View style={styles.modalMood}>
+                    <View style={styles.moodIcon}>
+                      <Text style={styles.moodEmoji}>
+                        {selectedDayData.mood === 'good' && '😊'}
+                        {selectedDayData.mood === 'ok' && '😐'}
+                        {selectedDayData.mood === 'bad' && '😔'}
+                      </Text>
+                    </View>
+                    <Text variant="bodyLarge" style={styles.moodText}>
+                      {selectedDayData.mood === 'good' && t('mood.good')}
+                      {selectedDayData.mood === 'ok' && t('mood.ok')}
+                      {selectedDayData.mood === 'bad' && t('mood.bad')}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Note Display */}
+                {selectedDayData.note && (
+                  <View style={styles.modalNote}>
+                    <Text variant="bodyMedium" style={styles.modalNoteText}>
+                      "{selectedDayData.note}"
+                    </Text>
+                  </View>
+                )}
+
+                {/* Progress Summary */}
+                <View style={styles.modalProgress}>
+                  <View style={styles.progressHeader}>
+                    <Text variant="titleSmall" style={styles.progressTitle}>
+                      {t('calendar.todayProgress')}
+                    </Text>
+                    <Text variant="bodyMedium" style={styles.progressText}>
+                      {selectedDayData.completedCount} از {selectedDayData.totalCount}
+                    </Text>
+                  </View>
+                  <ProgressBar
+                    progress={selectedDayData.totalCount > 0 ? selectedDayData.completedCount / selectedDayData.totalCount : 0}
+                    color="#667eea"
+                    style={styles.modalProgressBar}
+                  />
+                </View>
+
+                {/* Habits List */}
+                {selectedDayData.habits.length > 0 && (
+                  <View style={styles.habitsSection}>
+                    <Text variant="titleSmall" style={styles.sectionTitle}>
+                      {t('habits.title')}
+                    </Text>
+
+                    {selectedDayData.habits.map((habit) => (
+                      <View key={habit.id} style={styles.habitItem}>
+                        <View style={styles.habitIcon}>
+                          {habit.completed ? (
+                            <Text style={styles.completedIcon}>✓</Text>
+                          ) : (
+                            <View style={styles.incompleteIcon} />
+                          )}
+                        </View>
+                        <View style={styles.habitInfo}>
+                          <Text variant="bodyMedium" style={[styles.habitName, habit.completed && styles.completedHabit]}>
+                            {habit.name}
+                          </Text>
+                          <Text variant="bodySmall" style={styles.habitCategory}>
+                            {habit.category}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                {selectedDayData.habits.length === 0 && (
+                  <View style={styles.emptyHabits}>
+                    <Text variant="bodyMedium" style={styles.emptyText}>
+                      {t('calendar.noHabitsForDay')}
+                    </Text>
+                  </View>
+                )}
+              </ScrollView>
+
+              {/* Footer */}
+              <View style={styles.modalFooter}>
+                <Button
+                  mode="contained"
+                  onPress={modal.setFalse}
+                  style={styles.closeButton}
+                  labelStyle={styles.closeButtonText}
+                >
+                  {t('calendar.close')}
+                </Button>
+              </View>
+            </View>
+          )}
+        </Modal>
+      </Portal>
+    </View>
   );
 }
 
@@ -429,6 +584,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
+  },
+  scrollView: {
+    flex: 1,
   },
   whiteCard: {
     backgroundColor: "#ffffff",
@@ -683,5 +841,197 @@ const styles = StyleSheet.create({
   emptyText: {
     opacity: 0.7,
     textAlign: "center",
+  },
+  // Modal styles - Complete redesign
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
+  },
+  modalCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    width: '95%',
+    height: '85%',
+    maxWidth: 450,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    backgroundColor: '#667eea',
+    paddingVertical: 24,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  modalContent: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 16,
+  },
+  modalMood: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 20,
+  },
+  moodIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    elevation: 2,
+  },
+  moodEmoji: {
+    fontSize: 20,
+  },
+  moodText: {
+    fontWeight: '600',
+    color: '#2d3748',
+  },
+  modalNote: {
+    backgroundColor: '#fff5f5',
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 20,
+    borderRightWidth: 4,
+    borderRightColor: '#667eea',
+  },
+  modalNoteText: {
+    fontStyle: 'italic',
+    color: '#4a5568',
+    lineHeight: 22,
+  },
+  modalProgress: {
+    backgroundColor: '#f0f9ff',
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 24,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  progressTitle: {
+    fontWeight: '600',
+    color: '#2d3748',
+    fontSize: 16,
+  },
+  progressText: {
+    color: '#667eea',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  modalProgressBar: {
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#e2e8f0',
+  },
+  habitsSection: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontWeight: '600',
+    color: '#2d3748',
+    marginBottom: 16,
+    fontSize: 16,
+  },
+  habitItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  habitIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  completedIcon: {
+    fontSize: 16,
+    color: '#ffffff',
+    backgroundColor: '#10b981',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    textAlign: 'center',
+    lineHeight: 32,
+    fontWeight: 'bold',
+  },
+  incompleteIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#cbd5e0',
+    backgroundColor: '#f7fafc',
+  },
+  habitInfo: {
+    flex: 1,
+  },
+  habitName: {
+    fontWeight: '600',
+    color: '#2d3748',
+    marginBottom: 4,
+    fontSize: 15,
+  },
+  completedHabit: {
+    textDecorationLine: 'line-through',
+    opacity: 0.7,
+  },
+  habitCategory: {
+    color: '#718096',
+    fontSize: 13,
+  },
+  emptyHabits: {
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  emptyText: {
+    color: '#718096',
+    fontStyle: 'italic',
+  },
+  modalFooter: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    backgroundColor: '#f8fafc',
+  },
+  closeButton: {
+    backgroundColor: '#667eea',
+    borderRadius: 12,
+    paddingVertical: 8,
+  },
+  closeButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
   },
 });

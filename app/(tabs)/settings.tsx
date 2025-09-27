@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Text, Card, Surface, List, Divider, SegmentedButtons, Switch, Button, RadioButton } from 'react-native-paper';
 import { useSettingsStore, type ThemeMode, type Language } from '@/store/settingsStore';
 import { useState, useEffect } from 'react';
+import { useBoolean } from '@/hooks/useBoolean';
 import { notificationService, type NotificationSound } from '@/services/notificationService';
+import { exportService } from '@/services/exportService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function SettingsScreen() {
@@ -11,8 +13,10 @@ export default function SettingsScreen() {
   const { theme, language, notifications, setTheme, setLanguage, setNotifications } = useSettingsStore();
 
   const [permissionStatus, setPermissionStatus] = useState<string>('');
-  const [showDailyTimePicker, setShowDailyTimePicker] = useState(false);
-  const [showMoodTimePicker, setShowMoodTimePicker] = useState(false);
+  const dailyTimePicker = useBoolean(false, 'dailyTimePicker');
+  const moodTimePicker = useBoolean(false, 'moodTimePicker');
+  const [exportLoading, setExportLoading] = useState<string | null>(null);
+  const [importLoading, setImportLoading] = useState(false);
 
   useEffect(() => {
     checkPermissionStatus();
@@ -60,6 +64,46 @@ export default function SettingsScreen() {
     { value: 'bell', label: t('notifications.sounds.bell') },
     { value: 'none', label: t('notifications.sounds.none') },
   ];
+
+  const handleExportJSON = async () => {
+    setExportLoading('json');
+    try {
+      const result = await exportService.exportToJSON();
+      // نمایش نتیجه به کاربر
+      console.log(result.message);
+    } catch (error) {
+      console.error('Export JSON error:', error);
+    } finally {
+      setExportLoading(null);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    setExportLoading('csv');
+    try {
+      const result = await exportService.exportToCSV();
+      console.log(result.message);
+    } catch (error) {
+      console.error('Export CSV error:', error);
+    } finally {
+      setExportLoading(null);
+    }
+  };
+
+  const handleImport = async () => {
+    setImportLoading(true);
+    try {
+      const result = await exportService.importFromJSON();
+      console.log(result.message);
+      if (result.success) {
+        // بروزرسانی UI در صورت موفقیت
+      }
+    } catch (error) {
+      console.error('Import error:', error);
+    } finally {
+      setImportLoading(false);
+    }
+  };
 
   const themeOptions = [
     { value: 'light', label: t('theme.light'), icon: 'white-balance-sunny' },
@@ -139,11 +183,13 @@ export default function SettingsScreen() {
               <Text variant="bodySmall" style={styles.permissionDesc}>
                 {permissionStatus === 'granted'
                   ? t('notifications.permissionGranted')
+                  : permissionStatus === 'unsupported'
+                  ? t('backup.unsupportedInExpoGo')
                   : t('notifications.permissionDenied')
                 }
               </Text>
             </View>
-            {permissionStatus !== 'granted' && (
+            {permissionStatus !== 'granted' && permissionStatus !== 'unsupported' && (
               <Button
                 mode="outlined"
                 onPress={handleRequestPermission}
@@ -168,7 +214,7 @@ export default function SettingsScreen() {
             />
           </View>
 
-          {notifications.enabled && permissionStatus === 'granted' && (
+          {notifications.enabled && permissionStatus === 'granted' && permissionStatus !== 'unsupported' && (
             <>
               {/* Sound Selection */}
               <View style={styles.soundSection}>
@@ -224,7 +270,7 @@ export default function SettingsScreen() {
                       dailyReminder: { ...notifications.dailyReminder, enabled: value }
                     });
                     if (value) {
-                      setShowDailyTimePicker(true);
+                      dailyTimePicker.setTrue();
                     }
                   }}
                 />
@@ -250,7 +296,7 @@ export default function SettingsScreen() {
                       moodReminder: { ...notifications.moodReminder, enabled: value }
                     });
                     if (value) {
-                      setShowMoodTimePicker(true);
+                      moodTimePicker.setTrue();
                     }
                   }}
                 />
@@ -291,34 +337,77 @@ export default function SettingsScreen() {
       <Card style={[styles.card, styles.whiteCard]} mode="elevated">
         <Card.Content>
           <Text variant="titleLarge" style={styles.sectionTitle}>
-            {t('settings.data')}
+            {t('backup.dataManagement')}
           </Text>
+          <Text variant="bodyMedium" style={styles.sectionDescription}>
+            {t('backup.backupAndRestore')}
+          </Text>
+
+          {/* Export JSON */}
           <List.Item
-            title={t('backup.export')}
-            description={t('backup.description')}
-            left={(props) => <List.Icon {...props} icon="download" />}
-            right={(props) => <List.Icon {...props} icon="chevron-right" />}
-            onPress={() => console.log('Export data')}
+            title={t('backup.exportJSON')}
+            description={t('backup.exportJSONDesc')}
+            left={(props) => <List.Icon {...props} icon="file-export" />}
+            right={(props) =>
+              exportLoading === 'json' ? (
+                <List.Icon {...props} icon="loading" />
+              ) : (
+                <List.Icon {...props} icon="chevron-right" />
+              )
+            }
+            onPress={handleExportJSON}
+            disabled={exportLoading === 'json'}
             style={styles.listItem}
           />
+
+          <Divider style={styles.listDivider} />
+
+          {/* Export CSV */}
           <List.Item
-            title={t('backup.import')}
-            left={(props) => <List.Icon {...props} icon="upload" />}
-            right={(props) => <List.Icon {...props} icon="chevron-right" />}
-            onPress={() => console.log('Import data')}
+            title={t('backup.exportCSV')}
+            description={t('backup.exportCSVDesc')}
+            left={(props) => <List.Icon {...props} icon="microsoft-excel" />}
+            right={(props) =>
+              exportLoading === 'csv' ? (
+                <List.Icon {...props} icon="loading" />
+              ) : (
+                <List.Icon {...props} icon="chevron-right" />
+              )
+            }
+            onPress={handleExportCSV}
+            disabled={exportLoading === 'csv'}
+            style={styles.listItem}
+          />
+
+          <Divider style={styles.listDivider} />
+
+          {/* Import JSON */}
+          <List.Item
+            title={t('backup.importJSON')}
+            description={t('backup.importJSONDesc')}
+            left={(props) => <List.Icon {...props} icon="file-import" />}
+            right={(props) =>
+              importLoading ? (
+                <List.Icon {...props} icon="loading" />
+              ) : (
+                <List.Icon {...props} icon="chevron-right" />
+              )
+            }
+            onPress={handleImport}
+            disabled={importLoading}
             style={styles.listItem}
           />
         </Card.Content>
       </Card>
 
       {/* Time Pickers */}
-      {showDailyTimePicker && (
+      {dailyTimePicker.value && (
         <DateTimePicker
           value={new Date(0, 0, 0, notifications.dailyReminder.time.hour, notifications.dailyReminder.time.minute)}
           mode="time"
           display="default"
           onChange={(event, selectedTime) => {
-            setShowDailyTimePicker(false);
+            dailyTimePicker.setFalse();
             if (selectedTime) {
               handleTimeChange('daily', {
                 hour: selectedTime.getHours(),
@@ -329,13 +418,13 @@ export default function SettingsScreen() {
         />
       )}
 
-      {showMoodTimePicker && (
+      {moodTimePicker.value && (
         <DateTimePicker
           value={new Date(0, 0, 0, notifications.moodReminder.time.hour, notifications.moodReminder.time.minute)}
           mode="time"
           display="default"
           onChange={(event, selectedTime) => {
-            setShowMoodTimePicker(false);
+            moodTimePicker.setFalse();
             if (selectedTime) {
               handleTimeChange('mood', {
                 hour: selectedTime.getHours(),
@@ -451,5 +540,8 @@ const styles = StyleSheet.create({
   },
   radioContent: {
     flex: 1,
+  },
+  listDivider: {
+    marginVertical: 4,
   },
 });

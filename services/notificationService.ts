@@ -1,15 +1,40 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import i18next from 'i18next';
+import Constants from 'expo-constants';
 
-// تنظیمات پیش‌فرض notifications
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// بررسی محیط اجرا
+console.log('Constants.executionEnvironment:', Constants.executionEnvironment);
+const isExpoGo = Constants.executionEnvironment === 'storeClient';
+// TEMPORARY: Force enable for testing on emulator
+const isNotificationSupported = __DEV__ ? true : !isExpoGo;
+console.log('isExpoGo:', isExpoGo, 'isNotificationSupported:', isNotificationSupported);
+
+// Import conditional برای expo-notifications - فقط در production build
+let Notifications: any = null;
+
+// تابع برای lazy loading notifications
+const loadNotifications = () => {
+  if (!isNotificationSupported || Notifications !== null) {
+    return;
+  }
+
+  try {
+    Notifications = require('expo-notifications');
+
+    // تنظیمات پیش‌فرض notifications
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+  } catch (error) {
+    console.warn('expo-notifications not available:', error);
+    Notifications = null;
+  }
+};
 
 export type NotificationSound = 'default' | 'gentle' | 'chime' | 'bell' | 'none';
 
@@ -42,6 +67,11 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
 };
 
 class NotificationService {
+  // بررسی پشتیبانی notifications
+  private isSupported(): boolean {
+    return isNotificationSupported && Notifications !== null;
+  }
+
   // Helper برای تعیین صدا
   private getSoundConfig(soundType: NotificationSound) {
     switch (soundType) {
@@ -62,6 +92,16 @@ class NotificationService {
 
   // درخواست مجوز notifications
   async requestPermissions(): Promise<boolean> {
+    if (!this.isSupported()) {
+      console.warn('Notifications not supported in Expo Go environment');
+      return false;
+    }
+
+    loadNotifications();
+    if (!Notifications) {
+      return false;
+    }
+
     try {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
@@ -71,7 +111,7 @@ class NotificationService {
         finalStatus = status;
       }
 
-      if (Platform.OS === 'android') {
+      if (Platform.OS === 'android' && Notifications?.AndroidImportance) {
         await Notifications.setNotificationChannelAsync('default', {
           name: i18next.t('notifications.messages.channelName'),
           importance: Notifications.AndroidImportance.MAX,
@@ -89,50 +129,92 @@ class NotificationService {
 
   // بررسی وضعیت مجوز
   async getPermissionStatus(): Promise<string> {
-    const { status } = await Notifications.getPermissionsAsync();
-    return status;
+    if (!this.isSupported()) {
+      return 'unsupported';
+    }
+
+    loadNotifications();
+    if (!Notifications) {
+      return 'unsupported';
+    }
+
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      return status;
+    } catch (error) {
+      console.error('Error getting permission status:', error);
+      return 'error';
+    }
   }
 
   // ایجاد یادآوری روزانه
   async scheduleDailyReminder(time: { hour: number; minute: number }, soundType: NotificationSound = 'default') {
-    await this.cancelNotification('daily-reminder');
+    if (!this.isSupported()) {
+      console.warn('Notifications not supported - daily reminder not scheduled');
+      return;
+    }
 
-    const soundConfig = this.getSoundConfig(soundType);
+    loadNotifications();
+    if (!Notifications) {
+      return;
+    }
 
-    await Notifications.scheduleNotificationAsync({
-      identifier: 'daily-reminder',
-      content: {
-        title: i18next.t('notifications.messages.dailyTitle'),
-        body: i18next.t('notifications.messages.dailyBody'),
-        ...soundConfig,
-      },
-      trigger: {
-        hour: time.hour,
-        minute: time.minute,
-        repeats: true,
-      },
-    });
+    try {
+      await this.cancelNotification('daily-reminder');
+
+      const soundConfig = this.getSoundConfig(soundType);
+
+      await Notifications.scheduleNotificationAsync({
+        identifier: 'daily-reminder',
+        content: {
+          title: i18next.t('notifications.messages.dailyTitle'),
+          body: i18next.t('notifications.messages.dailyBody'),
+          ...soundConfig,
+        },
+        trigger: {
+          hour: time.hour,
+          minute: time.minute,
+          repeats: true,
+        },
+      });
+    } catch (error) {
+      console.error('Error scheduling daily reminder:', error);
+    }
   }
 
   // ایجاد یادآوری mood
   async scheduleMoodReminder(time: { hour: number; minute: number }, soundType: NotificationSound = 'default') {
-    await this.cancelNotification('mood-reminder');
+    if (!this.isSupported()) {
+      console.warn('Notifications not supported - mood reminder not scheduled');
+      return;
+    }
 
-    const soundConfig = this.getSoundConfig(soundType);
+    loadNotifications();
+    if (!Notifications) {
+      return;
+    }
 
-    await Notifications.scheduleNotificationAsync({
-      identifier: 'mood-reminder',
-      content: {
-        title: i18next.t('notifications.messages.moodTitle'),
-        body: i18next.t('notifications.messages.moodBody'),
-        ...soundConfig,
-      },
-      trigger: {
-        hour: time.hour,
-        minute: time.minute,
-        repeats: true,
-      },
-    });
+    try {
+      await this.cancelNotification('mood-reminder');
+
+      const soundConfig = this.getSoundConfig(soundType);
+
+      await Notifications.scheduleNotificationAsync({
+        identifier: 'mood-reminder',
+        content: {
+          title: i18next.t('notifications.messages.moodTitle'),
+          body: i18next.t('notifications.messages.moodBody'),
+          ...soundConfig,
+        },
+        trigger: {
+          hour: time.hour,
+          minute: time.minute,
+          repeats: true,
+        },
+      });
+    } catch (error) {
+      console.error('Error scheduling mood reminder:', error);
+    }
   }
 
   // ایجاد یادآوری برای عادت خاص
@@ -142,64 +224,160 @@ class NotificationService {
     time: { hour: number; minute: number },
     soundType: NotificationSound = 'default'
   ) {
-    const identifier = `habit-${habitId}`;
-    await this.cancelNotification(identifier);
+    if (!this.isSupported()) {
+      console.warn('Notifications not supported - habit reminder not scheduled');
+      return;
+    }
 
-    const soundConfig = this.getSoundConfig(soundType);
+    loadNotifications();
+    if (!Notifications) {
+      return;
+    }
 
-    await Notifications.scheduleNotificationAsync({
-      identifier,
-      content: {
-        title: `📅 ${habitName}`,
-        body: i18next.t('notifications.messages.habitBody'),
-        ...soundConfig,
-        data: { habitId, type: 'habit' },
-      },
-      trigger: {
-        hour: time.hour,
-        minute: time.minute,
-        repeats: true,
-      },
-    });
+    try {
+      const identifier = `habit-${habitId}`;
+      await this.cancelNotification(identifier);
+
+      const soundConfig = this.getSoundConfig(soundType);
+
+      await Notifications.scheduleNotificationAsync({
+        identifier,
+        content: {
+          title: `📅 ${habitName}`,
+          body: i18next.t('notifications.messages.habitBody'),
+          ...soundConfig,
+          data: { habitId, type: 'habit' },
+        },
+        trigger: {
+          hour: time.hour,
+          minute: time.minute,
+          repeats: true,
+        },
+      });
+    } catch (error) {
+      console.error('Error scheduling habit reminder:', error);
+    }
   }
 
   // لغو notification خاص
   async cancelNotification(identifier: string) {
-    await Notifications.cancelScheduledNotificationAsync(identifier);
+    if (!this.isSupported()) {
+      return;
+    }
+
+    loadNotifications();
+    if (!Notifications) {
+      return;
+    }
+
+    try {
+      await Notifications.cancelScheduledNotificationAsync(identifier);
+    } catch (error) {
+      console.error('Error canceling notification:', error);
+    }
   }
 
   // لغو همه notifications
   async cancelAllNotifications() {
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    if (!this.isSupported()) {
+      return;
+    }
+
+    loadNotifications();
+    if (!Notifications) {
+      return;
+    }
+
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+    } catch (error) {
+      console.error('Error canceling all notifications:', error);
+    }
   }
 
   // دریافت لیست notifications
   async getScheduledNotifications() {
-    return await Notifications.getAllScheduledNotificationsAsync();
+    if (!this.isSupported()) {
+      return [];
+    }
+
+    loadNotifications();
+    if (!Notifications) {
+      return [];
+    }
+
+    try {
+      return await Notifications.getAllScheduledNotificationsAsync();
+    } catch (error) {
+      console.error('Error getting scheduled notifications:', error);
+      return [];
+    }
   }
 
   // ایجاد notification فوری (برای تست)
   async sendTestNotification(soundType: NotificationSound = 'default') {
-    const soundConfig = this.getSoundConfig(soundType);
+    if (!this.isSupported()) {
+      console.warn('Notifications not supported - test notification not sent');
+      return;
+    }
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: i18next.t('notifications.messages.testTitle'),
-        body: i18next.t('notifications.messages.testBody'),
-        ...soundConfig,
-      },
-      trigger: null, // فوری
-    });
+    loadNotifications();
+    if (!Notifications) {
+      return;
+    }
+
+    try {
+      const soundConfig = this.getSoundConfig(soundType);
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: i18next.t('notifications.messages.testTitle'),
+          body: i18next.t('notifications.messages.testBody'),
+          ...soundConfig,
+        },
+        trigger: null, // فوری
+      });
+    } catch (error) {
+      console.error('Error sending test notification:', error);
+    }
   }
 
   // listener برای handle کردن notification ها
   addNotificationReceivedListener(callback: (notification: any) => void) {
-    return Notifications.addNotificationReceivedListener(callback);
+    if (!this.isSupported()) {
+      return { remove: () => {} };
+    }
+
+    loadNotifications();
+    if (!Notifications) {
+      return { remove: () => {} };
+    }
+
+    try {
+      return Notifications.addNotificationReceivedListener(callback);
+    } catch (error) {
+      console.error('Error adding notification listener:', error);
+      return { remove: () => {} };
+    }
   }
 
   // listener برای زمانی که کاربر روی notification کلیک کند
   addNotificationResponseReceivedListener(callback: (response: any) => void) {
-    return Notifications.addNotificationResponseReceivedListener(callback);
+    if (!this.isSupported()) {
+      return { remove: () => {} };
+    }
+
+    loadNotifications();
+    if (!Notifications) {
+      return { remove: () => {} };
+    }
+
+    try {
+      return Notifications.addNotificationResponseReceivedListener(callback);
+    } catch (error) {
+      console.error('Error adding notification response listener:', error);
+      return { remove: () => {} };
+    }
   }
 }
 

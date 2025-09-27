@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "react-native-paper";
+import { Text, useTheme } from "react-native-paper";
 
 import { HapticTab } from "@/components/haptic-tab";
 
@@ -13,20 +13,29 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary, // متن active هم همین رنگ
-        tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
+        headerShown: false,
+        tabBarButton: HapticTab,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.outline,
         },
-        headerShown: false,
-        tabBarButton: HapticTab, // موقتاً غیرفعال
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: t("navigation.todayPath"),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                fontSize: 10,
+                color: focused
+                  ? theme.colors.primary
+                  : theme.colors.onSurfaceVariant,
+              }}
+            >
+              {t("navigation.todayPath")}
+            </Text>
+          ),
           tabBarIcon: ({ focused }) => (
             <Ionicons
               size={28}
@@ -41,7 +50,18 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: t("navigation.overview"),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                fontSize: 10,
+                color: focused
+                  ? theme.colors.secondary
+                  : theme.colors.onSurfaceVariant,
+              }}
+            >
+              {t("navigation.overview")}
+            </Text>
+          ),
           tabBarIcon: ({ focused }) => (
             <Ionicons
               size={28}
@@ -56,7 +76,18 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: t("navigation.settings"),
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={{
+                fontSize: 10,
+                color: focused
+                  ? theme.colors.tertiary
+                  : theme.colors.onSurfaceVariant,
+              }}
+            >
+              {t("navigation.settings")}
+            </Text>
+          ),
           tabBarIcon: ({ focused }) => (
             <Ionicons
               size={28}

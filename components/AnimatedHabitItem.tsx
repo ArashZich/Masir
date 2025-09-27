@@ -8,6 +8,7 @@ import Animated, {
   withSequence,
   withSpring,
 } from "react-native-reanimated";
+import { useBoolean } from "@/hooks/useBoolean";
 
 interface AnimatedHabitItemProps {
   habit: {
@@ -31,7 +32,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
   const checkmarkOpacity = useSharedValue(0);
   const itemRef = useRef<View>(null);
   const [lastTap, setLastTap] = React.useState<number>(0);
-  const [isDoublePress, setIsDoublePress] = React.useState<boolean>(false);
+  const isDoublePress = useBoolean(false, 'habitDoublePress');
 
   useEffect(() => {
     if (habit.completed) {
@@ -50,7 +51,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
     if (now - lastTap < DOUBLE_PRESS_DELAY) {
       // دو بار تاپ شده - toggle می‌کنیم
       console.log("Double tap detected for habit:", habit.id);
-      setIsDoublePress(true);
+      isDoublePress.setTrue();
 
       scale.value = withSequence(
         withSpring(0.9, { damping: 15, stiffness: 200 }),
@@ -67,7 +68,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
 
       // Reset after a delay
       setTimeout(() => {
-        setIsDoublePress(false);
+        isDoublePress.setFalse();
       }, 500);
     } else {
       // اولین تاپ - فقط انیمیشن
