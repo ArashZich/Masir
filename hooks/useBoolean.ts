@@ -8,12 +8,25 @@ export interface UseBooleanReturn {
   toggle: () => void;
 }
 
-export function useBoolean(initialValue: boolean = false): UseBooleanReturn {
+export function useBoolean(initialValue: boolean = false, name?: string): UseBooleanReturn {
   const [value, setValue] = useState<boolean>(initialValue);
 
-  const setTrue = useCallback(() => setValue(true), []);
-  const setFalse = useCallback(() => setValue(false), []);
-  const toggle = useCallback(() => setValue(prev => !prev), []);
+  const setTrue = useCallback(() => {
+    if (name) console.log(`${name} set to true`);
+    setValue(true);
+  }, [name]);
+
+  const setFalse = useCallback(() => {
+    if (name) console.log(`${name} set to false`);
+    setValue(false);
+  }, [name]);
+
+  const toggle = useCallback(() => {
+    setValue(prev => {
+      if (name) console.log(`${name} toggled to ${!prev}`);
+      return !prev;
+    });
+  }, [name]);
 
   return {
     value,

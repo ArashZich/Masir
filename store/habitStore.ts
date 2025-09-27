@@ -2,13 +2,28 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { persistStorage } from './storage';
 
+export interface ReminderSettings {
+  enabled: boolean;
+  time: string; // HH:MM format
+  // Daily settings
+  dailyInterval?: number; // repeat every X days
+  // Weekly settings
+  weeklyDays?: number[]; // days of week (0=Sunday, 6=Saturday)
+  // Monthly settings
+  monthlyDay?: number; // day of month (1-31)
+}
+
 export interface Habit {
   id: string;
   name: string;
+  description?: string;
   icon: string;
   color: string;
+  target: number; // daily target (default 1)
+  frequency: 'daily' | 'weekly' | 'monthly';
   createdAt: string; // ISO date string
   isActive: boolean;
+  reminder?: ReminderSettings;
 }
 
 export interface HabitHistory {
@@ -48,6 +63,8 @@ export const useHabitStore = create<HabitState>()(
           id: Date.now().toString(),
           createdAt: new Date().toISOString(),
           isActive: true,
+          target: habitData.target || 1,
+          frequency: habitData.frequency || 'daily',
         };
 
         set((state) => ({

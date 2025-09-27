@@ -1,10 +1,10 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "react-native-paper";
 
-import { HapticTab } from '@/components/haptic-tab';
+import { HapticTab } from "@/components/haptic-tab";
 
 export default function TabLayout() {
   const theme = useTheme();
@@ -20,17 +20,20 @@ export default function TabLayout() {
           borderTopColor: theme.colors.outline,
         },
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarButton: HapticTab, // موقتاً غیرفعال
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: t('navigation.todayPath'),
+          title: t("navigation.todayPath"),
           tabBarIcon: ({ focused }) => (
             <Ionicons
               size={28}
               name="compass"
-              color={focused ? theme.colors.primary : theme.colors.onSurfaceVariant}
+              color={
+                focused ? theme.colors.primary : theme.colors.onSurfaceVariant
+              }
             />
           ),
         }}
@@ -38,12 +41,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: t('navigation.overview'),
+          title: t("navigation.overview"),
           tabBarIcon: ({ focused }) => (
             <Ionicons
               size={28}
               name="stats-chart"
-              color={focused ? theme.colors.secondary : theme.colors.onSurfaceVariant}
+              color={
+                focused ? theme.colors.secondary : theme.colors.onSurfaceVariant
+              }
             />
           ),
         }}
@@ -51,12 +56,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: t('navigation.settings'),
+          title: t("navigation.settings"),
           tabBarIcon: ({ focused }) => (
             <Ionicons
               size={28}
               name="cog"
-              color={focused ? theme.colors.tertiary : theme.colors.onSurfaceVariant}
+              color={
+                focused ? theme.colors.tertiary : theme.colors.onSurfaceVariant
+              }
             />
           ),
         }}

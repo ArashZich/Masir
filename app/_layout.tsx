@@ -1,22 +1,26 @@
-import '@/i18n'; // راه‌اندازی i18next - باید اول باشه
+import "@/i18n"; // راه‌اندازی i18next - باید اول باشه
 
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { PaperProvider } from 'react-native-paper';
-import 'react-native-reanimated';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import * as Updates from "expo-updates";
+import { PaperProvider } from "react-native-paper";
+import "react-native-reanimated";
 
-import { useColorScheme, I18nManager } from 'react-native';
-import { getTheme } from '@/constants/themes';
-import { useSettingsStore } from '@/store/settingsStore';
-import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
-import * as Restart from 'expo-restart';
-import { RestartDialog } from '@/components/RestartDialog';
-import { useBoolean } from '@/hooks/useBoolean';
+import { RestartDialog } from "@/components/RestartDialog";
+import { getTheme } from "@/constants/themes";
+import { useBoolean } from "@/hooks/useBoolean";
+import { useSettingsStore } from "@/store/settingsStore";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { I18nManager, useColorScheme } from "react-native";
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: "(tabs)",
 };
 
 export default function RootLayout() {
@@ -31,7 +35,7 @@ export default function RootLayout() {
         await i18n.changeLanguage(language);
       }
 
-      const isRTL = language === 'fa';
+      const isRTL = language === "fa";
       if (I18nManager.isRTL !== isRTL && !restartDialog.value) {
         restartDialog.setTrue();
       }
@@ -41,19 +45,20 @@ export default function RootLayout() {
   }, [language, i18n]);
 
   const handleRestart = async () => {
-    const isRTL = language === 'fa';
+    const isRTL = language === "fa";
     I18nManager.forceRTL(isRTL);
     restartDialog.setFalse();
 
     try {
-      // expo-restart کار میکنه در هر دو حالت development و production
-      await Restart.restartAsync();
+      await Updates.reloadAsync();
+      console.log("Restart would happen here");
     } catch (error) {
-      console.log('Could not restart app:', error);
+      console.log("Could not restart app:", error);
     }
   };
 
-  const isDarkMode = theme === 'system' ? systemColorScheme === 'dark' : theme === 'dark';
+  const isDarkMode =
+    theme === "system" ? systemColorScheme === "dark" : theme === "dark";
   const paperTheme = getTheme(theme, isDarkMode);
 
   return (
@@ -61,14 +66,18 @@ export default function RootLayout() {
       <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          <Stack.Screen
+            name="modal"
+            options={{ presentation: "modal", title: "Modal" }}
+          />
         </Stack>
-        <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+        <StatusBar style={isDarkMode ? "light" : "dark"} />
 
         <RestartDialog
           visible={restartDialog.value}
           onRestart={handleRestart}
         />
+        {/* <Portal.Host /> */}
       </ThemeProvider>
     </PaperProvider>
   );
