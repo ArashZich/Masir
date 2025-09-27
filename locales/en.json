@@ -62,13 +62,16 @@
     "category": "Category",
     "frequency": "Frequency",
     "daily": "Daily",
+    "dailyIcon": "📅",
     "weekly": "Weekly",
+    "weeklyIcon": "📊",
     "monthly": "Monthly",
+    "monthlyIcon": "📈",
     "estimatedDuration": "Estimated Duration",
     "minutes": "minutes",
     "enableReminder": "Enable Reminder",
     "reminderDescription": "Daily reminder to perform this habit",
-    "activeHabit": "Active Habit",
+    "activeHabit": "✅ Active Habit",
     "activeDescription": "Show habit in daily list",
     "createHabit": "Create Habit",
     "nameRequired": "Habit name is required",
@@ -101,6 +104,13 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
+    "sundayShort": "S",
+    "mondayShort": "M",
+    "tuesdayShort": "T",
+    "wednesdayShort": "W",
+    "thursdayShort": "T",
+    "fridayShort": "F",
+    "saturdayShort": "S",
     "categories": {
       "health": "Health",
       "fitness": "Fitness",
@@ -131,15 +141,34 @@
     "progress": "Progress",
     "completed": "Completed",
     "remaining": "Remaining",
-    "todaysGarden": "Today's Garden"
+    "todaysGarden": "Today's Garden",
+    "reflection": "Today's Reflection"
   },
   "overview": {
-    "calendar": "Calendar",
+    "title": "Overview",
+    "subtitle": "📊 Stats & Progress",
+    "calendar": "📅 Calendar",
+    "calendarDescription": "Persian and Gregorian calendar with daily progress",
     "statistics": "Statistics",
-    "weeklyProgress": "Weekly Progress",
+    "weeklyProgress": "📈 Weekly Stats",
+    "weeklyDescription": "Progress charts and weekly performance analysis",
     "monthlyProgress": "Monthly Progress",
     "totalHabits": "Total Habits",
-    "completedToday": "Completed Today"
+    "completedToday": "Completed Today",
+    "comingFeatures": "Coming Features",
+    "progressCharts": "Progress Charts",
+    "progressChartsDesc": "Progress charts and trend analysis",
+    "interactiveCalendar": "Interactive Calendar",
+    "interactiveCalendarDesc": "Interactive calendar with advanced features",
+    "monthlyStatistics": "Monthly Statistics",
+    "monthlyStatisticsDesc": "Detailed monthly reports",
+    "completedDays": "Completed",
+    "partialDays": "Partial",
+    "missedDays": "Missed",
+    "moodGood": "Good Day",
+    "moodOk": "Average Day",
+    "moodBad": "Tough Day",
+    "calendarLegend": "Color Guide"
   },
   "settings": {
     "title": "Settings",
@@ -160,6 +189,25 @@
     "exportSuccess": "Backup file saved",
     "importSuccess": "Data restored",
     "confirmImport": "Are you sure? Current data will be replaced."
+  },
+  "mood": {
+    "title": "How are you feeling today?",
+    "good": "Good",
+    "ok": "Okay",
+    "bad": "Tough",
+    "clear": "Clear",
+    "selector": "Select mood"
+  },
+  "journal": {
+    "title": "Today's Note",
+    "subtitle": "Write it in one sentence...",
+    "placeholder": "How was your day? 💭",
+    "characterCount": "characters"
+  },
+  "garden": {
+    "title": "My Garden",
+    "days": "days",
+    "emptyMessage": "Your garden is ready for planting! 🌱"
   },
   "restart": {
     "title": "App Restart Required",

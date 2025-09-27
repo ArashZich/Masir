@@ -20,14 +20,14 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Surface style={styles.header} elevation={1}>
+      <Surface style={[styles.header, styles.whiteCard]} elevation={4}>
         <Text variant="headlineLarge" style={styles.title}>
           {t('settings.title')}
         </Text>
       </Surface>
 
       {/* Theme Selection */}
-      <Card style={styles.card} mode="elevated">
+      <Card style={[styles.card, styles.whiteCard]} mode="elevated">
         <Card.Content>
           <Text variant="titleLarge" style={styles.sectionTitle}>
             {t('settings.theme')}
@@ -37,12 +37,18 @@ export default function SettingsScreen() {
             onValueChange={(value) => setTheme(value as ThemeMode)}
             buttons={themeOptions}
             style={styles.segmentedButtons}
+            theme={{
+              colors: {
+                secondaryContainer: '#667eea',
+                onSecondaryContainer: '#ffffff',
+              }
+            }}
           />
         </Card.Content>
       </Card>
 
       {/* Language Selection */}
-      <Card style={styles.card} mode="elevated">
+      <Card style={[styles.card, styles.whiteCard]} mode="elevated">
         <Card.Content>
           <Text variant="titleLarge" style={styles.sectionTitle}>
             {t('settings.language')}
@@ -52,12 +58,18 @@ export default function SettingsScreen() {
             onValueChange={(value) => setLanguage(value as Language)}
             buttons={languageOptions}
             style={styles.segmentedButtons}
+            theme={{
+              colors: {
+                secondaryContainer: '#667eea',
+                onSecondaryContainer: '#ffffff',
+              }
+            }}
           />
         </Card.Content>
       </Card>
 
       {/* Data Section */}
-      <Card style={styles.card} mode="elevated">
+      <Card style={[styles.card, styles.whiteCard]} mode="elevated">
         <Card.Content>
           <Text variant="titleLarge" style={styles.sectionTitle}>
             {t('settings.data')}
@@ -86,6 +98,10 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  whiteCard: {
+    backgroundColor: '#ffffff',
   },
   content: {
     padding: 16,

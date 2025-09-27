@@ -194,7 +194,7 @@ export default function AddHabitScreen() {
       });
     }
 
-    router.back();
+    router.replace('/');
   };
 
   const getTimeUnit = () => {
@@ -231,7 +231,7 @@ export default function AddHabitScreen() {
           headerShown: true,
           presentation: "modal",
           headerLeft: () => (
-            <IconButton icon="close" onPress={() => router.back()} />
+            <IconButton icon="close" onPress={() => router.replace('/')} />
           ),
         }}
       />
@@ -246,7 +246,7 @@ export default function AddHabitScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Preview Card */}
-          <Card style={styles.previewCard} mode="elevated">
+          <Card style={[styles.previewCard, styles.whiteCard]} mode="elevated">
             <LinearGradient
               colors={[selectedColor, selectedColor + "90"]}
               style={styles.previewGradient}
@@ -268,7 +268,7 @@ export default function AddHabitScreen() {
           </Card>
 
           {/* Basic Information */}
-          <Card style={styles.sectionCard} mode="outlined">
+          <Card style={[styles.sectionCard, styles.whiteCard]} mode="elevated">
             <Card.Content>
               <Text variant="titleMedium" style={styles.sectionTitle}>
                 📝 {t("habit.basicInfo")}
@@ -301,7 +301,7 @@ export default function AddHabitScreen() {
           </Card>
 
           {/* Category */}
-          <Card style={styles.sectionCard} mode="outlined">
+          <Card style={[styles.sectionCard, styles.whiteCard]} mode="elevated">
             <Card.Content>
               <Text variant="titleMedium" style={styles.sectionTitle}>
                 🏷️ {t("habit.category")}
@@ -370,7 +370,7 @@ export default function AddHabitScreen() {
           </Card>
 
           {/* Appearance */}
-          <Card style={styles.sectionCard} mode="outlined">
+          <Card style={[styles.sectionCard, styles.whiteCard]} mode="elevated">
             <Card.Content>
               <Text variant="titleMedium" style={styles.sectionTitle}>
                 🎨 {t("habit.appearance")}
@@ -434,7 +434,7 @@ export default function AddHabitScreen() {
           </Card>
 
           {/* Settings */}
-          <Card style={styles.sectionCard} mode="outlined">
+          <Card style={[styles.sectionCard, styles.whiteCard]} mode="elevated">
             <Card.Content>
               <Text variant="titleMedium" style={styles.sectionTitle}>
                 ⚙️ {t("habit.settings")}
@@ -447,9 +447,9 @@ export default function AddHabitScreen() {
                 </Text>
                 <View style={styles.frequencyButtons}>
                   {[
-                    { value: "daily", label: t("habit.daily"), icon: "📅" },
-                    { value: "weekly", label: t("habit.weekly"), icon: "📊" },
-                    { value: "monthly", label: t("habit.monthly"), icon: "📈" },
+                    { value: "daily", label: t("habit.daily"), icon: t("habit.dailyIcon") },
+                    { value: "weekly", label: t("habit.weekly"), icon: t("habit.weeklyIcon") },
+                    { value: "monthly", label: t("habit.monthly"), icon: t("habit.monthlyIcon") },
                   ].map((freq) => (
                     <Pressable
                       key={freq.value}
@@ -613,13 +613,13 @@ export default function AddHabitScreen() {
                       </Text>
                       <View style={styles.daysOfWeekContainer}>
                         {[
-                          { value: 0, label: t("habit.sunday"), short: "ی" },
-                          { value: 1, label: t("habit.monday"), short: "د" },
-                          { value: 2, label: t("habit.tuesday"), short: "س" },
-                          { value: 3, label: t("habit.wednesday"), short: "چ" },
-                          { value: 4, label: t("habit.thursday"), short: "پ" },
-                          { value: 5, label: t("habit.friday"), short: "ج" },
-                          { value: 6, label: t("habit.saturday"), short: "ش" },
+                          { value: 0, label: t("habit.sunday"), short: t("habit.sundayShort") },
+                          { value: 1, label: t("habit.monday"), short: t("habit.mondayShort") },
+                          { value: 2, label: t("habit.tuesday"), short: t("habit.tuesdayShort") },
+                          { value: 3, label: t("habit.wednesday"), short: t("habit.wednesdayShort") },
+                          { value: 4, label: t("habit.thursday"), short: t("habit.thursdayShort") },
+                          { value: 5, label: t("habit.friday"), short: t("habit.fridayShort") },
+                          { value: 6, label: t("habit.saturday"), short: t("habit.saturdayShort") },
                         ].map((day) => (
                           <Pressable
                             key={day.value}
@@ -731,7 +731,7 @@ export default function AddHabitScreen() {
               <View style={styles.switchRow}>
                 <Switch value={isActive.value} onValueChange={isActive.setValue} />
                 <View style={styles.switchLabelContainer}>
-                  <Text variant="bodyLarge">✅ {t("habit.activeHabit")}</Text>
+                  <Text variant="bodyLarge">{t("habit.activeHabit")}</Text>
                   <Text variant="bodySmall" style={styles.settingDescription}>
                     {t("habit.activeDescription")}
                   </Text>
@@ -791,7 +791,10 @@ export default function AddHabitScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#ffffff",
+  },
+  whiteCard: {
+    backgroundColor: '#ffffff',
   },
   scrollView: {
     flex: 1,
@@ -801,7 +804,8 @@ const styles = StyleSheet.create({
     paddingBottom: 100, // فضا برای دکمه save
   },
   previewCard: {
-    marginBottom: 16,
+    margin: 16,
+    marginTop: 0,
     overflow: "hidden",
   },
   previewGradient: {
@@ -825,7 +829,8 @@ const styles = StyleSheet.create({
     maxWidth: "90%",
   },
   sectionCard: {
-    marginBottom: 16,
+    margin: 16,
+    marginTop: 0,
   },
   sectionTitle: {
     fontWeight: "bold",

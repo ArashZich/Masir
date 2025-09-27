@@ -115,7 +115,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
         <Animated.View style={animatedStyle} ref={itemRef}>
           <Surface
             style={[styles.habitItem, habit.completed && styles.habitCompleted]}
-            elevation={habit.completed ? 0 : 1}
+            elevation={4}
           >
             <View style={styles.habitIconContainer}>
               <Avatar.Icon
@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     minWidth: 100,
     marginBottom: 12,
+    backgroundColor: "#ffffff",
   },
   habitCompleted: {
     backgroundColor: "rgba(82, 196, 26, 0.08)",
