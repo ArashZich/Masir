@@ -144,6 +144,32 @@
     "todaysGarden": "Today's Garden",
     "reflection": "Today's Reflection"
   },
+  "charts": {
+    "title": "Progress Charts",
+    "last7Days": "Last 7 days",
+    "last30Days": "Last 30 days",
+    "thisYear": "This year",
+    "habitNote": "Chart shows completion status for this habit",
+    "weeklyTrend": "Weekly Trend",
+    "monthlyProgress": "Monthly Progress",
+    "moodDistribution": "Mood Distribution",
+    "insights": "Insights",
+    "streaks": "Streaks",
+    "analytics": "Analytics"
+  },
+  "insights": {
+    "title": "Smart Insights",
+    "currentStreak": "Current Streak",
+    "longestStreak": "Longest Streak",
+    "successRate": "Success Rate",
+    "totalDays": "Total Days",
+    "bestDay": "Best Day",
+    "worstDay": "Worst Day",
+    "avgCompletion": "Avg Completion",
+    "topHabits": "Top Habits",
+    "monthly": "Monthly",
+    "weekly": "Weekly"
+  },
   "overview": {
     "title": "Overview",
     "subtitle": "📊 Stats & Progress",

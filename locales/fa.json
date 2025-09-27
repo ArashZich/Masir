@@ -144,6 +144,32 @@
     "todaysGarden": "باغچه امروز",
     "reflection": "تأمل امروز"
   },
+  "charts": {
+    "title": "نمودارهای پیشرفت",
+    "last7Days": "7 روز گذشته",
+    "last30Days": "30 روز گذشته",
+    "thisYear": "امسال",
+    "habitNote": "نمودار نشان‌دهنده وضعیت تکمیل این عادت است",
+    "weeklyTrend": "روند هفتگی",
+    "monthlyProgress": "پیشرفت ماهانه",
+    "moodDistribution": "توزیع حالت روحی",
+    "insights": "بینش‌ها",
+    "streaks": "رکوردها",
+    "analytics": "تجزیه و تحلیل"
+  },
+  "insights": {
+    "title": "بینش‌های هوشمند",
+    "currentStreak": "رکورد فعلی",
+    "longestStreak": "بهترین رکورد",
+    "successRate": "نرخ موفقیت",
+    "totalDays": "کل روزها",
+    "bestDay": "بهترین روز",
+    "worstDay": "ضعیف‌ترین روز",
+    "avgCompletion": "میانگین تکمیل",
+    "topHabits": "برترین عادت‌ها",
+    "monthly": "ماهانه",
+    "weekly": "هفتگی"
+  },
   "overview": {
     "title": "نمای کلی",
     "subtitle": "📊 آمار و پیشرفت",
