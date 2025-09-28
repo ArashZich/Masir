@@ -20,10 +20,8 @@ export const MicroJournal: React.FC<MicroJournalProps> = ({
   compact = false,
 }) => {
   const { t } = useTranslation();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const isFocused = useBoolean(false, "journalFocus");
-
-  const defaultPlaceholder = t("journal.placeholder");
 
   return (
     <View style={[styles.container, compact && styles.compactContainer]}>

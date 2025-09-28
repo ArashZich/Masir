@@ -2,7 +2,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useSettingsStore } from "@/store/settingsStore";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, StatusBar, StyleSheet, View } from "react-native";
+import { StatusBar, StyleSheet, View } from "react-native";
 import PagerView from "react-native-pager-view";
 import { Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,7 +13,7 @@ import PhilosophyScreen from "./screens/PhilosophyScreen";
 import StartJourneyScreen from "./screens/StartJourneyScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+// const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -24,7 +24,7 @@ export default function OnboardingScreen({
 }: OnboardingScreenProps) {
   const { colors } = useTheme();
   const { setOnboardingCompleted } = useSettingsStore();
-  const { t, isRTL, changeLanguage, getFlexDirection, getDirectionalIcon } =
+  const { t, changeLanguage, getFlexDirection, getDirectionalIcon } =
     useLanguage();
   const [currentPage, setCurrentPage] = useState(0);
   const pagerRef = useRef<PagerView>(null);
@@ -51,11 +51,11 @@ export default function OnboardingScreen({
     }
   };
 
-  const handlePrevious = () => {
-    if (currentPage > 0) {
-      pagerRef.current?.setPage(currentPage - 1);
-    }
-  };
+  // const handlePrevious = () => {
+  //   if (currentPage > 0) {
+  //     pagerRef.current?.setPage(currentPage - 1);
+  //   }
+  // };
 
   const handleComplete = () => {
     setOnboardingCompleted(true);

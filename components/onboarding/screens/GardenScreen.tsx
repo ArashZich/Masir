@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { GardenIcon } from '../icons/GardenIcon';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type GrowthStage = 'seed' | 'sprout' | 'leaf' | 'bud' | 'flower';
 
@@ -14,13 +14,13 @@ export default function GardenScreen() {
   const { t } = useTranslation();
   const [currentStage, setCurrentStage] = useState<GrowthStage>('seed');
 
-  const stages = [
+  const stages = useMemo(() => [
     { stage: 'seed' as const, emoji: '🌰', duration: 1000 },
     { stage: 'sprout' as const, emoji: '🌱', duration: 1200 },
     { stage: 'leaf' as const, emoji: '🌿', duration: 1000 },
     { stage: 'bud' as const, emoji: '🌺', duration: 1200 },
     { stage: 'flower' as const, emoji: '🌸', duration: 1500 },
-  ];
+  ], []);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -46,7 +46,7 @@ export default function GardenScreen() {
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, []);
+  }, [stages]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.primary }]}>

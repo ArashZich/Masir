@@ -1,11 +1,11 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Dimensions, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Surface, Text } from "react-native-paper";
 import { MoodIcon } from "../icons/MoodIcon";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+// const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 type MoodType = "good" | "ok" | "bad" | null;
 

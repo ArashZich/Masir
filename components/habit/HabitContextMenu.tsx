@@ -7,7 +7,6 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
@@ -20,7 +19,7 @@ interface HabitContextMenuProps {
   position: { x: number; y: number };
 }
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export const HabitContextMenu: React.FC<HabitContextMenuProps> = ({
   visible,
@@ -45,7 +44,7 @@ export const HabitContextMenu: React.FC<HabitContextMenuProps> = ({
       menuScale.value = withSpring(0, { damping: 15, stiffness: 200 });
       menuOpacity.value = withTiming(0, { duration: 150 });
     }
-  }, [visible]);
+  }, [visible, menuOpacity, menuScale, overlayOpacity]);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: overlayOpacity.value,

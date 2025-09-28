@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/contexts/ThemeContext';
 import { StartJourneyIcon } from '../icons/StartJourneyIcon';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface StartJourneyScreenProps {
   onComplete: () => void;
@@ -13,7 +13,7 @@ interface StartJourneyScreenProps {
 
 export default function StartJourneyScreen({ onComplete }: StartJourneyScreenProps) {
   const { colors } = useTheme();
-  const { t, isRTL, getFlexDirection } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.primary }]}>

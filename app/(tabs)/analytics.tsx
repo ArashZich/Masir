@@ -84,7 +84,7 @@ export default function AnalyticsScreen() {
       completedCount: dayHabits.filter((h) => h.completed).length,
       totalCount: dayHabits.length,
     };
-  }, [selectedDate, habits, history, getHabitsForDate]);
+  }, [selectedDate, history, getHabitsForDate]);
 
   const totalHabits = habits.length;
 
