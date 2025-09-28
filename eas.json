@@ -22,23 +22,13 @@
     "production": {
       "environment": "production",
       "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "apk"
       }
     },
     "production-aab": {
       "environment": "production",
       "android": {
-        "buildType": "aab"
-      }
-    },
-    "production-universal": {
-      "environment": "production",
-      "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
-        "enableProguardInReleaseBuilds": true,
-        "enableHermes": true
+        "buildType": "app-bundle"
       }
     }
   },
