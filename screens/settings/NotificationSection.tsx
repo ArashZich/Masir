@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { Text, Switch, Button, RadioButton, Divider } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { ThemedCard } from '@/components';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useBoolean } from '@/hooks/useBoolean';
-import { useNotifications } from '@/hooks/useNotifications';
-import { useSettingsStore } from '@/store/settingsStore';
-import { NOTIFICATION_SOUNDS, DEFAULT_TIMES } from '@/constants/settings';
+import { ThemedCard } from "@/components";
+import { NOTIFICATION_SOUNDS } from "@/constants/settings";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useBoolean } from "@/hooks/useBoolean";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useSettingsStore } from "@/store/settingsStore";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import { Button, Divider, RadioButton, Switch, Text } from "react-native-paper";
 
 interface NotificationSectionProps {
   styles: any; // Import styles from parent
 }
 
-export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles }) => {
+export const NotificationSection: React.FC<NotificationSectionProps> = ({
+  styles,
+}) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { notifications, setNotifications } = useSettingsStore();
@@ -23,13 +25,14 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
     requestPermission,
     scheduleNotification,
     scheduleHabitReminder,
-    cancelAllNotifications
+    isExpoGo,
+    notificationSupported,
   } = useNotifications();
 
   const [debugInfo, setDebugInfo] = useState<any>(null);
-  const showDebug = useBoolean(false, 'showDebug');
-  const dailyTimePicker = useBoolean(false, 'dailyTimePicker');
-  const moodTimePicker = useBoolean(false, 'moodTimePicker');
+  const showDebug = useBoolean(false, "showDebug");
+  const dailyTimePicker = useBoolean(false, "dailyTimePicker");
+  const moodTimePicker = useBoolean(false, "moodTimePicker");
 
   const handleRequestPermission = async () => {
     await requestPermission();
@@ -38,48 +41,54 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
   const handleNotificationToggle = (field: string, value: boolean) => {
     setNotifications({
       ...notifications,
-      [field]: value
+      [field]: value,
     });
   };
 
-  const handleTimeChange = (type: 'daily' | 'mood', time: { hour: number; minute: number }) => {
-    if (type === 'daily') {
+  const handleTimeChange = (
+    type: "daily" | "mood",
+    time: { hour: number; minute: number }
+  ) => {
+    if (type === "daily") {
       setNotifications({
-        dailyReminder: { ...notifications.dailyReminder, time }
+        dailyReminder: { ...notifications.dailyReminder, time },
       });
-      scheduleHabitReminder('یادآوری روزانه', time);
+      scheduleHabitReminder("یادآوری روزانه", time);
     } else {
       setNotifications({
-        moodReminder: { ...notifications.moodReminder, time }
+        moodReminder: { ...notifications.moodReminder, time },
       });
-      scheduleHabitReminder('یادآوری حالت', time);
+      scheduleHabitReminder("یادآوری حالت", time);
     }
   };
 
   const sendTestNotification = () => {
-    scheduleNotification('🔔 تست اعلان', 'این یک اعلان تستی است');
+    scheduleNotification("🔔 تست اعلان", "این یک اعلان تستی است");
   };
 
   const sendDelayedTestNotification = async () => {
     await scheduleNotification(
-      '⏰ تست اعلان با تاخیر',
-      'این اعلان با 5 ثانیه تاخیر ارسال شد',
+      "⏰ تست اعلان با تاخیر",
+      "این اعلان با 5 ثانیه تاخیر ارسال شد",
       { seconds: 5 }
     );
-    console.log('Delayed test notification scheduled for 5 seconds');
+    console.log("Delayed test notification scheduled for 5 seconds");
   };
 
   const loadDebugInfo = async () => {
     const info = {
       permission: permission,
       notificationSettings: notifications,
-      platform: 'React Native'
+      platform: "React Native",
+      isExpoGo: isExpoGo,
+      notificationSupported: notificationSupported,
+      environment: isExpoGo ? "Expo Go" : "Development Build",
     };
     setDebugInfo(info);
     showDebug.setTrue();
   };
 
-  const soundOptions = NOTIFICATION_SOUNDS.map(option => ({
+  const soundOptions = NOTIFICATION_SOUNDS.map((option) => ({
     value: option.value,
     label: t(option.label),
   }));
@@ -87,26 +96,61 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
   return (
     <ThemedCard elevation={1}>
       <ThemedCard.Content>
-        <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.text.primary }]}>
-          {t('settings.notifications')}
+        <Text
+          variant="titleLarge"
+          style={[styles.sectionTitle, { color: colors.text.primary }]}
+        >
+          {t("settings.notifications")}
         </Text>
-        <Text variant="bodyMedium" style={[styles.sectionDescription, { color: colors.text.secondary }]}>
-          {t('notifications.description')}
+        <Text
+          variant="bodyMedium"
+          style={[styles.sectionDescription, { color: colors.text.secondary }]}
+        >
+          {t("notifications.description")}
         </Text>
+
+        {/* Expo Go Warning */}
+        {/* {isExpoGo && (
+          <View
+            style={{
+              backgroundColor: colors.surfaceVariant,
+              padding: 12,
+              borderRadius: 8,
+              marginVertical: 8,
+              borderLeftWidth: 4,
+              borderLeftColor: colors.primary,
+            }}
+          >
+            <Text
+              variant="bodySmall"
+              style={{ color: colors.text.primary, fontWeight: "bold" }}
+            >
+              ⚠️ {t("notifications.expoGoWarning.title")}
+            </Text>
+            <Text
+              variant="bodySmall"
+              style={{ color: colors.text.secondary, marginTop: 4 }}
+            >
+              {t("notifications.expoGoWarning.description")}
+            </Text>
+          </View>
+        )} */}
 
         {/* Permission Status */}
         <View style={styles.permissionRow}>
           <View style={styles.permissionInfo}>
             <Text variant="bodyLarge" style={{ color: colors.text.primary }}>
-              {t('notifications.permission')}
+              {t("notifications.permission")}
             </Text>
-            <Text variant="bodySmall" style={[styles.permissionDesc, { color: colors.text.secondary }]}>
+            <Text
+              variant="bodySmall"
+              style={[styles.permissionDesc, { color: colors.text.secondary }]}
+            >
               {permission.granted
-                ? t('notifications.permissionGranted')
-                : permission.status === 'undetermined'
-                ? t('notifications.permissionDenied')
-                : t('notifications.permissionDenied')
-              }
+                ? t("notifications.permissionGranted")
+                : permission.status === "undetermined"
+                ? t("notifications.permissionDenied")
+                : t("notifications.permissionDenied")}
             </Text>
           </View>
           {!permission.granted && (
@@ -115,7 +159,7 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
               onPress={handleRequestPermission}
               style={styles.permissionButton}
             >
-              {t('notifications.requestPermission')}
+              {t("notifications.requestPermission")}
             </Button>
           )}
         </View>
@@ -125,11 +169,13 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
         {/* Enable Notifications */}
         <View style={styles.switchRow}>
           <View style={styles.switchInfo}>
-            <Text variant="bodyLarge">{t('notifications.enable')}</Text>
+            <Text variant="bodyLarge">{t("notifications.enable")}</Text>
           </View>
           <Switch
             value={notifications.enabled}
-            onValueChange={(value) => handleNotificationToggle('enabled', value)}
+            onValueChange={(value) =>
+              handleNotificationToggle("enabled", value)
+            }
             disabled={!permission.granted}
           />
         </View>
@@ -139,16 +185,15 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
             {/* Sound Selection */}
             <View style={styles.soundSection}>
               <Text variant="bodyLarge" style={styles.soundTitle}>
-                {t('notifications.sound')}
+                {t("notifications.sound")}
               </Text>
               <Text variant="bodySmall" style={styles.soundDesc}>
-                {t('notifications.soundDesc')}
+                {t("notifications.soundDesc")}
               </Text>
 
               <RadioButton.Group
                 onValueChange={(value) => {
                   setNotifications({ sound: value });
-                  sendTestNotification();
                 }}
                 value={notifications.sound}
               >
@@ -169,16 +214,21 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
             <View style={styles.reminderSection}>
               <View style={styles.reminderHeader}>
                 <View style={styles.reminderInfo}>
-                  <Text variant="bodyLarge">{t('notifications.dailyReminder')}</Text>
+                  <Text variant="bodyLarge">
+                    {t("notifications.dailyReminder")}
+                  </Text>
                   <Text variant="bodySmall" style={styles.reminderDesc}>
-                    {t('notifications.dailyReminderDesc')}
+                    {t("notifications.dailyReminderDesc")}
                   </Text>
                 </View>
                 <Switch
                   value={notifications.dailyReminder.enabled}
                   onValueChange={(value) =>
                     setNotifications({
-                      dailyReminder: { ...notifications.dailyReminder, enabled: value }
+                      dailyReminder: {
+                        ...notifications.dailyReminder,
+                        enabled: value,
+                      },
                     })
                   }
                 />
@@ -191,13 +241,28 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
                     onPress={dailyTimePicker.setTrue}
                     style={styles.timeButton}
                   >
-                    {String(notifications.dailyReminder.time.hour).padStart(2, '0')}:
-                    {String(notifications.dailyReminder.time.minute).padStart(2, '0')}
+                    {String(notifications.dailyReminder.time.hour).padStart(
+                      2,
+                      "0"
+                    )}
+                    :
+                    {String(notifications.dailyReminder.time.minute).padStart(
+                      2,
+                      "0"
+                    )}
                   </Button>
 
                   {dailyTimePicker.value && (
                     <DateTimePicker
-                      value={new Date(2024, 0, 1, notifications.dailyReminder.time.hour, notifications.dailyReminder.time.minute)}
+                      value={
+                        new Date(
+                          2024,
+                          0,
+                          1,
+                          notifications.dailyReminder.time.hour,
+                          notifications.dailyReminder.time.minute
+                        )
+                      }
                       mode="time"
                       is24Hour={true}
                       display="default"
@@ -208,7 +273,7 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
                             hour: selectedTime.getHours(),
                             minute: selectedTime.getMinutes(),
                           };
-                          handleTimeChange('daily', time);
+                          handleTimeChange("daily", time);
                         }
                       }}
                     />
@@ -223,16 +288,21 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
             <View style={styles.reminderSection}>
               <View style={styles.reminderHeader}>
                 <View style={styles.reminderInfo}>
-                  <Text variant="bodyLarge">{t('notifications.moodReminder')}</Text>
+                  <Text variant="bodyLarge">
+                    {t("notifications.moodReminder")}
+                  </Text>
                   <Text variant="bodySmall" style={styles.reminderDesc}>
-                    {t('notifications.moodReminderDesc')}
+                    {t("notifications.moodReminderDesc")}
                   </Text>
                 </View>
                 <Switch
                   value={notifications.moodReminder.enabled}
                   onValueChange={(value) =>
                     setNotifications({
-                      moodReminder: { ...notifications.moodReminder, enabled: value }
+                      moodReminder: {
+                        ...notifications.moodReminder,
+                        enabled: value,
+                      },
                     })
                   }
                 />
@@ -245,13 +315,28 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
                     onPress={moodTimePicker.setTrue}
                     style={styles.timeButton}
                   >
-                    {String(notifications.moodReminder.time.hour).padStart(2, '0')}:
-                    {String(notifications.moodReminder.time.minute).padStart(2, '0')}
+                    {String(notifications.moodReminder.time.hour).padStart(
+                      2,
+                      "0"
+                    )}
+                    :
+                    {String(notifications.moodReminder.time.minute).padStart(
+                      2,
+                      "0"
+                    )}
                   </Button>
 
                   {moodTimePicker.value && (
                     <DateTimePicker
-                      value={new Date(2024, 0, 1, notifications.moodReminder.time.hour, notifications.moodReminder.time.minute)}
+                      value={
+                        new Date(
+                          2024,
+                          0,
+                          1,
+                          notifications.moodReminder.time.hour,
+                          notifications.moodReminder.time.minute
+                        )
+                      }
                       mode="time"
                       is24Hour={true}
                       display="default"
@@ -262,7 +347,7 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
                             hour: selectedTime.getHours(),
                             minute: selectedTime.getMinutes(),
                           };
-                          handleTimeChange('mood', time);
+                          handleTimeChange("mood", time);
                         }
                       }}
                     />
@@ -276,20 +361,20 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
             {/* Test Notification */}
             <View style={styles.testSection}>
               <Text variant="bodyLarge" style={styles.testTitle}>
-                {t('notifications.test')}
+                {t("notifications.test")}
               </Text>
               <Text variant="bodySmall" style={styles.testDesc}>
-                {t('notifications.testDesc')}
+                {t("notifications.testDesc")}
               </Text>
 
-              <View style={{ flexDirection: 'row', gap: 8, marginVertical: 8 }}>
+              <View style={{ flexDirection: "row", gap: 8, marginVertical: 8 }}>
                 <Button
                   mode="outlined"
                   onPress={sendTestNotification}
                   style={[styles.testButton, { flex: 1 }]}
                   icon="bell-ring"
                 >
-                  {t('notifications.sendTest')}
+                  {t("notifications.sendTest")}
                 </Button>
 
                 <Button
@@ -302,30 +387,23 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
                 </Button>
               </View>
 
-              <Button
-                mode="text"
-                onPress={loadDebugInfo}
-                icon="bug"
-                compact
-              >
+              <Button mode="text" onPress={loadDebugInfo} icon="bug" compact>
                 Debug Info
               </Button>
 
               {showDebug.value && debugInfo && (
-                <View style={{
-                  backgroundColor: colors.surface,
-                  padding: 12,
-                  borderRadius: 8,
-                  marginTop: 8
-                }}>
-                  <Text variant="bodySmall" style={{ fontFamily: 'monospace' }}>
+                <View
+                  style={{
+                    backgroundColor: colors.surface,
+                    padding: 12,
+                    borderRadius: 8,
+                    marginTop: 8,
+                  }}
+                >
+                  <Text variant="bodySmall" style={{ fontFamily: "monospace" }}>
                     {JSON.stringify(debugInfo, null, 2)}
                   </Text>
-                  <Button
-                    mode="text"
-                    onPress={showDebug.setFalse}
-                    compact
-                  >
+                  <Button mode="text" onPress={showDebug.setFalse} compact>
                     Hide
                   </Button>
                 </View>

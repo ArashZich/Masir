@@ -1,50 +1,75 @@
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 
+// Check if we're in Expo Go environment
+const isExpoGo = Constants.executionEnvironment === "storeClient";
+
+// Conditional import for expo-notifications
+let Notifications: any = null;
+let notificationSupported = false;
+
+if (!isExpoGo) {
+  try {
+    Notifications = require("expo-notifications");
+    notificationSupported = true;
+    console.log("Notifications module loaded successfully", !!Notifications);
+  } catch (error) {
+    console.warn("expo-notifications not available in this environment:", error);
+  }
+} else {
+  console.warn("⚠️ Expo Go detected: Notifications disabled. Use 'npx expo run:android' for full functionality.");
+}
+
 // تنظیمات پیش‌فرض notification
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+if (Notifications) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 export interface NotificationPermission {
   granted: boolean;
   canAskAgain: boolean;
-  status: Notifications.PermissionStatus;
+  status: string;
 }
 
 export function useNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>({
     granted: false,
     canAskAgain: true,
-    status: Notifications.PermissionStatus.UNDETERMINED,
+    status: Notifications?.PermissionStatus?.UNDETERMINED || "undetermined",
   });
   const [expoPushToken, setExpoPushToken] = useState<string>("");
-  const [notification, setNotification] = useState<
-    Notifications.Notification | undefined
-  >(undefined);
+  const [notification, setNotification] = useState<any>(undefined);
 
   useEffect(() => {
+    if (!Notifications) {
+      console.warn("Notifications not available in useEffect");
+      return;
+    }
+
+    // Check initial permissions
+    checkPermission();
+
     registerForPushNotificationsAsync().then(
       (token) => token && setExpoPushToken(token)
     );
 
     const notificationListener = Notifications.addNotificationReceivedListener(
-      (notification) => {
+      (notification: any) => {
         setNotification(notification);
       }
     );
 
     const responseListener =
-      Notifications.addNotificationResponseReceivedListener((response) => {
+      Notifications.addNotificationResponseReceivedListener((response: any) => {
         console.log("Notification response:", response);
       });
 
@@ -56,46 +81,88 @@ export function useNotifications() {
 
   // درخواست permission
   const requestPermission = async (): Promise<NotificationPermission> => {
-    const { status, canAskAgain } =
-      await Notifications.requestPermissionsAsync();
-    const granted = status === "granted";
+    console.log(
+      "requestPermission called, Notifications available:",
+      !!Notifications
+    );
+    if (!Notifications) {
+      console.warn("Notifications module not available");
+      return { granted: false, canAskAgain: false, status: "denied" };
+    }
 
-    const permissionData = {
-      granted,
-      canAskAgain,
-      status,
-    };
+    try {
+      console.log("Requesting notification permissions...");
+      const result = await Notifications.requestPermissionsAsync();
+      console.log("Permission request result:", result);
 
-    setPermission(permissionData);
-    return permissionData;
+      const { status, canAskAgain } = result;
+      const granted = status === "granted";
+
+      const permissionData = {
+        granted,
+        canAskAgain,
+        status,
+      };
+
+      console.log("Final permission data:", permissionData);
+      setPermission(permissionData);
+      return permissionData;
+    } catch (error) {
+      console.error("Error requesting permissions:", error);
+      return { granted: false, canAskAgain: false, status: "error" };
+    }
   };
 
   // بررسی وضعیت permission
   const checkPermission = async (): Promise<NotificationPermission> => {
-    const { status, canAskAgain } = await Notifications.getPermissionsAsync();
-    const granted = status === "granted";
+    console.log(
+      "checkPermission called, Notifications available:",
+      !!Notifications
+    );
+    if (!Notifications) {
+      console.warn(
+        "Notifications module not available for checking permissions"
+      );
+      return { granted: false, canAskAgain: false, status: "denied" };
+    }
 
-    const permissionData = {
-      granted,
-      canAskAgain,
-      status,
-    };
+    try {
+      console.log("Checking notification permissions...");
+      const result = await Notifications.getPermissionsAsync();
+      console.log("Permission check result:", result);
 
-    setPermission(permissionData);
-    return permissionData;
+      const { status, canAskAgain } = result;
+      const granted = status === "granted";
+
+      const permissionData = {
+        granted,
+        canAskAgain,
+        status,
+      };
+
+      console.log("Final permission check data:", permissionData);
+      setPermission(permissionData);
+      return permissionData;
+    } catch (error) {
+      console.error("Error checking permissions:", error);
+      return { granted: false, canAskAgain: false, status: "error" };
+    }
   };
 
   // ارسال notification محلی
   const scheduleNotification = async (
     title: string,
     body: string,
-    trigger?: Notifications.NotificationTriggerInput
+    trigger?: any
   ) => {
+    if (!Notifications) return;
     await Notifications.scheduleNotificationAsync({
       content: {
         title,
         body,
         sound: "default",
+        icon: "./assets/images/notification-icon.png",
+        color: "#4CAF50",
       },
       trigger: trigger || null, // فوری اگه trigger نداشته باشه
     });
@@ -107,12 +174,15 @@ export function useNotifications() {
     time: { hour: number; minute: number },
     weekdays?: number[] // 0 = یکشنبه، 6 = شنبه
   ) => {
+    if (!Notifications) return;
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "🌱 یادآوری عادت",
         body: `وقت انجام "${habitName}" رسیده!`,
         sound: "default",
         data: { habitName },
+        icon: "./assets/images/notification-icon.png",
+        color: "#4CAF50",
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -124,11 +194,13 @@ export function useNotifications() {
 
   // لغو همه notification ها
   const cancelAllNotifications = async () => {
+    if (!Notifications) return;
     await Notifications.cancelAllScheduledNotificationsAsync();
   };
 
   // لغو notification خاص
   const cancelNotification = async (identifier: string) => {
+    if (!Notifications) return;
     await Notifications.cancelScheduledNotificationAsync(identifier);
   };
 
@@ -141,6 +213,8 @@ export function useNotifications() {
     scheduleHabitReminder,
     cancelAllNotifications,
     cancelNotification,
+    isExpoGo,
+    notificationSupported,
   };
 }
 

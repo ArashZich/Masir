@@ -11,11 +11,12 @@ import { PaperProvider } from "react-native-paper";
 import "react-native-reanimated";
 
 import { OnboardingScreen } from "@/components/onboarding";
+import { CustomSplashScreen } from "@/components/SplashScreen";
 import { getTheme } from "@/constants/themes";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useSettingsStore } from "@/store/settingsStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
 
 export const unstable_settings = {
@@ -26,6 +27,7 @@ export default function RootLayout() {
   const systemColorScheme = useColorScheme();
   const { theme, notifications, onboardingCompleted } = useSettingsStore();
   const { scheduleHabitReminder } = useNotifications();
+  const [splashVisible, setSplashVisible] = useState(true);
 
   // Notification setup
   useEffect(() => {
@@ -57,6 +59,11 @@ export default function RootLayout() {
   const isDarkMode =
     theme === "system" ? systemColorScheme === "dark" : theme === "dark";
   const paperTheme = getTheme(theme, isDarkMode);
+
+  // Show splash screen first
+  if (splashVisible) {
+    return <CustomSplashScreen onFinish={() => setSplashVisible(false)} />;
+  }
 
   // Show onboarding if not completed
   if (!onboardingCompleted) {

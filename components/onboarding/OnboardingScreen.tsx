@@ -24,8 +24,7 @@ export default function OnboardingScreen({
 }: OnboardingScreenProps) {
   const { colors } = useTheme();
   const { setOnboardingCompleted } = useSettingsStore();
-  const { t, changeLanguage, getFlexDirection, getDirectionalIcon } =
-    useLanguage();
+  const { t, changeLanguage, getFlexDirection } = useLanguage();
   const [currentPage, setCurrentPage] = useState(0);
   const pagerRef = useRef<PagerView>(null);
 
@@ -161,7 +160,7 @@ export default function OnboardingScreen({
               onPress={handleNext}
               buttonColor={colors.onPrimary}
               textColor={colors.primary}
-              icon={getDirectionalIcon("chevron-left", "chevron-right")}
+              icon="chevron-right"
               contentStyle={[
                 styles.nextButtonContent,
                 { flexDirection: getFlexDirection("row-reverse") },

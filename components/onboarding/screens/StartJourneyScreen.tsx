@@ -13,7 +13,7 @@ interface StartJourneyScreenProps {
 
 export default function StartJourneyScreen({ onComplete }: StartJourneyScreenProps) {
   const { colors } = useTheme();
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.primary }]}>
