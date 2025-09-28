@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
-import { Text, Button, Surface } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import { Text, Button } from 'react-native-paper';
 import { useTheme } from '@/contexts/ThemeContext';
 import { WelcomeIcon } from '../icons/WelcomeIcon';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+// const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface WelcomeScreenProps {
   onLanguageSelect: (language: 'fa' | 'en') => void;

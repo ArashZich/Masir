@@ -66,7 +66,7 @@ export default function PhilosophyScreen() {
         style={styles.quoteContainer}
       >
         <Text variant="bodyLarge" style={[styles.quote, { color: colors.onPrimary }]}>
-          "{t('onboarding.philosophy.quote')}"
+          &ldquo;{t('onboarding.philosophy.quote')}&rdquo;
         </Text>
       </View>
 

@@ -1,5 +1,6 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { useBoolean } from "@/hooks/useBoolean";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useHabitStore } from "@/store/habitStore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as Haptics from "expo-haptics";
@@ -87,6 +88,7 @@ export default function AddHabitScreen() {
   const { colors, isDark } = useTheme();
   const { addHabit, updateHabit, habits } = useHabitStore();
   const { edit } = useLocalSearchParams();
+  const { permission, requestPermission, scheduleHabitReminder } = useNotifications();
 
   // Basic Info
   const [name, setName] = useState("");
@@ -146,7 +148,7 @@ export default function AddHabitScreen() {
         }
       }
     }
-  }, [editingHabit]);
+  }, [editingHabit, isActive, reminderEnabled]);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -156,10 +158,6 @@ export default function AddHabitScreen() {
 
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-    const finalCategory =
-      showCustomCategory.value && customCategory.trim()
-        ? customCategory.trim()
-        : category;
 
     // Prepare reminder settings
     const reminderSettings = reminderEnabled.value
@@ -194,6 +192,39 @@ export default function AddHabitScreen() {
         isActive: isActive.value,
         reminder: reminderSettings,
       });
+    }
+
+    // Schedule notification if reminder is enabled
+    if (reminderEnabled.value && permission.granted) {
+      try {
+        await scheduleHabitReminder(
+          name.trim(),
+          {
+            hour: reminderTime.getHours(),
+            minute: reminderTime.getMinutes(),
+          },
+          frequency === "weekly" ? weeklyDays : undefined
+        );
+      } catch (error) {
+        console.log('Error scheduling notification:', error);
+      }
+    } else if (reminderEnabled.value && !permission.granted) {
+      // Request permission if not granted
+      const newPermission = await requestPermission();
+      if (newPermission.granted) {
+        try {
+          await scheduleHabitReminder(
+            name.trim(),
+            {
+              hour: reminderTime.getHours(),
+              minute: reminderTime.getMinutes(),
+            },
+            frequency === "weekly" ? weeklyDays : undefined
+          );
+        } catch (error) {
+          console.log('Error scheduling notification after permission:', error);
+        }
+      }
     }
 
     router.replace("/");

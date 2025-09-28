@@ -13,8 +13,7 @@ import "react-native-reanimated";
 import { OnboardingScreen } from "@/components/onboarding";
 import { getTheme } from "@/constants/themes";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { useLanguage } from "@/hooks/useLanguage";
-import { notificationService } from "@/services/notificationService";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
@@ -26,50 +25,29 @@ export const unstable_settings = {
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
   const { theme, notifications, onboardingCompleted } = useSettingsStore();
-  const { t } = useLanguage(); // استفاده از useLanguage hook
+  const { scheduleHabitReminder } = useNotifications();
 
   // Notification setup
   useEffect(() => {
     if (!notifications.enabled) return;
 
-    // Setup notification listeners
-    const notificationListener =
-      notificationService.addNotificationReceivedListener((notification) => {
-        console.log("Notification received:", notification);
-      });
-
-    const responseListener =
-      notificationService.addNotificationResponseReceivedListener(
-        (response) => {
-          console.log("Notification response:", response);
-          // Handle navigation based on notification data
-          const data = response.notification.request.content.data;
-          if (data?.type === "habit" && data?.habitId) {
-            console.log("Navigate to habit:", data.habitId);
-          }
-        }
-      );
-
     // Schedule notifications if enabled
     if (notifications.dailyReminder.enabled) {
-      notificationService.scheduleDailyReminder(
-        notifications.dailyReminder.time,
-        notifications.sound
+      scheduleHabitReminder(
+        'یادآوری روزانه',
+        notifications.dailyReminder.time
       );
     }
 
     if (notifications.moodReminder.enabled) {
-      notificationService.scheduleMoodReminder(
-        notifications.moodReminder.time,
-        notifications.sound
+      scheduleHabitReminder(
+        'یادآوری حالت',
+        notifications.moodReminder.time
       );
     }
 
-    return () => {
-      notificationListener.remove();
-      responseListener.remove();
-    };
-  }, [notifications]);
+    // Cleanup handled by useNotifications hook
+  }, [notifications, scheduleHabitReminder]);
 
   const handleOnboardingComplete = () => {
     // Onboarding completion is handled in the OnboardingScreen itself

@@ -6,8 +6,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { ThemedCard } from '@/components';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useBoolean } from '@/hooks/useBoolean';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useSettingsStore } from '@/store/settingsStore';
-import { notificationService, type NotificationSound } from '@/services/notificationService';
 import { NOTIFICATION_SOUNDS, DEFAULT_TIMES } from '@/constants';
 
 interface NotificationSectionProps {
@@ -18,25 +18,21 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { notifications, setNotifications } = useSettingsStore();
+  const {
+    permission,
+    requestPermission,
+    scheduleNotification,
+    scheduleHabitReminder,
+    cancelAllNotifications
+  } = useNotifications();
 
-  const [permissionStatus, setPermissionStatus] = useState<string>('');
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const showDebug = useBoolean(false, 'showDebug');
   const dailyTimePicker = useBoolean(false, 'dailyTimePicker');
   const moodTimePicker = useBoolean(false, 'moodTimePicker');
 
-  useEffect(() => {
-    checkPermissionStatus();
-  }, []);
-
-  const checkPermissionStatus = async () => {
-    const status = await notificationService.getPermissionStatus();
-    setPermissionStatus(status);
-  };
-
   const handleRequestPermission = async () => {
-    const granted = await notificationService.requestPermissions();
-    setPermissionStatus(granted ? 'granted' : 'denied');
+    await requestPermission();
   };
 
   const handleNotificationToggle = (field: string, value: boolean) => {
@@ -51,28 +47,34 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
       setNotifications({
         dailyReminder: { ...notifications.dailyReminder, time }
       });
-      notificationService.scheduleDailyReminder(time, notifications.sound);
+      scheduleHabitReminder('یادآوری روزانه', time);
     } else {
       setNotifications({
         moodReminder: { ...notifications.moodReminder, time }
       });
-      notificationService.scheduleMoodReminder(time, notifications.sound);
+      scheduleHabitReminder('یادآوری حالت', time);
     }
   };
 
   const sendTestNotification = () => {
-    notificationService.sendTestNotification(notifications.sound);
+    scheduleNotification('🔔 تست اعلان', 'این یک اعلان تستی است');
   };
 
   const sendDelayedTestNotification = async () => {
-    const success = await notificationService.sendDelayedTestNotification(5, notifications.sound);
-    if (success) {
-      console.log('Delayed test notification scheduled for 5 seconds');
-    }
+    await scheduleNotification(
+      '⏰ تست اعلان با تاخیر',
+      'این اعلان با 5 ثانیه تاخیر ارسال شد',
+      { seconds: 5 }
+    );
+    console.log('Delayed test notification scheduled for 5 seconds');
   };
 
   const loadDebugInfo = async () => {
-    const info = await notificationService.getNotificationDebugInfo();
+    const info = {
+      permission: permission,
+      notificationSettings: notifications,
+      platform: 'React Native'
+    };
     setDebugInfo(info);
     showDebug.setTrue();
   };
@@ -99,15 +101,15 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
               {t('notifications.permission')}
             </Text>
             <Text variant="bodySmall" style={[styles.permissionDesc, { color: colors.text.secondary }]}>
-              {permissionStatus === 'granted'
+              {permission.granted
                 ? t('notifications.permissionGranted')
-                : permissionStatus === 'unsupported'
-                ? t('backup.unsupportedInExpoGo')
+                : permission.status === 'undetermined'
+                ? t('notifications.permissionDenied')
                 : t('notifications.permissionDenied')
               }
             </Text>
           </View>
-          {permissionStatus !== 'granted' && permissionStatus !== 'unsupported' && (
+          {!permission.granted && (
             <Button
               mode="outlined"
               onPress={handleRequestPermission}
@@ -128,11 +130,11 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
           <Switch
             value={notifications.enabled}
             onValueChange={(value) => handleNotificationToggle('enabled', value)}
-            disabled={permissionStatus !== 'granted'}
+            disabled={!permission.granted}
           />
         </View>
 
-        {notifications.enabled && permissionStatus === 'granted' && (
+        {notifications.enabled && permission.granted && (
           <>
             {/* Sound Selection */}
             <View style={styles.soundSection}>
@@ -145,9 +147,8 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
 
               <RadioButton.Group
                 onValueChange={(value) => {
-                  const newSound = value as NotificationSound;
-                  setNotifications({ sound: newSound });
-                  notificationService.sendTestNotification(newSound);
+                  setNotifications({ sound: value });
+                  sendTestNotification();
                 }}
                 value={notifications.sound}
               >

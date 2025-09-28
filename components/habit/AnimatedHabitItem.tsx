@@ -44,7 +44,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
       checkmarkScale.value = withSpring(0);
       checkmarkOpacity.value = withSpring(0);
     }
-  }, [habit.completed]);
+  }, [habit.completed, checkmarkScale, checkmarkOpacity]);
 
   const handlePress = async () => {
     const now = Date.now();
