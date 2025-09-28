@@ -22,6 +22,7 @@
   "navigation": {
     "todayPath": "مسیر امروز",
     "overview": "نمای کلی",
+    "analytics": "آنالیتیکس",
     "settings": "تنظیمات"
   },
   "theme": {
@@ -200,7 +201,11 @@
     "title": "تنظیمات",
     "appearance": "ظاهر",
     "language": "زبان",
-    "theme": "تم",
+    "theme": {
+      "light": "روشن",
+      "dark": "تاریک",
+      "system": "سیستم"
+    },
     "notifications": "اعلان‌ها",
     "data": "داده‌ها",
     "backup": "پشتیبان‌گیری",
@@ -222,6 +227,7 @@
     "exportCSVDesc": "خروجی برای Excel و تحلیل داده‌ها",
     "importJSON": "وارد کردن JSON",
     "importJSONDesc": "بازیابی داده‌ها از فایل JSON",
+    "importDesc": "بازیابی داده‌های شما از فایل پشتیبان",
     "dataManagement": "مدیریت داده‌ها",
     "backupAndRestore": "پشتیبان‌گیری و بازیابی",
     "exportInProgress": "در حال خروجی...",
@@ -296,6 +302,7 @@
       "default": "پیش‌فرض",
       "gentle": "ملایم",
       "chime": "زنگ",
+      "ding": "دینگ",
       "bell": "زنگوله",
       "none": "بی‌صدا"
     },

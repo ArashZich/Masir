@@ -5,10 +5,10 @@ import { useTranslation } from "react-i18next";
 import { Text } from "react-native-paper";
 import { useTheme } from "@/contexts/ThemeContext";
 
-import { HapticTab } from "@/components/haptic-tab";
+import { HapticTab } from "@/components";
 
 export default function TabLayout() {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { t } = useTranslation();
 
   return (
@@ -49,7 +49,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="analytics"
         options={{
           tabBarLabel: ({ focused }) => (
             <Text
@@ -60,7 +60,7 @@ export default function TabLayout() {
                   : colors.text.secondary,
               }}
             >
-              {t("navigation.overview")}
+              {t("navigation.analytics")}
             </Text>
           ),
           tabBarIcon: ({ focused }) => (

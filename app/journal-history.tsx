@@ -1,16 +1,16 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Text, Card, Surface, Chip, Button } from 'react-native-paper';
+import { Text, Surface, Chip, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useHabitStore } from '@/store/habitStore';
 import { router } from 'expo-router';
-import { ThemedCard } from '@/components/ThemedCard';
+import { ThemedCard } from '@/components';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function JournalHistoryScreen() {
   const { t } = useTranslation();
   const { history } = useHabitStore();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   // Filter entries that have notes
   const entriesWithNotes = Object.entries(history || {})

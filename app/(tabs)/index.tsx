@@ -1,8 +1,11 @@
-import { AnimatedHabitItem } from "@/components/AnimatedHabitItem";
-import { GardenGrowth, calculateGrowthStage } from "@/components/GardenGrowth";
-import { MicroJournal } from "@/components/MicroJournal";
-import { MoodSelector } from "@/components/MoodSelector";
-import { ThemedCard } from "@/components/ThemedCard";
+import {
+  AnimatedHabitItem,
+  GardenGrowth,
+  MicroJournal,
+  MoodSelector,
+  ThemedCard
+} from "@/components";
+import { calculateGrowthStage } from "@/components/garden/GardenGrowth";
 import { useHabitStore } from "@/store/habitStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -24,7 +27,7 @@ import {
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { language } = useSettingsStore();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const {
     getHabitsForDate,
     toggleHabitForDay,

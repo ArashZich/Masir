@@ -11,7 +11,7 @@ import * as Updates from "expo-updates";
 import { PaperProvider } from "react-native-paper";
 import "react-native-reanimated";
 
-import { RestartDialog } from "@/components/RestartDialog";
+import { RestartDialog } from "@/components";
 import { getTheme } from "@/constants/themes";
 import { useBoolean } from "@/hooks/useBoolean";
 import { useSettingsStore } from "@/store/settingsStore";

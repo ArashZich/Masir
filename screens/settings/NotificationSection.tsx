@@ -1,0 +1,282 @@
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Text, Switch, Button, RadioButton, Divider } from 'react-native-paper';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { ThemedCard } from '@/components';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useBoolean } from '@/hooks/useBoolean';
+import { useSettingsStore } from '@/store/settingsStore';
+import { notificationService, type NotificationSound } from '@/services/notificationService';
+import { NOTIFICATION_SOUNDS, DEFAULT_TIMES } from '@/constants';
+
+interface NotificationSectionProps {
+  styles: any; // Import styles from parent
+}
+
+export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles }) => {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const { notifications, setNotifications } = useSettingsStore();
+
+  const [permissionStatus, setPermissionStatus] = useState<string>('');
+  const dailyTimePicker = useBoolean(false, 'dailyTimePicker');
+  const moodTimePicker = useBoolean(false, 'moodTimePicker');
+
+  useEffect(() => {
+    checkPermissionStatus();
+  }, []);
+
+  const checkPermissionStatus = async () => {
+    const status = await notificationService.getPermissionStatus();
+    setPermissionStatus(status);
+  };
+
+  const handleRequestPermission = async () => {
+    const granted = await notificationService.requestPermissions();
+    setPermissionStatus(granted ? 'granted' : 'denied');
+  };
+
+  const handleNotificationToggle = (field: string, value: boolean) => {
+    setNotifications({
+      ...notifications,
+      [field]: value
+    });
+  };
+
+  const handleTimeChange = (type: 'daily' | 'mood', time: { hour: number; minute: number }) => {
+    if (type === 'daily') {
+      setNotifications({
+        dailyReminder: { ...notifications.dailyReminder, time }
+      });
+      notificationService.scheduleDailyReminder(time, notifications.sound);
+    } else {
+      setNotifications({
+        moodReminder: { ...notifications.moodReminder, time }
+      });
+      notificationService.scheduleMoodReminder(time, notifications.sound);
+    }
+  };
+
+  const sendTestNotification = () => {
+    notificationService.sendTestNotification(notifications.sound);
+  };
+
+  const soundOptions = NOTIFICATION_SOUNDS.map(option => ({
+    value: option.value,
+    label: t(option.label),
+  }));
+
+  return (
+    <ThemedCard elevation={1}>
+      <ThemedCard.Content>
+        <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.text.primary }]}>
+          {t('settings.notifications')}
+        </Text>
+        <Text variant="bodyMedium" style={[styles.sectionDescription, { color: colors.text.secondary }]}>
+          {t('notifications.description')}
+        </Text>
+
+        {/* Permission Status */}
+        <View style={styles.permissionRow}>
+          <View style={styles.permissionInfo}>
+            <Text variant="bodyLarge" style={{ color: colors.text.primary }}>
+              {t('notifications.permission')}
+            </Text>
+            <Text variant="bodySmall" style={[styles.permissionDesc, { color: colors.text.secondary }]}>
+              {permissionStatus === 'granted'
+                ? t('notifications.permissionGranted')
+                : permissionStatus === 'unsupported'
+                ? t('backup.unsupportedInExpoGo')
+                : t('notifications.permissionDenied')
+              }
+            </Text>
+          </View>
+          {permissionStatus !== 'granted' && permissionStatus !== 'unsupported' && (
+            <Button
+              mode="outlined"
+              onPress={handleRequestPermission}
+              style={styles.permissionButton}
+            >
+              {t('notifications.requestPermission')}
+            </Button>
+          )}
+        </View>
+
+        <Divider style={styles.divider} />
+
+        {/* Enable Notifications */}
+        <View style={styles.switchRow}>
+          <View style={styles.switchInfo}>
+            <Text variant="bodyLarge">{t('notifications.enable')}</Text>
+          </View>
+          <Switch
+            value={notifications.enabled}
+            onValueChange={(value) => handleNotificationToggle('enabled', value)}
+            disabled={permissionStatus !== 'granted'}
+          />
+        </View>
+
+        {notifications.enabled && permissionStatus === 'granted' && (
+          <>
+            {/* Sound Selection */}
+            <View style={styles.soundSection}>
+              <Text variant="bodyLarge" style={styles.soundTitle}>
+                {t('notifications.sound')}
+              </Text>
+              <Text variant="bodySmall" style={styles.soundDesc}>
+                {t('notifications.soundDesc')}
+              </Text>
+
+              <RadioButton.Group
+                onValueChange={(value) => {
+                  const newSound = value as NotificationSound;
+                  setNotifications({ sound: newSound });
+                  notificationService.sendTestNotification(newSound);
+                }}
+                value={notifications.sound}
+              >
+                {soundOptions.map((option) => (
+                  <RadioButton.Item
+                    key={option.value}
+                    label={option.label}
+                    value={option.value}
+                    style={styles.radioItem}
+                  />
+                ))}
+              </RadioButton.Group>
+            </View>
+
+            <Divider style={styles.divider} />
+
+            {/* Daily Reminder */}
+            <View style={styles.reminderSection}>
+              <View style={styles.reminderHeader}>
+                <View style={styles.reminderInfo}>
+                  <Text variant="bodyLarge">{t('notifications.dailyReminder')}</Text>
+                  <Text variant="bodySmall" style={styles.reminderDesc}>
+                    {t('notifications.dailyReminderDesc')}
+                  </Text>
+                </View>
+                <Switch
+                  value={notifications.dailyReminder.enabled}
+                  onValueChange={(value) =>
+                    setNotifications({
+                      dailyReminder: { ...notifications.dailyReminder, enabled: value }
+                    })
+                  }
+                />
+              </View>
+
+              {notifications.dailyReminder.enabled && (
+                <View style={styles.timePickerContainer}>
+                  <Button
+                    mode="outlined"
+                    onPress={dailyTimePicker.setTrue}
+                    style={styles.timeButton}
+                  >
+                    {String(notifications.dailyReminder.time.hour).padStart(2, '0')}:
+                    {String(notifications.dailyReminder.time.minute).padStart(2, '0')}
+                  </Button>
+
+                  {dailyTimePicker.value && (
+                    <DateTimePicker
+                      value={new Date(2024, 0, 1, notifications.dailyReminder.time.hour, notifications.dailyReminder.time.minute)}
+                      mode="time"
+                      is24Hour={true}
+                      display="default"
+                      onChange={(event, selectedTime) => {
+                        dailyTimePicker.setFalse();
+                        if (selectedTime) {
+                          const time = {
+                            hour: selectedTime.getHours(),
+                            minute: selectedTime.getMinutes(),
+                          };
+                          handleTimeChange('daily', time);
+                        }
+                      }}
+                    />
+                  )}
+                </View>
+              )}
+            </View>
+
+            <Divider style={styles.divider} />
+
+            {/* Mood Reminder */}
+            <View style={styles.reminderSection}>
+              <View style={styles.reminderHeader}>
+                <View style={styles.reminderInfo}>
+                  <Text variant="bodyLarge">{t('notifications.moodReminder')}</Text>
+                  <Text variant="bodySmall" style={styles.reminderDesc}>
+                    {t('notifications.moodReminderDesc')}
+                  </Text>
+                </View>
+                <Switch
+                  value={notifications.moodReminder.enabled}
+                  onValueChange={(value) =>
+                    setNotifications({
+                      moodReminder: { ...notifications.moodReminder, enabled: value }
+                    })
+                  }
+                />
+              </View>
+
+              {notifications.moodReminder.enabled && (
+                <View style={styles.timePickerContainer}>
+                  <Button
+                    mode="outlined"
+                    onPress={moodTimePicker.setTrue}
+                    style={styles.timeButton}
+                  >
+                    {String(notifications.moodReminder.time.hour).padStart(2, '0')}:
+                    {String(notifications.moodReminder.time.minute).padStart(2, '0')}
+                  </Button>
+
+                  {moodTimePicker.value && (
+                    <DateTimePicker
+                      value={new Date(2024, 0, 1, notifications.moodReminder.time.hour, notifications.moodReminder.time.minute)}
+                      mode="time"
+                      is24Hour={true}
+                      display="default"
+                      onChange={(event, selectedTime) => {
+                        moodTimePicker.setFalse();
+                        if (selectedTime) {
+                          const time = {
+                            hour: selectedTime.getHours(),
+                            minute: selectedTime.getMinutes(),
+                          };
+                          handleTimeChange('mood', time);
+                        }
+                      }}
+                    />
+                  )}
+                </View>
+              )}
+            </View>
+
+            <Divider style={styles.divider} />
+
+            {/* Test Notification */}
+            <View style={styles.testSection}>
+              <Text variant="bodyLarge" style={styles.testTitle}>
+                {t('notifications.test')}
+              </Text>
+              <Text variant="bodySmall" style={styles.testDesc}>
+                {t('notifications.testDesc')}
+              </Text>
+              <Button
+                mode="outlined"
+                onPress={sendTestNotification}
+                style={styles.testButton}
+                icon="bell-ring"
+              >
+                {t('notifications.sendTest')}
+              </Button>
+            </View>
+          </>
+        )}
+      </ThemedCard.Content>
+    </ThemedCard>
+  );
+};
