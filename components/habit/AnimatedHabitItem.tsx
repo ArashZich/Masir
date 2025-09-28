@@ -120,26 +120,16 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
             style={[
               styles.habitItem,
               {
-                backgroundColor: colors.elevation.level1,
-                borderColor: colors.border,
-                ...(isDark && {
-                  borderWidth: 1,
-                  shadowColor: '#000000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.6,
-                  shadowRadius: 3,
-                }),
-              },
-              habit.completed && [styles.habitCompleted, {
-                backgroundColor: isDark
-                  ? 'rgba(82, 196, 26, 0.15)'
-                  : 'rgba(82, 196, 26, 0.08)',
-                borderColor: isDark
-                  ? 'rgba(82, 196, 26, 0.6)'
-                  : 'rgba(82, 196, 26, 0.2)',
-              }]
+                backgroundColor: habit.completed
+                  ? (isDark ? 'rgba(82, 196, 26, 0.15)' : 'rgba(82, 196, 26, 0.08)')
+                  : colors.elevation.level1,
+                borderColor: habit.completed
+                  ? (isDark ? 'rgba(82, 196, 26, 0.6)' : 'rgba(82, 196, 26, 0.3)')
+                  : colors.border,
+                borderWidth: habit.completed ? 1 : 0.5,
+              }
             ]}
-            elevation={isDark ? 5 : 4}
+            elevation={habit.completed ? 0 : 4}
           >
             <View style={styles.habitIconContainer}>
               <Avatar.Icon
@@ -177,10 +167,6 @@ const styles = StyleSheet.create({
     minWidth: 100,
     marginBottom: 12,
     borderWidth: 0.5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
   },
   habitCompleted: {
     borderWidth: 1,

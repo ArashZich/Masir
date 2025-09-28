@@ -2,6 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { persistStorage } from './storage';
 
+// Simple UUID generator
+const generateId = () => {
+  return Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9);
+};
+
 export interface ReminderSettings {
   enabled: boolean;
   time: string; // HH:MM format
@@ -74,7 +79,7 @@ export const useHabitStore = create<HabitState>()(
       addHabit: (habitData) => {
         const newHabit: Habit = {
           ...habitData,
-          id: Date.now().toString(),
+          id: generateId(),
           createdAt: new Date().toISOString(),
           isActive: true,
           target: habitData.target || 1,

@@ -13,6 +13,9 @@ import { useHabitStore } from "@/store/habitStore";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
+
+// 🧪 TEST DATA - Development only
+import { clearTestData, loadTestData } from "@/utils/testData";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Avatar,
@@ -107,6 +110,28 @@ export default function HomeScreen() {
           >
             {getTodayFormatted()}
           </Text>
+
+          {/* 🧪 TEST DATA BUTTONS - Development only */}
+          {__DEV__ && (
+            <View style={styles.testDataControls}>
+              <Button
+                mode="outlined"
+                onPress={() => loadTestData()}
+                compact
+                style={styles.testButton}
+              >
+                📊 Load Test Data
+              </Button>
+              <Button
+                mode="outlined"
+                onPress={() => clearTestData()}
+                compact
+                style={styles.testButton}
+              >
+                🗑️ Clear Data
+              </Button>
+            </View>
+          )}
         </Surface>
 
         {/* Mood Section */}
@@ -475,5 +500,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
+  },
+  // 🧪 Test data controls styles
+  testDataControls: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 12,
+  },
+  testButton: {
+    borderRadius: 8,
   },
 });
