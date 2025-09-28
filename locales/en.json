@@ -22,6 +22,7 @@
   "navigation": {
     "todayPath": "Today's Path",
     "overview": "Overview",
+    "analytics": "Analytics",
     "settings": "Settings"
   },
   "theme": {
@@ -200,7 +201,11 @@
     "title": "Settings",
     "appearance": "Appearance",
     "language": "Language",
-    "theme": "Theme",
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
     "notifications": "Notifications",
     "data": "Data",
     "backup": "Backup",
@@ -222,6 +227,7 @@
     "exportCSVDesc": "Export for Excel and data analysis",
     "importJSON": "Import JSON",
     "importJSONDesc": "Restore data from JSON file",
+    "importDesc": "Restore your data from backup file",
     "dataManagement": "Data Management",
     "backupAndRestore": "Backup & Restore",
     "exportInProgress": "Exporting...",
@@ -296,6 +302,7 @@
       "default": "Default",
       "gentle": "Gentle",
       "chime": "Chime",
+      "ding": "Ding",
       "bell": "Bell",
       "none": "Silent"
     },
