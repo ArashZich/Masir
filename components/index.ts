@@ -4,3 +4,4 @@ export * from './habit';
 export * from './mood';
 export * from './charts';
 export * from './garden';
+export * from './calendar';

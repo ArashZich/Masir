@@ -3,16 +3,16 @@ import {
   GardenGrowth,
   MicroJournal,
   MoodSelector,
-  ThemedCard
+  ThemedCard,
 } from "@/components";
 import { calculateGrowthStage } from "@/components/garden/GardenGrowth";
-import { useHabitStore } from "@/store/habitStore";
-import { useSettingsStore } from "@/store/settingsStore";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useCalendar } from "@/hooks/useCalendar";
+import { useLanguage } from "@/hooks/useLanguage";
+import { useHabitStore } from "@/store/habitStore";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Avatar,
@@ -25,9 +25,9 @@ import {
 } from "react-native-paper";
 
 export default function HomeScreen() {
-  const { t } = useTranslation();
-  const { language } = useSettingsStore();
+  const { t } = useLanguage();
   const { colors } = useTheme();
+  const { getTodayFormatted } = useCalendar();
   const {
     getHabitsForDate,
     toggleHabitForDay,
@@ -88,26 +88,34 @@ export default function HomeScreen() {
         contentContainerStyle={styles.content}
       >
         {/* Header Simple */}
-        <Surface style={[styles.simpleHeader, { backgroundColor: colors.elevation.level2 }]} elevation={4}>
-          <Text variant="headlineLarge" style={[styles.title, { color: colors.text.primary }]}>
+        <Surface
+          style={[
+            styles.simpleHeader,
+            { backgroundColor: colors.elevation.level2 },
+          ]}
+          elevation={4}
+        >
+          <Text
+            variant="headlineLarge"
+            style={[styles.title, { color: colors.text.primary }]}
+          >
             {t("today.yourPath")}
           </Text>
-          <Text variant="bodyLarge" style={[styles.subtitle, { color: colors.text.secondary }]}>
-            {new Date().toLocaleDateString(
-              language === "fa" ? "fa-IR" : "en-US",
-              {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              }
-            )}
+          <Text
+            variant="bodyLarge"
+            style={[styles.subtitle, { color: colors.text.secondary }]}
+          >
+            {getTodayFormatted()}
           </Text>
         </Surface>
 
         {/* Mood Section */}
         <ThemedCard elevation={1}>
           <ThemedCard.Content>
-            <Text variant="titleMedium" style={[styles.moodTitle, { color: colors.text.primary }]}>
+            <Text
+              variant="titleMedium"
+              style={[styles.moodTitle, { color: colors.text.primary }]}
+            >
               ☀️ {t("mood.title")}
             </Text>
             <MoodSelector
@@ -132,7 +140,10 @@ export default function HomeScreen() {
         {/* Garden Growth Section */}
         <ThemedCard elevation={1}>
           <ThemedCard.Content>
-            <Text variant="titleMedium" style={[styles.gardenTitle, { color: colors.text.primary }]}>
+            <Text
+              variant="titleMedium"
+              style={[styles.gardenTitle, { color: colors.text.primary }]}
+            >
               🌱 {t("garden.title")}
             </Text>
             <View style={styles.gardenContainer}>
@@ -146,10 +157,22 @@ export default function HomeScreen() {
                 return (
                   <View key={habit.id} style={styles.gardenItem}>
                     <GardenGrowth stage={stage} size={80} />
-                    <Text variant="bodySmall" style={[styles.gardenLabel, { color: colors.text.primary }]}>
+                    <Text
+                      variant="bodySmall"
+                      style={[
+                        styles.gardenLabel,
+                        { color: colors.text.primary },
+                      ]}
+                    >
                       {habit.name}
                     </Text>
-                    <Text variant="bodySmall" style={[styles.gardenProgress, { color: colors.secondary }]}>
+                    <Text
+                      variant="bodySmall"
+                      style={[
+                        styles.gardenProgress,
+                        { color: colors.secondary },
+                      ]}
+                    >
                       {completedDays} {t("garden.days")}
                     </Text>
                   </View>
@@ -158,7 +181,13 @@ export default function HomeScreen() {
               {habits.length === 0 && (
                 <View style={styles.emptyGarden}>
                   <GardenGrowth stage={1} size={100} />
-                  <Text variant="bodyMedium" style={[styles.emptyGardenText, { color: colors.text.secondary }]}>
+                  <Text
+                    variant="bodyMedium"
+                    style={[
+                      styles.emptyGardenText,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
                     {t("garden.emptyMessage")}
                   </Text>
                 </View>
@@ -171,7 +200,10 @@ export default function HomeScreen() {
         <ThemedCard elevation={2}>
           <ThemedCard.Content style={styles.progressContent}>
             <View style={styles.progressHeader}>
-              <Text variant="titleLarge" style={[styles.progressTitle, { color: colors.text.primary }]}>
+              <Text
+                variant="titleLarge"
+                style={[styles.progressTitle, { color: colors.text.primary }]}
+              >
                 {t("today.progress")}
               </Text>
               <Chip icon="target" mode="flat" textStyle={styles.chipText}>
@@ -187,18 +219,30 @@ export default function HomeScreen() {
 
             <View style={styles.progressStats}>
               <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={[styles.statNumber, { color: colors.text.primary }]}>
+                <Text
+                  variant="headlineSmall"
+                  style={[styles.statNumber, { color: colors.text.primary }]}
+                >
                   {completedCount}
                 </Text>
-                <Text variant="bodyMedium" style={[styles.statLabel, { color: colors.text.secondary }]}>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.statLabel, { color: colors.text.secondary }]}
+                >
                   {t("today.completed")}
                 </Text>
               </View>
               <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={[styles.statNumber, { color: colors.text.primary }]}>
+                <Text
+                  variant="headlineSmall"
+                  style={[styles.statNumber, { color: colors.text.primary }]}
+                >
                   {totalCount - completedCount}
                 </Text>
-                <Text variant="bodyMedium" style={[styles.statLabel, { color: colors.text.secondary }]}>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.statLabel, { color: colors.text.secondary }]}
+                >
                   {t("today.remaining")}
                 </Text>
               </View>
@@ -210,15 +254,28 @@ export default function HomeScreen() {
         <ThemedCard elevation={1}>
           <ThemedCard.Content>
             <View style={styles.pathHeader}>
-              <Text variant="titleLarge" style={[styles.pathTitle, { color: colors.text.primary }]}>
+              <Text
+                variant="titleLarge"
+                style={[styles.pathTitle, { color: colors.text.primary }]}
+              >
                 🌱 {t("today.todaysGarden")}
               </Text>
             </View>
 
             {totalCount === 0 ? (
               <View style={styles.emptyState}>
-                <Avatar.Icon size={80} icon="sprout" style={[styles.emptyIcon, { backgroundColor: colors.elevation.level2 }]} />
-                <Text variant="bodyLarge" style={[styles.emptyText, { color: colors.text.secondary }]}>
+                <Avatar.Icon
+                  size={80}
+                  icon="sprout"
+                  style={[
+                    styles.emptyIcon,
+                    { backgroundColor: colors.elevation.level2 },
+                  ]}
+                />
+                <Text
+                  variant="bodyLarge"
+                  style={[styles.emptyText, { color: colors.text.secondary }]}
+                >
                   {t("habit.noHabitsYet")}
                 </Text>
                 <Button
@@ -377,8 +434,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 4,
   },
-  statLabel: {
-  },
+  statLabel: {},
   pathCard: {
     margin: 16,
     marginTop: 0,

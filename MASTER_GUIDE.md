@@ -1,6 +1,6 @@
 # 🗺️ راهنمای جامع پروژه مسیر (Masir)
 
-## 📅 آخرین بروزرسانی: ۲۷ سپتامبر ۲۰۲۵
+## 📅 آخرین بروزرسانی: ۲۸ سپتامبر ۲۰۲۵
 ## 👨‍💻 توسعه‌دهنده: آرش
 
 ---
@@ -69,6 +69,21 @@
 - ✅ **Settings integration:** تنظیمات تم در صفحه Settings
 - ✅ **Elevation levels:** سطوح elevation برای dark theme
 
+#### **📅 Jalaali/Gregorian Calendar System (جدید کامل شد)**
+- ✅ **useCalendar Hook:** مدیریت تقویم براساس زبان
+- ✅ **JalaaliCalendar Component:** تقویم شمسی سفارشی
+- ✅ **moment-jalaali Integration:** پشتیبانی کامل از تقویم جلالی
+- ✅ **Smart Date Display:** نمایش تاریخ در صفحه اول براساس زبان
+- ✅ **Calendar Modal:** مودال روزها با تاریخ صحیح
+- ✅ **RTL Calendar Layout:** چیدمان درست روزها برای فارسی
+
+#### **🔄 RTL/LTR Direction Management (جدید کامل شد)**
+- ✅ **useLanguage Hook Enhancement:** مدیریت جهت متن
+- ✅ **Auto App Reload:** restart خودکار برای تغییر RTL/LTR
+- ✅ **Directional Icons:** آیکون‌های smart براساس جهت
+- ✅ **Calendar Navigation:** فلش‌های تقویم RTL-aware
+- ✅ **I18nManager Integration:** استفاده صحیح از React Native I18nManager
+
 #### **🌍 Design System (100%)**
 - ✅ **Color scheme:** `#667eea` primary, `#52c41a` success, `#ffffff` background
 - ✅ **Card pattern:** همه سفید، elevation 4، margin 16
@@ -78,29 +93,44 @@
 
 ---
 
-## 🚀 پیشرفت اخیر (Dark Mode System)
+## 🚀 پیشرفت اخیر (Jalaali Calendar & RTL System)
 
-### **🎨 ویژگی‌های جدید اضافه شده:**
+### **📅 ویژگی‌های جدید اضافه شده:**
 
-1. **ThemeContext System:**
-   - Context مدیریت تم با light/dark/system modes
-   - Color palette کامل برای هر دو حالت
-   - Automatic system theme detection
-   - Settings persistence با Zustand
+1. **Jalaali Calendar System:**
+   - `useCalendar` Hook برای مدیریت تقویم براساس زبان
+   - `JalaaliCalendar` Component سفارشی برای تقویم شمسی
+   - نمایش تاریخ صحیح در صفحه اول (جلالی/میلادی)
+   - مودال تقویم با تاریخ درست براساس زبان
+   - `moment-jalaali` integration کامل
 
-2. **Component Theming:**
-   - همه کامپوننت‌ها با theme سازگار
-   - ThemedCard component جدید
-   - Calendar با پشتیبانی کامل از تم‌ها
-   - Elevation levels برای dark theme
+2. **RTL/LTR Direction Management:**
+   - تقویت `useLanguage` Hook با مدیریت جهت
+   - Auto app reload برای تغییر RTL/LTR
+   - آیکون‌های directional smart (فلش‌ها، chevron ها)
+   - چیدمان درست تقویم فارسی (شنبه اول هفته)
+   - `I18nManager.forceRTL()` با reload مناسب
 
-3. **App-wide Integration:**
-   - همه صفحات با theme سازگار
-   - Settings UI برای تغییر تم
-   - Dynamic color updates
-   - TypeScript type safety کامل
+3. **Calendar Improvements:**
+   - تقویم analytics با نمایش جلالی/میلادی
+   - فلش‌های navigation RTL-aware
+   - چیدمان روزهای هفته صحیح برای فارسی
+   - تم‌سازی کامل تقویم‌ها
 
 ### **📦 New Files Created:**
+```
+hooks/useCalendar.ts              # Calendar management hook
+components/calendar/JalaaliCalendar.tsx  # Persian calendar component
+components/calendar/index.ts      # Calendar components export
+```
+
+### **🔧 Modified Files:**
+```
+hooks/useLanguage.ts              # Enhanced with RTL management
+app/(tabs)/index.tsx              # Jalaali date display
+app/(tabs)/analytics.tsx          # Calendar modal with correct dates
+screens/analytics/CalendarSection.tsx  # Jalaali/Gregorian switching
+components/index.ts               # Added calendar exports
 ```
 /contexts/ThemeContext.tsx    # Theme management context
 /components/ThemedCard.tsx    # Themed card component

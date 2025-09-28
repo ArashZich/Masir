@@ -17,6 +17,8 @@
     "yesterday": "Yesterday",
     "next": "Next",
     "previous": "Previous",
+    "back": "Back",
+    "skip": "Skip",
     "of": "of"
   },
   "navigation": {
@@ -206,6 +208,11 @@
       "dark": "Dark",
       "system": "System"
     },
+    "themeOptions": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
     "notifications": "Notifications",
     "data": "Data",
     "backup": "Backup",
@@ -244,7 +251,8 @@
     "ok": "Okay",
     "bad": "Tough",
     "clear": "Clear",
-    "selector": "Select mood"
+    "selector": "Select mood",
+    "noData": "No data available yet"
   },
   "journal": {
     "title": "Today's Note",
@@ -274,7 +282,9 @@
   "restart": {
     "title": "App Restart Required",
     "message": "To apply text direction changes, the app will restart automatically.",
+    "manualMessage": "To apply text direction changes, please reload the app manually by pressing 'r' in the terminal.",
     "confirm": "Restart Now",
+    "understood": "Got it",
     "cancel": "Cancel"
   },
   "notifications": {
@@ -315,6 +325,53 @@
       "habitBody": "Time to do this habit!",
       "testTitle": "🧪 Test Notification",
       "testBody": "Notifications are working correctly!"
+    }
+  },
+  "onboarding": {
+    "philosophy": {
+      "title": "Simple & Personal",
+      "point1": "Some days are good, some aren't - that's totally normal",
+      "point2": "Build habits slowly, like growing a plant",
+      "point3": "How you feel matters more than ticking boxes",
+      "quote": "Small steps, every day. That's it."
+    },
+    "mood": {
+      "title": "How's Your Day?",
+      "subtitle": "Just a quick check-in with yourself",
+      "tryIt": "Try picking one:",
+      "description": "Instead of just tracking success/failure, we care about how you actually feel each day.",
+      "feedback": {
+        "good": "Nice! Good days are awesome 🌟",
+        "ok": "Totally normal. Most days are just okay 💙",
+        "bad": "Rough days happen. Tomorrow's a new day 🤗"
+      }
+    },
+    "garden": {
+      "title": "Your Habits Grow Like Plants",
+      "subtitle": "Each habit starts small and grows over time",
+      "watchGrowth": "See how it works:",
+      "stages": "Growth stages:",
+      "seed": "Start",
+      "sprout": "Try",
+      "leaf": "Practice",
+      "bud": "Build",
+      "flower": "Master",
+      "description": "No rush, no pressure. Just do a little bit each day and watch things grow naturally."
+    },
+    "start": {
+      "title": "Ready to Start?",
+      "subtitle": "Let's keep it simple and build good habits",
+      "message": "No pressure, no perfection. Just small daily steps that add up over time.",
+      "stepsTitle": "Here's how it works:",
+      "step1": "Quick daily mood check",
+      "step2": "See your habits grow",
+      "step3": "Simple progress tracking",
+      "encouragement": "Some days will be better than others. That's totally fine.",
+      "feature1": "Quick daily mood check",
+      "feature2": "See your habits grow",
+      "feature3": "Simple progress tracking",
+      "button": "Let's Go!",
+      "quote": "Some days will be better than others. That's totally fine."
     }
   }
 }

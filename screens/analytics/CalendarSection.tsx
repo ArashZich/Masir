@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { Text } from 'react-native-paper';
+import { Text, IconButton } from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
-import { ThemedCard } from '@/components';
+import { ThemedCard, JalaaliCalendar } from '@/components';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useCalendar } from '@/hooks/useCalendar';
 import { useHabitStore } from '@/store/habitStore';
 import { analyticsStyles as styles } from '@/styles/analytics.styles';
 
@@ -17,8 +18,9 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
   today,
   onDayPress,
 }) => {
-  const { t } = useTranslation();
+  const { t, isRTL } = useLanguage();
   const { colors, isDark } = useTheme();
+  const { config, isJalaali, formatDateDisplay } = useCalendar();
   const { history, getHabitsForDate } = useHabitStore();
 
   // Calendar marking logic
@@ -87,6 +89,21 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
     return marked;
   }, [history, today, getHabitsForDate]);
 
+  const renderArrow = (direction: 'left' | 'right') => {
+    const iconName = direction === 'left'
+      ? (isRTL ? 'chevron-right' : 'chevron-left')
+      : (isRTL ? 'chevron-left' : 'chevron-right');
+
+    return (
+      <IconButton
+        icon={iconName}
+        size={20}
+        iconColor={colors.primary}
+        style={{ margin: 0 }}
+      />
+    );
+  };
+
   return (
     <ThemedCard elevation={1} style={styles.calendarCard}>
       <ThemedCard.Content>
@@ -103,47 +120,73 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
           {t("overview.calendarDescription")}
         </Text>
 
-        <Calendar
-          key={isDark ? 'dark' : 'light'}
-          current={today}
-          markedDates={markedDates}
-          markingType="multi-dot"
-          onDayPress={onDayPress}
-          theme={{
-            backgroundColor: colors.elevation.level1,
-            calendarBackground: colors.elevation.level1,
-            textSectionTitleColor: colors.primary,
-            selectedDayBackgroundColor: colors.primary,
-            selectedDayTextColor: colors.onPrimary,
-            todayTextColor: colors.primary,
-            dayTextColor: colors.text.primary,
-            textDisabledColor: colors.text.disabled,
-            dotColor: colors.secondary,
-            selectedDotColor: colors.onPrimary,
-            arrowColor: colors.primary,
-            disabledArrowColor: colors.text.disabled,
-            monthTextColor: colors.primary,
-            indicatorColor: colors.primary,
-            textDayFontFamily: "System",
-            textMonthFontFamily: "System",
-            textDayHeaderFontFamily: "System",
-            textDayFontWeight: "500",
-            textMonthFontWeight: "bold",
-            textDayHeaderFontWeight: "600",
-            textDayFontSize: 16,
-            textMonthFontSize: 18,
-            textDayHeaderFontSize: 14,
-          } as any}
-          style={[
-            styles.calendar,
-            {
+        {isJalaali ? (
+          <JalaaliCalendar
+            current={today}
+            markedDates={markedDates}
+            onDayPress={onDayPress}
+            theme={{
               backgroundColor: colors.elevation.level1,
-              borderColor: colors.border,
-            },
-          ]}
-          hideExtraDays={true}
-          firstDay={1}
-        />
+              calendarBackground: colors.elevation.level1,
+              textSectionTitleColor: colors.primary,
+              selectedDayBackgroundColor: colors.primary,
+              selectedDayTextColor: colors.onPrimary,
+              todayTextColor: colors.primary,
+              dayTextColor: colors.text.primary,
+              textDisabledColor: colors.text.disabled,
+              dotColor: colors.secondary,
+              selectedDotColor: colors.onPrimary,
+              arrowColor: colors.primary,
+              disabledArrowColor: colors.text.disabled,
+              monthTextColor: colors.primary,
+              indicatorColor: colors.primary,
+            }}
+          />
+        ) : (
+          <Calendar
+            key={`${isDark ? 'dark' : 'light'}-${isRTL ? 'rtl' : 'ltr'}`}
+            current={today}
+            markedDates={markedDates}
+            markingType="multi-dot"
+            onDayPress={onDayPress}
+            enableSwipeMonths={true}
+            renderArrow={renderArrow}
+            theme={{
+              backgroundColor: colors.elevation.level1,
+              calendarBackground: colors.elevation.level1,
+              textSectionTitleColor: colors.primary,
+              selectedDayBackgroundColor: colors.primary,
+              selectedDayTextColor: colors.onPrimary,
+              todayTextColor: colors.primary,
+              dayTextColor: colors.text.primary,
+              textDisabledColor: colors.text.disabled,
+              dotColor: colors.secondary,
+              selectedDotColor: colors.onPrimary,
+              arrowColor: colors.primary,
+              disabledArrowColor: colors.text.disabled,
+              monthTextColor: colors.primary,
+              indicatorColor: colors.primary,
+              textDayFontFamily: "System",
+              textMonthFontFamily: "System",
+              textDayHeaderFontFamily: "System",
+              textDayFontWeight: "500",
+              textMonthFontWeight: "bold",
+              textDayHeaderFontWeight: "600",
+              textDayFontSize: 16,
+              textMonthFontSize: 18,
+              textDayHeaderFontSize: 14,
+            } as any}
+            style={[
+              styles.calendar,
+              {
+                backgroundColor: colors.elevation.level1,
+                borderColor: colors.border,
+              },
+            ]}
+            hideExtraDays={true}
+            firstDay={config.firstDay}
+          />
+        )}
 
         <View
           style={[styles.calendarLegend, { borderTopColor: colors.border }]}

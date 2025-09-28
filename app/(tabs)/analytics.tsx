@@ -7,6 +7,7 @@ import {
 } from "@/screens/analytics";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useBoolean } from "@/hooks/useBoolean";
+import { useLanguage } from "@/hooks/useLanguage";
 import { useHabitStore } from "@/store/habitStore";
 import {
   AnalyticsService,
@@ -27,9 +28,14 @@ import {
   Text,
 } from "react-native-paper";
 import { analyticsStyles as styles } from "@/styles/analytics.styles";
+import moment from "moment-jalaali";
+
+// Configure moment-jalaali
+moment.loadPersian({ usePersianDigits: false, dialect: 'persian-modern' });
 
 export default function AnalyticsScreen() {
   const { t } = useTranslation();
+  const { isRTL } = useLanguage();
   const { habits, getHabitsForDate, history } = useHabitStore();
   const { colors, isDark } = useTheme();
 
@@ -347,12 +353,10 @@ export default function AnalyticsScreen() {
                   variant="headlineSmall"
                   style={[styles.modalTitle, { color: colors.onPrimary }]}
                 >
-                  {new Date(selectedDayData.date).toLocaleDateString("fa-IR", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {isRTL
+                    ? moment(selectedDayData.date).format('dddd، jD jMMMM jYYYY')
+                    : moment(selectedDayData.date).format('dddd، MMMM D، YYYY')
+                  }
                 </Text>
               </View>
 

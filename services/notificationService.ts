@@ -342,6 +342,73 @@ class NotificationService {
     }
   }
 
+  // تست نوتیفیکیشن با delay (برای Expo Go)
+  async sendDelayedTestNotification(delaySeconds: number = 5, soundType: NotificationSound = 'default') {
+    if (!this.isSupported()) {
+      console.warn('Notifications not supported - delayed test notification not sent');
+      return false;
+    }
+
+    loadNotifications();
+    if (!Notifications) {
+      return false;
+    }
+
+    try {
+      const hasPermission = await this.requestPermissions();
+      if (!hasPermission) {
+        console.warn('No notification permission - delayed test notification not sent');
+        return false;
+      }
+
+      const soundConfig = this.getSoundConfig(soundType);
+
+      await Notifications.scheduleNotificationAsync({
+        identifier: 'test-delayed',
+        content: {
+          title: i18next.t('notifications.messages.testTitle'),
+          body: i18next.t('notifications.messages.testBody'),
+          ...soundConfig,
+        },
+        trigger: {
+          seconds: delaySeconds,
+        },
+      });
+
+      console.log(`Test notification scheduled for ${delaySeconds} seconds from now`);
+      return true;
+    } catch (error) {
+      console.error('Error sending delayed test notification:', error);
+      return false;
+    }
+  }
+
+  // نمایش اطلاعات debug برای نوتیفیکیشن‌ها
+  async getNotificationDebugInfo() {
+    const debugInfo = {
+      isSupported: this.isSupported(),
+      isExpoGo,
+      isNotificationSupported,
+      isDev: __DEV__,
+      permissionStatus: 'unknown',
+      scheduledNotifications: [],
+    };
+
+    if (this.isSupported()) {
+      loadNotifications();
+      if (Notifications) {
+        try {
+          debugInfo.permissionStatus = await this.getPermissionStatus();
+          debugInfo.scheduledNotifications = await this.getScheduledNotifications();
+        } catch (error) {
+          console.error('Error getting debug info:', error);
+        }
+      }
+    }
+
+    return debugInfo;
+  }
+
   // listener برای handle کردن notification ها
   addNotificationReceivedListener(callback: (notification: any) => void) {
     if (!this.isSupported()) {

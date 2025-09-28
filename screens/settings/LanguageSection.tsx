@@ -1,15 +1,13 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { SegmentedButtons, Text } from 'react-native-paper';
 import { ThemedCard } from '@/components';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useSettingsStore, type Language } from '@/store/settingsStore';
+import { useLanguage } from '@/hooks/useLanguage';
 import { LANGUAGE_OPTIONS } from '@/constants';
 
 export const LanguageSection: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, currentLanguage, changeLanguage } = useLanguage();
   const { colors } = useTheme();
-  const { language, setLanguage } = useSettingsStore();
 
   const languageOptions = LANGUAGE_OPTIONS.map(option => ({
     value: option.value,
@@ -23,8 +21,8 @@ export const LanguageSection: React.FC = () => {
           {t('settings.language')}
         </Text>
         <SegmentedButtons
-          value={language}
-          onValueChange={(value) => setLanguage(value as Language)}
+          value={currentLanguage}
+          onValueChange={(value) => changeLanguage(value as 'fa' | 'en')}
           buttons={languageOptions}
           theme={{
             colors: {

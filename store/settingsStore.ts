@@ -11,11 +11,13 @@ interface SettingsState {
   theme: ThemeMode;
   language: Language;
   notifications: NotificationSettings;
+  onboardingCompleted: boolean;
 
   // Actions
   setTheme: (theme: ThemeMode) => void;
   setLanguage: (language: Language) => void;
   setNotifications: (notifications: Partial<NotificationSettings>) => void;
+  setOnboardingCompleted: (completed: boolean) => void;
   resetSettings: () => void;
 }
 
@@ -23,6 +25,7 @@ const initialState = {
   theme: 'system' as ThemeMode,
   language: 'fa' as Language,
   notifications: DEFAULT_NOTIFICATION_SETTINGS,
+  onboardingCompleted: false,
 };
 
 export const useSettingsStore = create<SettingsState>()(
@@ -42,6 +45,10 @@ export const useSettingsStore = create<SettingsState>()(
         set((state) => ({
           notifications: { ...state.notifications, ...notifications }
         }));
+      },
+
+      setOnboardingCompleted: (completed) => {
+        set({ onboardingCompleted: completed });
       },
 
       resetSettings: () => {

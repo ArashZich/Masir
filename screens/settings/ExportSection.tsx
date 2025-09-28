@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Text, List, Divider } from 'react-native-paper';
 import { ThemedCard } from '@/components';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/hooks/useLanguage';
 import { exportService } from '@/services/exportService';
 
 interface ExportSectionProps {
@@ -10,7 +10,7 @@ interface ExportSectionProps {
 }
 
 export const ExportSection: React.FC<ExportSectionProps> = ({ styles }) => {
-  const { t } = useTranslation();
+  const { t, getDirectionalIcon } = useLanguage();
   const { colors } = useTheme();
   const [exportLoading, setExportLoading] = useState<string | null>(null);
   const [importLoading, setImportLoading] = useState(false);
@@ -70,7 +70,7 @@ export const ExportSection: React.FC<ExportSectionProps> = ({ styles }) => {
             exportLoading === 'json' ? (
               <List.Icon {...props} icon="loading" />
             ) : (
-              <List.Icon {...props} icon="chevron-right" />
+              <List.Icon {...props} icon={getDirectionalIcon("chevron-right", "chevron-left")} />
             )
           }
           onPress={handleExportJSON}
@@ -89,7 +89,7 @@ export const ExportSection: React.FC<ExportSectionProps> = ({ styles }) => {
             exportLoading === 'csv' ? (
               <List.Icon {...props} icon="loading" />
             ) : (
-              <List.Icon {...props} icon="chevron-right" />
+              <List.Icon {...props} icon={getDirectionalIcon("chevron-right", "chevron-left")} />
             )
           }
           onPress={handleExportCSV}
@@ -108,7 +108,7 @@ export const ExportSection: React.FC<ExportSectionProps> = ({ styles }) => {
             importLoading ? (
               <List.Icon {...props} icon="loading" />
             ) : (
-              <List.Icon {...props} icon="chevron-right" />
+              <List.Icon {...props} icon={getDirectionalIcon("chevron-right", "chevron-left")} />
             )
           }
           onPress={handleImport}

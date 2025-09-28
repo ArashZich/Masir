@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/hooks/useLanguage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -16,7 +16,7 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
   onMoodSelect,
   size = 'medium'
 }) => {
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   const { colors, isDark } = useTheme();
 
   const moodOptions = [

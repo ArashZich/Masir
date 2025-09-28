@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog, Portal, Text, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import Constants from 'expo-constants';
 
 interface RestartDialogProps {
   visible: boolean;

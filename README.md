@@ -34,6 +34,12 @@
 - Monthly insights و بهترین/بدترین روزها
 - پیام‌های هوشمند و تشویقی
 
+### 📅 **Jalaali/Gregorian Calendar**
+- تقویم هوشمند براساس زبان (جلالی برای فارسی، میلادی برای انگلیسی)
+- نمایش تاریخ‌های صحیح در تمام بخش‌ها
+- پشتیبانی کامل از RTL/LTR direction
+- تقویم جلالی سفارشی با `moment-jalaali`
+
 ### 🎨 **Gentle UI/UX**
 - رنگ‌های ملایم و دوستانه
 - انیمیشن‌های نرم با haptic feedback
@@ -48,6 +54,8 @@
 - **Storage:** AsyncStorage
 - **Internationalization:** i18next (فارسی/انگلیسی)
 - **Charts:** react-native-chart-kit
+- **Calendar:** moment-jalaali برای تقویم شمسی
+- **Direction:** RTL/LTR management با I18nManager
 - **Calendar:** react-native-calendars
 - **Animations:** React Native Reanimated
 
@@ -95,11 +103,16 @@ npm start
 - [x] Material Design consistency
 - [x] Smooth animations
 
+### ✅ **اخیراً اضافه شده:**
+- [x] Notifications system کامل
+- [x] Export/Import داده‌ها
+- [x] Interactive calendar
+- [x] Dark mode کامل
+
 ### 🚧 **در حال توسعه:**
-- [ ] Notifications system
-- [ ] Export/Import داده‌ها
-- [ ] Interactive calendar
-- [ ] Dark mode کامل
+- [ ] Onboarding screens برای کاربران جدید
+- [ ] Home screen widget
+- [ ] Cloud sync system
 
 ## 🎨 طراحی و رنگ‌بندی
 
@@ -133,24 +146,33 @@ eas build --platform ios
 ## 📂 ساختار پروژه
 
 ```
-/app                 # صفحات (Expo Router)
+/app                    # صفحات (Expo Router)
 ├── /(tabs)/
-│   ├── index.tsx    # صفحه اصلی
-│   ├── explore.tsx  # آمار و تحلیل
-│   └── settings.tsx # تنظیمات
-/components          # UI Components
-├── MoodSelector.tsx # انتخاب mood
-├── MicroJournal.tsx # یادداشت روزانه
-├── GardenGrowth.tsx # نمایش رشد باغچه
-└── ProgressChart.tsx# نمودارها
-/store              # Zustand stores
-├── habitStore.ts   # مدیریت عادت‌ها
-└── settingsStore.ts# تنظیمات
-/utils              # Helper functions
-└── analytics.ts    # تحلیل داده‌ها
-/locales            # ترجمه‌ها
-├── fa.json         # فارسی
-└── en.json         # انگلیسی
+│   ├── index.tsx       # صفحه اصلی
+│   ├── analytics.tsx   # آمار و تحلیل
+│   └── settings.tsx    # تنظیمات
+/components             # UI Components (مرتب شده)
+├── /ui/                # کامپوننت‌های عمومی
+├── /habit/             # مربوط به عادت‌ها
+├── /mood/              # انتخاب mood و journal
+├── /charts/            # نمودارها
+└── /garden/            # نمایش رشد باغچه
+/screens               # بخش‌های پیچیده صفحات
+├── /analytics/        # کامپوننت‌های صفحه آمار
+└── /settings/         # کامپوننت‌های تنظیمات
+/constants             # ثابت‌های پروژه
+├── colors.ts          # رنگ‌ها
+├── dimensions.ts      # اندازه‌ها
+└── settings.ts        # گزینه‌های تنظیمات
+/styles                # فایل‌های استایل جدا
+/store                 # Zustand stores
+├── habitStore.ts      # مدیریت عادت‌ها
+└── settingsStore.ts   # تنظیمات
+/utils                 # Helper functions
+└── analytics.ts       # تحلیل داده‌ها
+/locales               # ترجمه‌ها
+├── fa.json            # فارسی
+└── en.json            # انگلیسی
 ```
 
 ## 🤝 مشارکت در پروژه

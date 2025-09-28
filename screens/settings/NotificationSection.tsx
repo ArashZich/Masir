@@ -20,6 +20,8 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
   const { notifications, setNotifications } = useSettingsStore();
 
   const [permissionStatus, setPermissionStatus] = useState<string>('');
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const showDebug = useBoolean(false, 'showDebug');
   const dailyTimePicker = useBoolean(false, 'dailyTimePicker');
   const moodTimePicker = useBoolean(false, 'moodTimePicker');
 
@@ -60,6 +62,19 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
 
   const sendTestNotification = () => {
     notificationService.sendTestNotification(notifications.sound);
+  };
+
+  const sendDelayedTestNotification = async () => {
+    const success = await notificationService.sendDelayedTestNotification(5, notifications.sound);
+    if (success) {
+      console.log('Delayed test notification scheduled for 5 seconds');
+    }
+  };
+
+  const loadDebugInfo = async () => {
+    const info = await notificationService.getNotificationDebugInfo();
+    setDebugInfo(info);
+    showDebug.setTrue();
   };
 
   const soundOptions = NOTIFICATION_SOUNDS.map(option => ({
@@ -265,14 +280,55 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ styles
               <Text variant="bodySmall" style={styles.testDesc}>
                 {t('notifications.testDesc')}
               </Text>
+
+              <View style={{ flexDirection: 'row', gap: 8, marginVertical: 8 }}>
+                <Button
+                  mode="outlined"
+                  onPress={sendTestNotification}
+                  style={[styles.testButton, { flex: 1 }]}
+                  icon="bell-ring"
+                >
+                  {t('notifications.sendTest')}
+                </Button>
+
+                <Button
+                  mode="outlined"
+                  onPress={sendDelayedTestNotification}
+                  style={[styles.testButton, { flex: 1 }]}
+                  icon="clock"
+                >
+                  Test (5s)
+                </Button>
+              </View>
+
               <Button
-                mode="outlined"
-                onPress={sendTestNotification}
-                style={styles.testButton}
-                icon="bell-ring"
+                mode="text"
+                onPress={loadDebugInfo}
+                icon="bug"
+                compact
               >
-                {t('notifications.sendTest')}
+                Debug Info
               </Button>
+
+              {showDebug.value && debugInfo && (
+                <View style={{
+                  backgroundColor: colors.surface,
+                  padding: 12,
+                  borderRadius: 8,
+                  marginTop: 8
+                }}>
+                  <Text variant="bodySmall" style={{ fontFamily: 'monospace' }}>
+                    {JSON.stringify(debugInfo, null, 2)}
+                  </Text>
+                  <Button
+                    mode="text"
+                    onPress={showDebug.setFalse}
+                    compact
+                  >
+                    Hide
+                  </Button>
+                </View>
+              )}
             </View>
           </>
         )}
