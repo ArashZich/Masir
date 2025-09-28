@@ -1,10 +1,35 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { persistStorage } from './storage';
-import { NotificationSettings, DEFAULT_NOTIFICATION_SETTINGS } from '@/services/notificationService';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type Language = 'fa' | 'en';
+
+export interface NotificationSettings {
+  enabled: boolean;
+  sound: string;
+  dailyReminder: {
+    enabled: boolean;
+    time: { hour: number; minute: number };
+  };
+  moodReminder: {
+    enabled: boolean;
+    time: { hour: number; minute: number };
+  };
+}
+
+const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
+  enabled: false,
+  sound: 'default',
+  dailyReminder: {
+    enabled: false,
+    time: { hour: 9, minute: 0 },
+  },
+  moodReminder: {
+    enabled: false,
+    time: { hour: 20, minute: 0 },
+  },
+};
 
 interface SettingsState {
   // State

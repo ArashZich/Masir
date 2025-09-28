@@ -8,7 +8,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useBoolean } from '@/hooks/useBoolean';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useSettingsStore } from '@/store/settingsStore';
-import { NOTIFICATION_SOUNDS, DEFAULT_TIMES } from '@/constants';
+import { NOTIFICATION_SOUNDS, DEFAULT_TIMES } from '@/constants/settings';
 
 interface NotificationSectionProps {
   styles: any; // Import styles from parent
