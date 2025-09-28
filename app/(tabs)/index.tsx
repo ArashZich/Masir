@@ -2,8 +2,10 @@ import { AnimatedHabitItem } from "@/components/AnimatedHabitItem";
 import { GardenGrowth, calculateGrowthStage } from "@/components/GardenGrowth";
 import { MicroJournal } from "@/components/MicroJournal";
 import { MoodSelector } from "@/components/MoodSelector";
+import { ThemedCard } from "@/components/ThemedCard";
 import { useHabitStore } from "@/store/habitStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useTheme } from "@/contexts/ThemeContext";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
@@ -12,7 +14,6 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Avatar,
   Button,
-  Card,
   Chip,
   FAB,
   ProgressBar,
@@ -23,6 +24,7 @@ import {
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { language } = useSettingsStore();
+  const { colors, isDark } = useTheme();
   const {
     getHabitsForDate,
     toggleHabitForDay,
@@ -77,17 +79,17 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
       >
         {/* Header Simple */}
-        <Surface style={[styles.simpleHeader, styles.whiteCard]} elevation={4}>
-          <Text variant="headlineLarge" style={styles.title}>
+        <Surface style={[styles.simpleHeader, { backgroundColor: colors.elevation.level2 }]} elevation={4}>
+          <Text variant="headlineLarge" style={[styles.title, { color: colors.text.primary }]}>
             {t("today.yourPath")}
           </Text>
-          <Text variant="bodyLarge" style={styles.subtitle}>
+          <Text variant="bodyLarge" style={[styles.subtitle, { color: colors.text.secondary }]}>
             {new Date().toLocaleDateString(
               language === "fa" ? "fa-IR" : "en-US",
               {
@@ -100,9 +102,9 @@ export default function HomeScreen() {
         </Surface>
 
         {/* Mood Section */}
-        <Card style={[styles.moodCard, styles.whiteCard]} mode="elevated">
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.moodTitle}>
+        <ThemedCard elevation={1}>
+          <ThemedCard.Content>
+            <Text variant="titleMedium" style={[styles.moodTitle, { color: colors.text.primary }]}>
               ☀️ {t("mood.title")}
             </Text>
             <MoodSelector
@@ -110,24 +112,24 @@ export default function HomeScreen() {
               onMoodSelect={handleMoodChange}
               size="medium"
             />
-          </Card.Content>
-        </Card>
+          </ThemedCard.Content>
+        </ThemedCard>
 
         {/* Journal Section */}
-        <Card style={[styles.journalCard, styles.whiteCard]} mode="elevated">
-          <Card.Content>
+        <ThemedCard elevation={1}>
+          <ThemedCard.Content>
             <MicroJournal
               note={todayNote}
               onNoteChange={handleNoteChange}
               compact={false}
             />
-          </Card.Content>
-        </Card>
+          </ThemedCard.Content>
+        </ThemedCard>
 
         {/* Garden Growth Section */}
-        <Card style={[styles.gardenCard, styles.whiteCard]} mode="elevated">
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.gardenTitle}>
+        <ThemedCard elevation={1}>
+          <ThemedCard.Content>
+            <Text variant="titleMedium" style={[styles.gardenTitle, { color: colors.text.primary }]}>
               🌱 {t("garden.title")}
             </Text>
             <View style={styles.gardenContainer}>
@@ -141,10 +143,10 @@ export default function HomeScreen() {
                 return (
                   <View key={habit.id} style={styles.gardenItem}>
                     <GardenGrowth stage={stage} size={80} />
-                    <Text variant="bodySmall" style={styles.gardenLabel}>
+                    <Text variant="bodySmall" style={[styles.gardenLabel, { color: colors.text.primary }]}>
                       {habit.name}
                     </Text>
-                    <Text variant="bodySmall" style={styles.gardenProgress}>
+                    <Text variant="bodySmall" style={[styles.gardenProgress, { color: colors.secondary }]}>
                       {completedDays} {t("garden.days")}
                     </Text>
                   </View>
@@ -153,20 +155,20 @@ export default function HomeScreen() {
               {habits.length === 0 && (
                 <View style={styles.emptyGarden}>
                   <GardenGrowth stage={1} size={100} />
-                  <Text variant="bodyMedium" style={styles.emptyGardenText}>
+                  <Text variant="bodyMedium" style={[styles.emptyGardenText, { color: colors.text.secondary }]}>
                     {t("garden.emptyMessage")}
                   </Text>
                 </View>
               )}
             </View>
-          </Card.Content>
-        </Card>
+          </ThemedCard.Content>
+        </ThemedCard>
 
         {/* Progress Overview */}
-        <Card style={[styles.progressCard, styles.whiteCard]} mode="elevated">
-          <Card.Content style={styles.progressContent}>
+        <ThemedCard elevation={2}>
+          <ThemedCard.Content style={styles.progressContent}>
             <View style={styles.progressHeader}>
-              <Text variant="titleLarge" style={styles.progressTitle}>
+              <Text variant="titleLarge" style={[styles.progressTitle, { color: colors.text.primary }]}>
                 {t("today.progress")}
               </Text>
               <Chip icon="target" mode="flat" textStyle={styles.chipText}>
@@ -177,43 +179,43 @@ export default function HomeScreen() {
             <ProgressBar
               progress={progress}
               style={styles.progressBar}
-              color="#52c41a"
+              color={colors.secondary}
             />
 
             <View style={styles.progressStats}>
               <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+                <Text variant="headlineSmall" style={[styles.statNumber, { color: colors.text.primary }]}>
                   {completedCount}
                 </Text>
-                <Text variant="bodyMedium" style={styles.statLabel}>
+                <Text variant="bodyMedium" style={[styles.statLabel, { color: colors.text.secondary }]}>
                   {t("today.completed")}
                 </Text>
               </View>
               <View style={styles.statItem}>
-                <Text variant="headlineSmall" style={styles.statNumber}>
+                <Text variant="headlineSmall" style={[styles.statNumber, { color: colors.text.primary }]}>
                   {totalCount - completedCount}
                 </Text>
-                <Text variant="bodyMedium" style={styles.statLabel}>
+                <Text variant="bodyMedium" style={[styles.statLabel, { color: colors.text.secondary }]}>
                   {t("today.remaining")}
                 </Text>
               </View>
             </View>
-          </Card.Content>
-        </Card>
+          </ThemedCard.Content>
+        </ThemedCard>
 
         {/* Today's Habits */}
-        <Card style={[styles.pathCard, styles.whiteCard]} mode="elevated">
-          <Card.Content>
+        <ThemedCard elevation={1}>
+          <ThemedCard.Content>
             <View style={styles.pathHeader}>
-              <Text variant="titleLarge" style={styles.pathTitle}>
+              <Text variant="titleLarge" style={[styles.pathTitle, { color: colors.text.primary }]}>
                 🌱 {t("today.todaysGarden")}
               </Text>
             </View>
 
             {totalCount === 0 ? (
               <View style={styles.emptyState}>
-                <Avatar.Icon size={80} icon="sprout" style={styles.emptyIcon} />
-                <Text variant="bodyLarge" style={styles.emptyText}>
+                <Avatar.Icon size={80} icon="sprout" style={[styles.emptyIcon, { backgroundColor: colors.elevation.level2 }]} />
+                <Text variant="bodyLarge" style={[styles.emptyText, { color: colors.text.secondary }]}>
                   {t("habit.noHabitsYet")}
                 </Text>
                 <Button
@@ -240,15 +242,15 @@ export default function HomeScreen() {
                 ))}
               </View>
             )}
-          </Card.Content>
-        </Card>
+          </ThemedCard.Content>
+        </ThemedCard>
       </ScrollView>
 
       <FAB
         icon="plus"
         label={t("habit.newHabit")}
-        style={styles.fab}
-        color="#ffffff"
+        style={[styles.fab, { backgroundColor: colors.primary }]}
+        color={colors.onPrimary}
         customSize={56}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -262,10 +264,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  whiteCard: {
-    backgroundColor: '#ffffff',
   },
   scrollView: {
     flex: 1,
@@ -287,7 +285,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: "center",
-    opacity: 0.7,
   },
   moodCard: {
     margin: 16,
@@ -297,7 +294,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
     marginBottom: 16,
-    color: "#2d3748",
   },
   journalCard: {
     margin: 16,
@@ -311,7 +307,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
     marginBottom: 16,
-    color: "#2d3748",
   },
   gardenContainer: {
     flexDirection: "row",
@@ -328,12 +323,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 8,
     fontWeight: "600",
-    color: "#2d3748",
   },
   gardenProgress: {
     textAlign: "center",
     marginTop: 4,
-    color: "#4CAF50",
     fontSize: 11,
   },
   emptyGarden: {
@@ -344,7 +337,6 @@ const styles = StyleSheet.create({
   emptyGardenText: {
     textAlign: "center",
     marginTop: 12,
-    color: "#666",
   },
   progressCard: {
     margin: 16,
@@ -383,7 +375,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   statLabel: {
-    opacity: 0.7,
   },
   pathCard: {
     margin: 16,
@@ -401,12 +392,10 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   emptyIcon: {
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
     marginBottom: 16,
   },
   emptyText: {
     textAlign: "center",
-    opacity: 0.7,
     marginBottom: 20,
   },
   addFirstButton: {
@@ -422,10 +411,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 10,
     bottom: 10,
-    backgroundColor: "#667eea",
     borderRadius: 28,
     elevation: 8,
-    shadowColor: "#667eea",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

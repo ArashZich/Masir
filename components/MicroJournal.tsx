@@ -1,9 +1,10 @@
+import { useTheme } from "@/contexts/ThemeContext";
+import { useBoolean } from "@/hooks/useBoolean";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { IconButton, Text, TextInput } from "react-native-paper";
-import { useBoolean } from "@/hooks/useBoolean";
 
 interface MicroJournalProps {
   note: string;
@@ -19,7 +20,8 @@ export const MicroJournal: React.FC<MicroJournalProps> = ({
   compact = false,
 }) => {
   const { t } = useTranslation();
-  const isFocused = useBoolean(false, 'journalFocus');
+  const { colors, isDark } = useTheme();
+  const isFocused = useBoolean(false, "journalFocus");
 
   const defaultPlaceholder = t("journal.placeholder");
 
@@ -29,8 +31,12 @@ export const MicroJournal: React.FC<MicroJournalProps> = ({
         <View style={styles.header}>
           <View style={styles.titleRow}>
             <View>
-              <Text style={styles.title}>💭 {t("journal.title")}</Text>
-              <Text style={styles.subtitle}>{t("journal.subtitle")}</Text>
+              <Text style={[styles.title, { color: colors.text.primary }]}>
+                💭 {t("journal.title")}
+              </Text>
+              <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
+                {t("journal.subtitle")}
+              </Text>
             </View>
             <IconButton
               icon="history"
@@ -52,27 +58,30 @@ export const MicroJournal: React.FC<MicroJournalProps> = ({
         }}
         multiline
         numberOfLines={compact ? 2 : 3}
-        style={styles.textInput}
-        contentStyle={styles.textInputContent}
+        style={[styles.textInput, { backgroundColor: colors.elevation.level1 }]}
         onFocus={isFocused.setTrue}
         onBlur={isFocused.setFalse}
         maxLength={150}
         theme={{
           colors: {
-            primary: "#667eea",
-            onSurfaceVariant: "#999",
+            primary: colors.primary,
+            onSurfaceVariant: colors.text.secondary,
+            outline: colors.border,
+            onSurface: colors.text.primary,
           },
         }}
       />
 
       {!compact && (
-        <Text style={styles.characterCount}>
+        <Text style={[styles.characterCount, { color: colors.text.secondary }]}>
           {note.length}/150 {t("journal.characterCount")}
         </Text>
       )}
       {compact && (
         <View style={styles.compactFooter}>
-          <Text style={styles.compactCount}>{note.length}/150</Text>
+          <Text style={[styles.compactCount, { color: colors.text.secondary }]}>
+            {note.length}/150
+          </Text>
           <IconButton
             icon="history"
             size={16}
@@ -103,7 +112,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#2d3748",
     marginBottom: 4,
   },
   historyButton: {
@@ -112,20 +120,13 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 13,
-    color: "#718096",
   },
   textInput: {
-    backgroundColor: "transparent",
     fontSize: 14,
     marginBottom: 8,
   },
-  textInputContent: {
-    paddingHorizontal: 0,
-    paddingVertical: 8,
-  },
   characterCount: {
     fontSize: 11,
-    color: "#a0aec0",
     textAlign: "left",
     alignSelf: "flex-end",
   },
@@ -137,7 +138,6 @@ const styles = StyleSheet.create({
   },
   compactCount: {
     fontSize: 10,
-    color: "#a0aec0",
   },
   compactHistoryButton: {
     margin: 0,

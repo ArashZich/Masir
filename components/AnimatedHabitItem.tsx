@@ -9,6 +9,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useBoolean } from "@/hooks/useBoolean";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface AnimatedHabitItemProps {
   habit: {
@@ -27,6 +28,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
   onComplete,
   onEdit,
 }) => {
+  const { colors, isDark } = useTheme();
   const scale = useSharedValue(1);
   const checkmarkScale = useSharedValue(0);
   const checkmarkOpacity = useSharedValue(0);
@@ -69,7 +71,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
       // Reset after a delay
       setTimeout(() => {
         isDoublePress.setFalse();
-      }, 500);
+      }, 200);
     } else {
       // اولین تاپ - فقط انیمیشن
       scale.value = withSequence(
@@ -83,7 +85,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
 
   const handleLongPress = async () => {
     // اگه دو بار tap شده، long press رو ignore کن
-    if (isDoublePress) {
+    if (isDoublePress.value) {
       console.log("Long press ignored due to double tap");
       return;
     }
@@ -115,8 +117,29 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
       >
         <Animated.View style={animatedStyle} ref={itemRef}>
           <Surface
-            style={[styles.habitItem, habit.completed && styles.habitCompleted]}
-            elevation={4}
+            style={[
+              styles.habitItem,
+              {
+                backgroundColor: colors.elevation.level1,
+                borderColor: colors.border,
+                ...(isDark && {
+                  borderWidth: 1,
+                  shadowColor: '#000000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.6,
+                  shadowRadius: 3,
+                }),
+              },
+              habit.completed && [styles.habitCompleted, {
+                backgroundColor: isDark
+                  ? 'rgba(82, 196, 26, 0.15)'
+                  : 'rgba(82, 196, 26, 0.08)',
+                borderColor: isDark
+                  ? 'rgba(82, 196, 26, 0.6)'
+                  : 'rgba(82, 196, 26, 0.2)',
+              }]
+            ]}
+            elevation={isDark ? 5 : 4}
           >
             <View style={styles.habitIconContainer}>
               <Avatar.Icon
@@ -136,7 +159,7 @@ export const AnimatedHabitItem: React.FC<AnimatedHabitItemProps> = ({
               </Animated.View>
             </View>
 
-            <Text variant="labelMedium" style={styles.habitName}>
+            <Text variant="labelMedium" style={[styles.habitName, { color: colors.text.primary }]}>
               {habit.name}
             </Text>
           </Surface>
@@ -153,12 +176,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     minWidth: 100,
     marginBottom: 12,
-    backgroundColor: "#ffffff",
+    borderWidth: 0.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   habitCompleted: {
-    backgroundColor: "rgba(82, 196, 26, 0.08)",
     borderWidth: 1,
-    borderColor: "rgba(82, 196, 26, 0.2)",
   },
   habitIconContainer: {
     position: "relative",

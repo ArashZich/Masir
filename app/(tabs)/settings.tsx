@@ -7,10 +7,13 @@ import { useBoolean } from '@/hooks/useBoolean';
 import { notificationService, type NotificationSound } from '@/services/notificationService';
 import { exportService } from '@/services/exportService';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { ThemedCard } from '@/components/ThemedCard';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const { theme, language, notifications, setTheme, setLanguage, setNotifications } = useSettingsStore();
+  const { colors, isDark } = useTheme();
 
   const [permissionStatus, setPermissionStatus] = useState<string>('');
   const dailyTimePicker = useBoolean(false, 'dailyTimePicker');
@@ -117,17 +120,17 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Surface style={[styles.header, styles.whiteCard]} elevation={4}>
-        <Text variant="headlineLarge" style={styles.title}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      <Surface style={[styles.header, { backgroundColor: colors.elevation.level2 }]} elevation={4}>
+        <Text variant="headlineLarge" style={[styles.title, { color: colors.text.primary }]}>
           {t('settings.title')}
         </Text>
       </Surface>
 
       {/* Theme Selection */}
-      <Card style={[styles.card, styles.whiteCard]} mode="elevated">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+      <ThemedCard elevation={1} style={styles.card}>
+        <ThemedCard.Content>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.text.primary }]}>
             {t('settings.theme')}
           </Text>
           <SegmentedButtons
@@ -137,18 +140,18 @@ export default function SettingsScreen() {
             style={styles.segmentedButtons}
             theme={{
               colors: {
-                secondaryContainer: '#667eea',
-                onSecondaryContainer: '#ffffff',
+                secondaryContainer: colors.primary,
+                onSecondaryContainer: colors.onPrimary,
               }
             }}
           />
-        </Card.Content>
-      </Card>
+        </ThemedCard.Content>
+      </ThemedCard>
 
       {/* Language Selection */}
-      <Card style={[styles.card, styles.whiteCard]} mode="elevated">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+      <ThemedCard elevation={1} style={styles.card}>
+        <ThemedCard.Content>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.text.primary }]}>
             {t('settings.language')}
           </Text>
           <SegmentedButtons
@@ -158,29 +161,29 @@ export default function SettingsScreen() {
             style={styles.segmentedButtons}
             theme={{
               colors: {
-                secondaryContainer: '#667eea',
-                onSecondaryContainer: '#ffffff',
+                secondaryContainer: colors.primary,
+                onSecondaryContainer: colors.onPrimary,
               }
             }}
           />
-        </Card.Content>
-      </Card>
+        </ThemedCard.Content>
+      </ThemedCard>
 
       {/* Notifications Section */}
-      <Card style={[styles.card, styles.whiteCard]} mode="elevated">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+      <ThemedCard elevation={1} style={styles.card}>
+        <ThemedCard.Content>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.text.primary }]}>
             {t('settings.notifications')}
           </Text>
-          <Text variant="bodyMedium" style={styles.sectionDescription}>
+          <Text variant="bodyMedium" style={[styles.sectionDescription, { color: colors.text.secondary }]}>
             {t('notifications.description')}
           </Text>
 
           {/* Permission Status */}
           <View style={styles.permissionRow}>
             <View style={styles.permissionInfo}>
-              <Text variant="bodyLarge">{t('notifications.permission')}</Text>
-              <Text variant="bodySmall" style={styles.permissionDesc}>
+              <Text variant="bodyLarge" style={{ color: colors.text.primary }}>{t('notifications.permission')}</Text>
+              <Text variant="bodySmall" style={[styles.permissionDesc, { color: colors.text.secondary }]}>
                 {permissionStatus === 'granted'
                   ? t('notifications.permissionGranted')
                   : permissionStatus === 'unsupported'
@@ -214,7 +217,7 @@ export default function SettingsScreen() {
             />
           </View>
 
-          {notifications.enabled && permissionStatus === 'granted' && permissionStatus !== 'unsupported' && (
+          {notifications.enabled && permissionStatus === 'granted' && (
             <>
               {/* Sound Selection */}
               <View style={styles.soundSection}>
@@ -248,7 +251,7 @@ export default function SettingsScreen() {
                 </RadioButton.Group>
               </View>
 
-              <Divider style={styles.divider} />
+              <Divider style={[styles.divider, { backgroundColor: colors.divider }]} />
 
               {/* Daily Reminder */}
               <View style={styles.switchRow}>
@@ -316,7 +319,7 @@ export default function SettingsScreen() {
                 />
               </View>
 
-              <Divider style={styles.divider} />
+              <Divider style={[styles.divider, { backgroundColor: colors.divider }]} />
 
               {/* Test Notification */}
               <Button
@@ -329,17 +332,17 @@ export default function SettingsScreen() {
               </Button>
             </>
           )}
-        </Card.Content>
-      </Card>
+        </ThemedCard.Content>
+      </ThemedCard>
 
 
       {/* Data Section */}
-      <Card style={[styles.card, styles.whiteCard]} mode="elevated">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+      <ThemedCard elevation={1} style={styles.card}>
+        <ThemedCard.Content>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.text.primary }]}>
             {t('backup.dataManagement')}
           </Text>
-          <Text variant="bodyMedium" style={styles.sectionDescription}>
+          <Text variant="bodyMedium" style={[styles.sectionDescription, { color: colors.text.secondary }]}>
             {t('backup.backupAndRestore')}
           </Text>
 
@@ -397,8 +400,8 @@ export default function SettingsScreen() {
             disabled={importLoading}
             style={styles.listItem}
           />
-        </Card.Content>
-      </Card>
+        </ThemedCard.Content>
+      </ThemedCard>
 
       {/* Time Pickers */}
       {dailyTimePicker.value && (

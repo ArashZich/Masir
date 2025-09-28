@@ -2,12 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Text, useTheme } from "react-native-paper";
+import { Text } from "react-native-paper";
+import { useTheme } from "@/contexts/ThemeContext";
 
 import { HapticTab } from "@/components/haptic-tab";
 
 export default function TabLayout() {
-  const theme = useTheme();
+  const { colors, isDark } = useTheme();
   const { t } = useTranslation();
 
   return (
@@ -16,8 +17,8 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.outline,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
         },
       }}
     >
@@ -29,8 +30,8 @@ export default function TabLayout() {
               style={{
                 fontSize: 10,
                 color: focused
-                  ? theme.colors.primary
-                  : theme.colors.onSurfaceVariant,
+                  ? colors.primary
+                  : colors.text.secondary,
               }}
             >
               {t("navigation.todayPath")}
@@ -41,7 +42,7 @@ export default function TabLayout() {
               size={28}
               name="compass"
               color={
-                focused ? theme.colors.primary : theme.colors.onSurfaceVariant
+                focused ? colors.primary : colors.text.secondary
               }
             />
           ),
@@ -55,8 +56,8 @@ export default function TabLayout() {
               style={{
                 fontSize: 10,
                 color: focused
-                  ? theme.colors.secondary
-                  : theme.colors.onSurfaceVariant,
+                  ? colors.secondary
+                  : colors.text.secondary,
               }}
             >
               {t("navigation.overview")}
@@ -67,7 +68,7 @@ export default function TabLayout() {
               size={28}
               name="stats-chart"
               color={
-                focused ? theme.colors.secondary : theme.colors.onSurfaceVariant
+                focused ? colors.secondary : colors.text.secondary
               }
             />
           ),
@@ -81,8 +82,8 @@ export default function TabLayout() {
               style={{
                 fontSize: 10,
                 color: focused
-                  ? theme.colors.tertiary
-                  : theme.colors.onSurfaceVariant,
+                  ? colors.primary
+                  : colors.text.secondary,
               }}
             >
               {t("navigation.settings")}
@@ -93,7 +94,7 @@ export default function TabLayout() {
               size={28}
               name="cog"
               color={
-                focused ? theme.colors.tertiary : theme.colors.onSurfaceVariant
+                focused ? colors.primary : colors.text.secondary
               }
             />
           ),

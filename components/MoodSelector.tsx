@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface MoodSelectorProps {
   selectedMood: 'good' | 'ok' | 'bad' | null;
@@ -16,27 +17,28 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
   size = 'medium'
 }) => {
   const { t } = useTranslation();
+  const { colors, isDark } = useTheme();
 
   const moodOptions = [
     {
       id: 'good' as const,
       emoji: '😊',
       label: t('mood.good'),
-      colors: ['#4CAF50', '#8BC34A'],
+      colors: ['#4CAF50', '#8BC34A'] as const,
       borderColor: '#4CAF50',
     },
     {
       id: 'ok' as const,
       emoji: '😐',
       label: t('mood.ok'),
-      colors: ['#FF9800', '#FFC107'],
+      colors: ['#FF9800', '#FFC107'] as const,
       borderColor: '#FF9800',
     },
     {
       id: 'bad' as const,
       emoji: '😔',
       label: t('mood.bad'),
-      colors: ['#9C27B0', '#E91E63'],
+      colors: ['#9C27B0', '#E91E63'] as const,
       borderColor: '#9C27B0',
     },
   ];
@@ -48,6 +50,11 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
   };
 
   const config = sizeConfig[size];
+
+  // Default colors for unselected mood buttons based on theme
+  const defaultColors = isDark
+    ? [colors.elevation.level2, colors.elevation.level3] as const
+    : ['#f5f5f5', '#e0e0e0'] as const;
 
   return (
     <View style={styles.container}>
@@ -75,7 +82,7 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={isSelected ? mood.colors : ['#f5f5f5', '#e0e0e0']}
+                colors={isSelected ? mood.colors : defaultColors}
                 style={[styles.gradientBackground, { borderRadius: config.container / 2 }]}
               >
                 <Text style={[styles.moodEmoji, { fontSize: config.emoji }]}>
@@ -88,7 +95,13 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
       </View>
 
       {selectedMood && (
-        <Text style={[styles.selectedMoodText, { fontSize: config.text + 2 }]}>
+        <Text style={[
+          styles.selectedMoodText,
+          {
+            fontSize: config.text + 2,
+            color: colors.text.primary
+          }
+        ]}>
           {moodOptions.find(m => m.id === selectedMood)?.label}
         </Text>
       )}
@@ -96,9 +109,21 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
       {selectedMood && (
         <TouchableOpacity
           onPress={() => onMoodSelect(null)}
-          style={styles.clearButton}
+          style={[
+            styles.clearButton,
+            {
+              backgroundColor: isDark
+                ? 'rgba(255,255,255,0.1)'
+                : 'rgba(0,0,0,0.05)'
+            }
+          ]}
         >
-          <Text style={styles.clearButtonText}>{t('mood.clear')}</Text>
+          <Text style={[
+            styles.clearButtonText,
+            { color: colors.text.secondary }
+          ]}>
+            {t('mood.clear')}
+          </Text>
         </TouchableOpacity>
       )}
     </View>
@@ -137,18 +162,15 @@ const styles = StyleSheet.create({
   },
   selectedMoodText: {
     fontWeight: '600',
-    color: '#2d3748',
     marginBottom: 8,
   },
   clearButton: {
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.05)',
   },
   clearButtonText: {
     fontSize: 12,
-    color: '#666',
     textAlign: 'center',
   },
 });

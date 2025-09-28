@@ -4,10 +4,13 @@ import { Text, Card, Surface, Chip, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useHabitStore } from '@/store/habitStore';
 import { router } from 'expo-router';
+import { ThemedCard } from '@/components/ThemedCard';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function JournalHistoryScreen() {
   const { t } = useTranslation();
   const { history } = useHabitStore();
+  const { colors, isDark } = useTheme();
 
   // Filter entries that have notes
   const entriesWithNotes = Object.entries(history || {})
@@ -56,8 +59,8 @@ export default function JournalHistoryScreen() {
         </Surface>
 
         {entriesWithNotes.length === 0 ? (
-          <Card style={[styles.emptyCard, styles.whiteCard]} mode="elevated">
-            <Card.Content style={styles.emptyContent}>
+          <ThemedCard elevation={1} style={styles.emptyCard}>
+            <ThemedCard.Content style={styles.emptyContent}>
               <Text variant="headlineSmall" style={styles.emptyIcon}>📝</Text>
               <Text variant="titleLarge" style={styles.emptyTitle}>
                 {t('journalHistory.noNotesYet')}
@@ -72,12 +75,12 @@ export default function JournalHistoryScreen() {
               >
                 {t('journalHistory.backToMain')}
               </Button>
-            </Card.Content>
-          </Card>
+            </ThemedCard.Content>
+          </ThemedCard>
         ) : (
           entriesWithNotes.map(([date, entry]) => (
-            <Card key={date} style={[styles.entryCard, styles.whiteCard]} mode="elevated">
-              <Card.Content>
+            <ThemedCard key={date} elevation={1} style={styles.entryCard}>
+              <ThemedCard.Content>
                 <View style={styles.entryHeader}>
                   <View style={styles.dateSection}>
                     <Text variant="bodySmall" style={styles.dateText}>
@@ -98,14 +101,14 @@ export default function JournalHistoryScreen() {
                 </Text>
 
                 {entry.completedHabits && entry.completedHabits.length > 0 && (
-                  <View style={styles.habitsSection}>
-                    <Text variant="bodySmall" style={styles.habitsLabel}>
+                  <View style={[styles.habitsSection, { borderTopColor: colors.divider }]}>
+                    <Text variant="bodySmall" style={[styles.habitsLabel, { color: colors.text.secondary }]}>
                       {t('journalHistory.completedHabits')}: {entry.completedHabits.length}
                     </Text>
                   </View>
                 )}
-              </Card.Content>
-            </Card>
+              </ThemedCard.Content>
+            </ThemedCard>
           ))
         )}
       </ScrollView>
@@ -142,10 +145,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: 'center',
-    opacity: 0.7,
   },
   emptyCard: {
-    margin: 16,
     marginTop: 40,
   },
   emptyContent: {
@@ -170,7 +171,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   entryCard: {
-    margin: 16,
     marginTop: 0,
   },
   entryHeader: {
@@ -191,16 +191,13 @@ const styles = StyleSheet.create({
   noteText: {
     lineHeight: 24,
     fontStyle: 'italic',
-    color: '#2d3748',
     marginBottom: 12,
   },
   habitsSection: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.1)',
     paddingTop: 8,
   },
   habitsLabel: {
-    opacity: 0.6,
     fontSize: 12,
   },
 });

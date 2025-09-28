@@ -1,4 +1,7 @@
 import { ProgressChart } from "@/components/ProgressChart";
+import { ThemedCard } from "@/components/ThemedCard";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useBoolean } from "@/hooks/useBoolean";
 import { useHabitStore } from "@/store/habitStore";
 import {
   AnalyticsService,
@@ -7,29 +10,28 @@ import {
 } from "@/utils/analytics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useMemo, useState } from "react";
-import { useBoolean } from "@/hooks/useBoolean";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 import {
   Avatar,
-  Card,
+  Button,
   Chip,
   Divider,
+  Modal,
+  Portal,
   ProgressBar,
   Text,
-  Portal,
-  Modal,
-  Button,
 } from "react-native-paper";
 
 export default function ExploreScreen() {
   const { t } = useTranslation();
   const { habits, getHabitsForDate, history } = useHabitStore();
+  const { colors, isDark } = useTheme();
 
   // Modal state for day details
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const modal = useBoolean(false, 'calendarModal');
+  const modal = useBoolean(false, "calendarModal");
 
   // Analytics calculations
   const streakData: StreakData[] = useMemo(
@@ -68,8 +70,8 @@ export default function ExploreScreen() {
       date: selectedDate,
       habits: dayHabits,
       mood: dayEntry?.mood || null,
-      note: dayEntry?.note || '',
-      completedCount: dayHabits.filter(h => h.completed).length,
+      note: dayEntry?.note || "",
+      completedCount: dayHabits.filter((h) => h.completed).length,
       totalCount: dayHabits.length,
     };
   }, [selectedDate, habits, history, getHabitsForDate]);
@@ -149,311 +151,465 @@ export default function ExploreScreen() {
   }, [history, today, getHabitsForDate]);
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-      <Card style={[styles.headerCard, styles.whiteCard]} mode="elevated">
-        <LinearGradient
-          colors={["#667eea", "#764ba2"]}
-          style={styles.headerGradient}
-        >
-          <Avatar.Icon size={64} icon="chart-line" style={styles.headerIcon} />
-          <Text variant="headlineMedium" style={styles.headerTitle}>
-            {t("overview.title")}
-          </Text>
-          <Text variant="bodyLarge" style={styles.headerSubtitle}>
-            {t("overview.subtitle")}
-          </Text>
-        </LinearGradient>
-      </Card>
-      <Card style={[styles.statsCard, styles.whiteCard]} mode="elevated">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
-            {t("overview.statistics")}
-          </Text>
-
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Avatar.Icon
-                size={48}
-                icon="target"
-                style={[styles.statIcon, { backgroundColor: "#52c41a" }]}
-              />
-              <Text variant="headlineSmall" style={styles.statNumber}>
-                {totalHabits}
-              </Text>
-              <Text variant="bodyMedium" style={styles.statLabel}>
-                {t("overview.totalHabits")}
-              </Text>
-            </View>
-
-            <View style={styles.statItem}>
-              <Avatar.Icon
-                size={48}
-                icon="check-circle"
-                style={[styles.statIcon, { backgroundColor: "#1890ff" }]}
-              />
-              <Text variant="headlineSmall" style={styles.statNumber}>
-                {completedToday}
-              </Text>
-              <Text variant="bodyMedium" style={styles.statLabel}>
-                {t("overview.completedToday")}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.progressContainer}>
-            <View style={styles.progressHeader}>
-              <Text variant="bodyLarge" style={styles.progressLabel}>
-                {t("today.progress")}
-              </Text>
-              <Chip icon="trophy" mode="flat" style={styles.progressChip}>
-                {Math.round(todayProgress * 100)}%
-              </Chip>
-            </View>
-            <ProgressBar
-              progress={todayProgress}
-              style={styles.progressBar}
-              color="#52c41a"
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
+        <ThemedCard elevation={2} style={styles.headerCard}>
+          <LinearGradient
+            colors={
+              isDark
+                ? [colors.primary, colors.secondary]
+                : ["#667eea", "#764ba2"]
+            }
+            style={styles.headerGradient}
+          >
+            <Avatar.Icon
+              size={64}
+              icon="chart-line"
+              style={styles.headerIcon}
             />
-          </View>
-        </Card.Content>
-      </Card>
-      <Card style={[styles.calendarCard, styles.whiteCard]} mode="elevated">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.cardTitle}>
-            {t("overview.calendar")}
-          </Text>
-          <Text variant="bodyMedium" style={styles.cardDescription}>
-            {t("overview.calendarDescription")}
-          </Text>
-
-          <Calendar
-            current={today}
-            markedDates={markedDates}
-            markingType="multi-dot"
-            onDayPress={handleDayPress}
-            theme={{
-              backgroundColor: "#ffffff",
-              calendarBackground: "#ffffff",
-              textSectionTitleColor: "#667eea",
-              selectedDayBackgroundColor: "#667eea",
-              selectedDayTextColor: "#ffffff",
-              todayTextColor: "#667eea",
-              dayTextColor: "#2d3748",
-              textDisabledColor: "#cbd5e0",
-              dotColor: "#52c41a",
-              selectedDotColor: "#ffffff",
-              arrowColor: "#667eea",
-              disabledArrowColor: "#cbd5e0",
-              monthTextColor: "#667eea",
-              indicatorColor: "#667eea",
-              textDayFontFamily: "System",
-              textMonthFontFamily: "System",
-              textDayHeaderFontFamily: "System",
-              textDayFontWeight: "500",
-              textMonthFontWeight: "bold",
-              textDayHeaderFontWeight: "600",
-              textDayFontSize: 16,
-              textMonthFontSize: 18,
-              textDayHeaderFontSize: 14,
-            }}
-            style={styles.calendar}
-            hideExtraDays={true}
-            firstDay={1}
-          />
-
-          <View style={styles.calendarLegend}>
-            <Text variant="titleSmall" style={styles.legendTitle}>
-              {t("overview.calendarLegend")}
+            <Text variant="headlineMedium" style={styles.headerTitle}>
+              {t("overview.title")}
             </Text>
-            <View style={styles.legendItems}>
-              <View style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: "#4CAF50" }]}
-                />
-                <Text variant="bodySmall" style={styles.legendText}>
-                  😊 {t("overview.moodGood")}
-                </Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: "#FF9800" }]}
-                />
-                <Text variant="bodySmall" style={styles.legendText}>
-                  😐 {t("overview.moodOk")}
-                </Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: "#9C27B0" }]}
-                />
-                <Text variant="bodySmall" style={styles.legendText}>
-                  😔 {t("overview.moodBad")}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </Card.Content>
-      </Card>
-
-      {/* Progress Charts */}
-      <ProgressChart
-        type="line"
-        title={t("charts.weeklyTrend")}
-        period="week"
-      />
-
-      <ProgressChart
-        type="bar"
-        title={t("charts.monthlyProgress")}
-        period="month"
-      />
-
-      <ProgressChart
-        type="pie"
-        title={t("charts.moodDistribution")}
-        period="month"
-      />
-
-      {/* Monthly Insights */}
-      <Card style={[styles.insightsCard, styles.whiteCard]} mode="elevated">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.cardTitle}>
-            📊 {t("insights.title")}
-          </Text>
-          <Text variant="bodyMedium" style={styles.cardDescription}>
-            {t("insights.monthly")} - {t("charts.last30Days")}
-          </Text>
-
-          <View style={styles.insightsGrid}>
-            <View style={styles.insightItem}>
-              <Avatar.Icon
-                size={40}
-                icon="percent"
-                style={[styles.insightIcon, { backgroundColor: "#52c41a" }]}
-              />
-              <Text variant="headlineSmall" style={styles.insightValue}>
-                {monthlyInsights.avgCompletionRate}%
-              </Text>
-              <Text variant="bodySmall" style={styles.insightLabel}>
-                {t("insights.avgCompletion")}
-              </Text>
-            </View>
-
-            <View style={styles.insightItem}>
-              <Avatar.Icon
-                size={40}
-                icon="target"
-                style={[styles.insightIcon, { backgroundColor: "#667eea" }]}
-              />
-              <Text variant="headlineSmall" style={styles.insightValue}>
-                {monthlyInsights.totalHabits}
-              </Text>
-              <Text variant="bodySmall" style={styles.insightLabel}>
-                {t("overview.totalHabits")}
-              </Text>
-            </View>
-          </View>
-
-          {monthlyInsights.bestDay && (
-            <View style={styles.dayInsight}>
-              <Text variant="bodyMedium" style={styles.dayInsightTitle}>
-                🏆 {t("insights.bestDay")}:{" "}
-                {new Date(monthlyInsights.bestDay.date).toLocaleDateString()}
-              </Text>
-              <Text variant="bodySmall" style={styles.dayInsightValue}>
-                {Math.round(monthlyInsights.bestDay.rate)}%{" "}
-                {t("today.completed")}
-              </Text>
-            </View>
-          )}
-
-          <Divider style={styles.insightDivider} />
-
-          {/* Smart Messages */}
-          <View style={styles.smartInsights}>
-            <Text variant="titleSmall" style={styles.smartTitle}>
-              💡 {t("charts.insights")}
+            <Text variant="bodyLarge" style={styles.headerSubtitle}>
+              {t("overview.subtitle")}
             </Text>
-            {insightMessages.map((message, index) => (
-              <Text key={index} variant="bodySmall" style={styles.smartMessage}>
-                {message}
+          </LinearGradient>
+        </ThemedCard>
+        <ThemedCard elevation={1} style={styles.statsCard}>
+          <ThemedCard.Content>
+            <Text
+              variant="titleLarge"
+              style={[styles.sectionTitle, { color: colors.text.primary }]}
+            >
+              {t("overview.statistics")}
+            </Text>
+
+            <View style={styles.statsContainer}>
+              <View style={styles.statItem}>
+                <Avatar.Icon
+                  size={48}
+                  icon="target"
+                  style={[styles.statIcon, { backgroundColor: "#52c41a" }]}
+                />
+                <Text
+                  variant="headlineSmall"
+                  style={[styles.statNumber, { color: colors.text.primary }]}
+                >
+                  {totalHabits}
+                </Text>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.statLabel, { color: colors.text.secondary }]}
+                >
+                  {t("overview.totalHabits")}
+                </Text>
+              </View>
+
+              <View style={styles.statItem}>
+                <Avatar.Icon
+                  size={48}
+                  icon="check-circle"
+                  style={[styles.statIcon, { backgroundColor: "#1890ff" }]}
+                />
+                <Text
+                  variant="headlineSmall"
+                  style={[styles.statNumber, { color: colors.text.primary }]}
+                >
+                  {completedToday}
+                </Text>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.statLabel, { color: colors.text.secondary }]}
+                >
+                  {t("overview.completedToday")}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.progressContainer}>
+              <View style={styles.progressHeader}>
+                <Text
+                  variant="bodyLarge"
+                  style={[styles.progressLabel, { color: colors.text.primary }]}
+                >
+                  {t("today.progress")}
+                </Text>
+                <Chip
+                  icon="trophy"
+                  mode="flat"
+                  style={[
+                    styles.progressChip,
+                    {
+                      backgroundColor: isDark
+                        ? "rgba(82, 196, 26, 0.2)"
+                        : "rgba(82, 196, 26, 0.1)",
+                    },
+                  ]}
+                >
+                  {Math.round(todayProgress * 100)}%
+                </Chip>
+              </View>
+              <ProgressBar
+                progress={todayProgress}
+                style={styles.progressBar}
+                color={colors.secondary}
+              />
+            </View>
+          </ThemedCard.Content>
+        </ThemedCard>
+        <ThemedCard elevation={1} style={styles.calendarCard}>
+          <ThemedCard.Content>
+            <Text
+              variant="titleLarge"
+              style={[styles.cardTitle, { color: colors.text.primary }]}
+            >
+              {t("overview.calendar")}
+            </Text>
+            <Text
+              variant="bodyMedium"
+              style={[styles.cardDescription, { color: colors.text.secondary }]}
+            >
+              {t("overview.calendarDescription")}
+            </Text>
+
+            <Calendar
+              key={isDark ? 'dark' : 'light'}
+              current={today}
+              markedDates={markedDates}
+              markingType="multi-dot"
+              onDayPress={handleDayPress}
+              theme={
+                {
+                  backgroundColor: colors.elevation.level1,
+                  calendarBackground: colors.elevation.level1,
+                  textSectionTitleColor: colors.primary,
+                  selectedDayBackgroundColor: colors.primary,
+                  selectedDayTextColor: colors.onPrimary,
+                  todayTextColor: colors.primary,
+                  dayTextColor: colors.text.primary,
+                  textDisabledColor: colors.text.disabled,
+                  dotColor: colors.secondary,
+                  selectedDotColor: colors.onPrimary,
+                  arrowColor: colors.primary,
+                  disabledArrowColor: colors.text.disabled,
+                  monthTextColor: colors.primary,
+                  indicatorColor: colors.primary,
+                  textDayFontFamily: "System",
+                  textMonthFontFamily: "System",
+                  textDayHeaderFontFamily: "System",
+                  textDayFontWeight: "500",
+                  textMonthFontWeight: "bold",
+                  textDayHeaderFontWeight: "600",
+                  textDayFontSize: 16,
+                  textMonthFontSize: 18,
+                  textDayHeaderFontSize: 14,
+                } as any
+              }
+              style={[
+                styles.calendar,
+                {
+                  backgroundColor: colors.elevation.level1,
+                  borderColor: colors.border,
+                },
+              ]}
+              hideExtraDays={true}
+              firstDay={1}
+            />
+
+            <View
+              style={[styles.calendarLegend, { borderTopColor: colors.border }]}
+            >
+              <Text
+                variant="titleSmall"
+                style={[styles.legendTitle, { color: colors.text.primary }]}
+              >
+                {t("overview.calendarLegend")}
               </Text>
-            ))}
-          </View>
-        </Card.Content>
-      </Card>
-
-      {/* Streak Analytics */}
-      <Card style={[styles.streaksCard, styles.whiteCard]} mode="elevated">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.cardTitle}>
-            🔥 {t("charts.streaks")}
-          </Text>
-          <Text variant="bodyMedium" style={styles.cardDescription}>
-            {t("insights.currentStreak")} & {t("insights.successRate")}
-          </Text>
-
-          {streakData.length > 0 ? (
-            <View style={styles.streaksContainer}>
-              {streakData.slice(0, 3).map((streak) => (
-                <View key={streak.habitId} style={styles.streakItem}>
-                  <View style={styles.streakHeader}>
-                    <Text variant="bodyLarge" style={styles.streakHabitName}>
-                      {streak.habitName}
-                    </Text>
-                    <Chip
-                      icon="fire"
-                      mode="flat"
-                      style={styles.streakChip}
-                      textStyle={styles.streakChipText}
-                    >
-                      {streak.currentStreak}
-                    </Chip>
-                  </View>
-
-                  <View style={styles.streakStats}>
-                    <View style={styles.streakStat}>
-                      <Text variant="bodySmall" style={styles.streakStatLabel}>
-                        {t("insights.longestStreak")}
-                      </Text>
-                      <Text variant="bodyMedium" style={styles.streakStatValue}>
-                        {streak.longestStreak} {t("habits.days")}
-                      </Text>
-                    </View>
-
-                    <View style={styles.streakStat}>
-                      <Text variant="bodySmall" style={styles.streakStatLabel}>
-                        {t("insights.successRate")}
-                      </Text>
-                      <Text variant="bodyMedium" style={styles.streakStatValue}>
-                        {streak.successRate}%
-                      </Text>
-                    </View>
-                  </View>
-
-                  <ProgressBar
-                    progress={streak.successRate / 100}
-                    style={styles.streakProgress}
-                    color="#52c41a"
+              <View style={styles.legendItems}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: "#4CAF50" }]}
                   />
+                  <Text
+                    variant="bodySmall"
+                    style={[
+                      styles.legendText,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
+                    😊 {t("overview.moodGood")}
+                  </Text>
                 </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: "#FF9800" }]}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={[
+                      styles.legendText,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
+                    😐 {t("overview.moodOk")}
+                  </Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: "#9C27B0" }]}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={[
+                      styles.legendText,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
+                    😔 {t("overview.moodBad")}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ThemedCard.Content>
+        </ThemedCard>
+
+        {/* Progress Charts */}
+        <ProgressChart
+          type="line"
+          title={t("charts.weeklyTrend")}
+          period="week"
+        />
+
+        <ProgressChart
+          type="bar"
+          title={t("charts.monthlyProgress")}
+          period="month"
+        />
+
+        <ProgressChart
+          type="pie"
+          title={t("charts.moodDistribution")}
+          period="month"
+        />
+
+        {/* Monthly Insights */}
+        <ThemedCard elevation={1} style={styles.insightsCard}>
+          <ThemedCard.Content>
+            <Text variant="titleLarge" style={styles.cardTitle}>
+              📊 {t("insights.title")}
+            </Text>
+            <Text variant="bodyMedium" style={styles.cardDescription}>
+              {t("insights.monthly")} - {t("charts.last30Days")}
+            </Text>
+
+            <View style={styles.insightsGrid}>
+              <View style={styles.insightItem}>
+                <Avatar.Icon
+                  size={40}
+                  icon="percent"
+                  style={[styles.insightIcon, { backgroundColor: "#52c41a" }]}
+                />
+                <Text
+                  variant="headlineSmall"
+                  style={[styles.insightValue, { color: colors.text.primary }]}
+                >
+                  {monthlyInsights.avgCompletionRate}%
+                </Text>
+                <Text variant="bodySmall" style={styles.insightLabel}>
+                  {t("insights.avgCompletion")}
+                </Text>
+              </View>
+
+              <View style={styles.insightItem}>
+                <Avatar.Icon
+                  size={40}
+                  icon="target"
+                  style={[styles.insightIcon, { backgroundColor: "#667eea" }]}
+                />
+                <Text
+                  variant="headlineSmall"
+                  style={[styles.insightValue, { color: colors.text.primary }]}
+                >
+                  {monthlyInsights.totalHabits}
+                </Text>
+                <Text variant="bodySmall" style={styles.insightLabel}>
+                  {t("overview.totalHabits")}
+                </Text>
+              </View>
+            </View>
+
+            {monthlyInsights.bestDay && (
+              <View style={styles.dayInsight}>
+                <Text variant="bodyMedium" style={styles.dayInsightTitle}>
+                  🏆 {t("insights.bestDay")}:{" "}
+                  {new Date(monthlyInsights.bestDay.date).toLocaleDateString()}
+                </Text>
+                <Text variant="bodySmall" style={styles.dayInsightValue}>
+                  {Math.round(monthlyInsights.bestDay.rate)}%{" "}
+                  {t("today.completed")}
+                </Text>
+              </View>
+            )}
+
+            <Divider style={styles.insightDivider} />
+
+            {/* Smart Messages */}
+            <View style={styles.smartInsights}>
+              <Text
+                variant="titleSmall"
+                style={[styles.smartTitle, { color: colors.text.primary }]}
+              >
+                💡 {t("charts.insights")}
+              </Text>
+              {insightMessages.map((message, index) => (
+                <Text
+                  key={index}
+                  variant="bodySmall"
+                  style={[
+                    styles.smartMessage,
+                    {
+                      backgroundColor: isDark
+                        ? "rgba(82, 196, 26, 0.15)"
+                        : "rgba(82, 196, 26, 0.1)",
+                      color: colors.text.primary,
+                    },
+                  ]}
+                >
+                  {message}
+                </Text>
               ))}
             </View>
-          ) : (
-            <View style={styles.emptyStreaks}>
-              <Avatar.Icon
-                size={60}
-                icon="chart-line"
-                style={styles.emptyIcon}
-              />
-              <Text variant="bodyMedium" style={styles.emptyText}>
-                {t("habit.noHabitsYet")}
-              </Text>
-            </View>
-          )}
-        </Card.Content>
-      </Card>
+          </ThemedCard.Content>
+        </ThemedCard>
+
+        {/* Streak Analytics */}
+        <ThemedCard elevation={1} style={styles.streaksCard}>
+          <ThemedCard.Content>
+            <Text variant="titleLarge" style={styles.cardTitle}>
+              🔥 {t("charts.streaks")}
+            </Text>
+            <Text variant="bodyMedium" style={styles.cardDescription}>
+              {t("insights.currentStreak")} & {t("insights.successRate")}
+            </Text>
+
+            {streakData.length > 0 ? (
+              <View style={styles.streaksContainer}>
+                {streakData.slice(0, 3).map((streak) => (
+                  <View
+                    key={streak.habitId}
+                    style={[
+                      styles.streakItem,
+                      {
+                        backgroundColor: colors.elevation.level2,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    <View style={styles.streakHeader}>
+                      <Text
+                        variant="bodyLarge"
+                        style={[
+                          styles.streakHabitName,
+                          { color: colors.text.primary },
+                        ]}
+                      >
+                        {streak.habitName}
+                      </Text>
+                      <Chip
+                        icon="fire"
+                        mode="flat"
+                        style={[
+                          styles.streakChip,
+                          {
+                            backgroundColor: isDark
+                              ? "rgba(255, 87, 34, 0.2)"
+                              : "rgba(255, 87, 34, 0.1)",
+                          },
+                        ]}
+                        textStyle={[
+                          styles.streakChipText,
+                          { color: "#FF5722" },
+                        ]}
+                      >
+                        {streak.currentStreak}
+                      </Chip>
+                    </View>
+
+                    <View style={styles.streakStats}>
+                      <View style={styles.streakStat}>
+                        <Text
+                          variant="bodySmall"
+                          style={[
+                            styles.streakStatLabel,
+                            { color: colors.text.secondary },
+                          ]}
+                        >
+                          {t("insights.longestStreak")}
+                        </Text>
+                        <Text
+                          variant="bodyMedium"
+                          style={[
+                            styles.streakStatValue,
+                            { color: colors.text.primary },
+                          ]}
+                        >
+                          {streak.longestStreak} {t("habits.days")}
+                        </Text>
+                      </View>
+
+                      <View style={styles.streakStat}>
+                        <Text
+                          variant="bodySmall"
+                          style={[
+                            styles.streakStatLabel,
+                            { color: colors.text.secondary },
+                          ]}
+                        >
+                          {t("insights.successRate")}
+                        </Text>
+                        <Text
+                          variant="bodyMedium"
+                          style={[
+                            styles.streakStatValue,
+                            { color: colors.text.primary },
+                          ]}
+                        >
+                          {streak.successRate}%
+                        </Text>
+                      </View>
+                    </View>
+
+                    <ProgressBar
+                      progress={streak.successRate / 100}
+                      style={styles.streakProgress}
+                      color={colors.secondary}
+                    />
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <View style={styles.emptyStreaks}>
+                <Avatar.Icon
+                  size={60}
+                  icon="chart-line"
+                  style={[
+                    styles.emptyIcon,
+                    { backgroundColor: colors.elevation.level2 },
+                  ]}
+                />
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.emptyText, { color: colors.text.secondary }]}
+                >
+                  {t("habit.noHabitsYet")}
+                </Text>
+              </View>
+            )}
+          </ThemedCard.Content>
+        </ThemedCard>
       </ScrollView>
 
       {/* Day Details Modal */}
@@ -464,61 +620,130 @@ export default function ExploreScreen() {
           contentContainerStyle={styles.modalContainer}
         >
           {selectedDayData && (
-            <View style={styles.modalCard}>
+            <View
+              style={[
+                styles.modalCard,
+                { backgroundColor: colors.elevation.level1 },
+              ]}
+            >
               {/* Header */}
-              <View style={styles.modalHeader}>
-                <Text variant="headlineSmall" style={styles.modalTitle}>
-                  {new Date(selectedDayData.date).toLocaleDateString('fa-IR', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
+              <View
+                style={[
+                  styles.modalHeader,
+                  { backgroundColor: colors.primary },
+                ]}
+              >
+                <Text
+                  variant="headlineSmall"
+                  style={[styles.modalTitle, { color: colors.onPrimary }]}
+                >
+                  {new Date(selectedDayData.date).toLocaleDateString("fa-IR", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </Text>
               </View>
 
               {/* Content */}
-              <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+              <ScrollView
+                style={styles.modalContent}
+                showsVerticalScrollIndicator={false}
+              >
                 {/* Mood Display */}
                 {selectedDayData.mood && (
-                  <View style={styles.modalMood}>
-                    <View style={styles.moodIcon}>
+                  <View
+                    style={[
+                      styles.modalMood,
+                      { backgroundColor: colors.elevation.level2 },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.moodIcon,
+                        { backgroundColor: colors.elevation.level1 },
+                      ]}
+                    >
                       <Text style={styles.moodEmoji}>
-                        {selectedDayData.mood === 'good' && '😊'}
-                        {selectedDayData.mood === 'ok' && '😐'}
-                        {selectedDayData.mood === 'bad' && '😔'}
+                        {selectedDayData.mood === "good" && "😊"}
+                        {selectedDayData.mood === "ok" && "😐"}
+                        {selectedDayData.mood === "bad" && "😔"}
                       </Text>
                     </View>
-                    <Text variant="bodyLarge" style={styles.moodText}>
-                      {selectedDayData.mood === 'good' && t('mood.good')}
-                      {selectedDayData.mood === 'ok' && t('mood.ok')}
-                      {selectedDayData.mood === 'bad' && t('mood.bad')}
+                    <Text
+                      variant="bodyLarge"
+                      style={[styles.moodText, { color: colors.text.primary }]}
+                    >
+                      {selectedDayData.mood === "good" && t("mood.good")}
+                      {selectedDayData.mood === "ok" && t("mood.ok")}
+                      {selectedDayData.mood === "bad" && t("mood.bad")}
                     </Text>
                   </View>
                 )}
 
                 {/* Note Display */}
                 {selectedDayData.note && (
-                  <View style={styles.modalNote}>
-                    <Text variant="bodyMedium" style={styles.modalNoteText}>
+                  <View
+                    style={[
+                      styles.modalNote,
+                      {
+                        backgroundColor: isDark
+                          ? colors.elevation.level2
+                          : "#fff5f5",
+                        borderRightColor: colors.primary,
+                      },
+                    ]}
+                  >
+                    <Text
+                      variant="bodyMedium"
+                      style={[
+                        styles.modalNoteText,
+                        { color: colors.text.primary },
+                      ]}
+                    >
                       "{selectedDayData.note}"
                     </Text>
                   </View>
                 )}
 
                 {/* Progress Summary */}
-                <View style={styles.modalProgress}>
+                <View
+                  style={[
+                    styles.modalProgress,
+                    {
+                      backgroundColor: isDark
+                        ? colors.elevation.level2
+                        : "#f0f9ff",
+                    },
+                  ]}
+                >
                   <View style={styles.progressHeader}>
-                    <Text variant="titleSmall" style={styles.progressTitle}>
-                      {t('calendar.todayProgress')}
+                    <Text
+                      variant="titleSmall"
+                      style={[
+                        styles.progressTitle,
+                        { color: colors.text.primary },
+                      ]}
+                    >
+                      {t("calendar.todayProgress")}
                     </Text>
-                    <Text variant="bodyMedium" style={styles.progressText}>
-                      {selectedDayData.completedCount} از {selectedDayData.totalCount}
+                    <Text
+                      variant="bodyMedium"
+                      style={[styles.progressText, { color: colors.primary }]}
+                    >
+                      {selectedDayData.completedCount} از{" "}
+                      {selectedDayData.totalCount}
                     </Text>
                   </View>
                   <ProgressBar
-                    progress={selectedDayData.totalCount > 0 ? selectedDayData.completedCount / selectedDayData.totalCount : 0}
-                    color="#667eea"
+                    progress={
+                      selectedDayData.totalCount > 0
+                        ? selectedDayData.completedCount /
+                          selectedDayData.totalCount
+                        : 0
+                    }
+                    color={colors.primary}
                     style={styles.modalProgressBar}
                   />
                 </View>
@@ -526,12 +751,27 @@ export default function ExploreScreen() {
                 {/* Habits List */}
                 {selectedDayData.habits.length > 0 && (
                   <View style={styles.habitsSection}>
-                    <Text variant="titleSmall" style={styles.sectionTitle}>
-                      {t('habits.title')}
+                    <Text
+                      variant="titleSmall"
+                      style={[
+                        styles.sectionTitle,
+                        { color: colors.text.primary },
+                      ]}
+                    >
+                      {t("habits.title")}
                     </Text>
 
                     {selectedDayData.habits.map((habit) => (
-                      <View key={habit.id} style={styles.habitItem}>
+                      <View
+                        key={habit.id}
+                        style={[
+                          styles.habitItem,
+                          {
+                            backgroundColor: colors.elevation.level1,
+                            borderColor: colors.border,
+                          },
+                        ]}
+                      >
                         <View style={styles.habitIcon}>
                           {habit.completed ? (
                             <Text style={styles.completedIcon}>✓</Text>
@@ -540,12 +780,27 @@ export default function ExploreScreen() {
                           )}
                         </View>
                         <View style={styles.habitInfo}>
-                          <Text variant="bodyMedium" style={[styles.habitName, habit.completed && styles.completedHabit]}>
+                          <Text
+                            variant="bodyMedium"
+                            style={[
+                              styles.habitName,
+                              { color: colors.text.primary },
+                              habit.completed && styles.completedHabit,
+                            ]}
+                          >
                             {habit.name}
                           </Text>
-                          <Text variant="bodySmall" style={styles.habitCategory}>
-                            {habit.category}
-                          </Text>
+                          {habit.description && (
+                            <Text
+                              variant="bodySmall"
+                              style={[
+                                styles.habitCategory,
+                                { color: colors.text.secondary },
+                              ]}
+                            >
+                              {habit.description}
+                            </Text>
+                          )}
                         </View>
                       </View>
                     ))}
@@ -554,22 +809,42 @@ export default function ExploreScreen() {
 
                 {selectedDayData.habits.length === 0 && (
                   <View style={styles.emptyHabits}>
-                    <Text variant="bodyMedium" style={styles.emptyText}>
-                      {t('calendar.noHabitsForDay')}
+                    <Text
+                      variant="bodyMedium"
+                      style={[
+                        styles.emptyHabitsText,
+                        { color: colors.text.secondary },
+                      ]}
+                    >
+                      {t("calendar.noHabitsForDay")}
                     </Text>
                   </View>
                 )}
               </ScrollView>
 
               {/* Footer */}
-              <View style={styles.modalFooter}>
+              <View
+                style={[
+                  styles.modalFooter,
+                  {
+                    backgroundColor: colors.elevation.level2,
+                    borderTopColor: colors.border,
+                  },
+                ]}
+              >
                 <Button
                   mode="contained"
                   onPress={modal.setFalse}
-                  style={styles.closeButton}
-                  labelStyle={styles.closeButtonText}
+                  style={[
+                    styles.closeButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                  labelStyle={[
+                    styles.closeButtonText,
+                    { color: colors.onPrimary },
+                  ]}
                 >
-                  {t('calendar.close')}
+                  {t("calendar.close")}
                 </Button>
               </View>
             </View>
@@ -682,23 +957,18 @@ const styles = StyleSheet.create({
   },
   calendar: {
     borderRadius: 12,
-    backgroundColor: "#ffffff",
     paddingVertical: 12,
     paddingHorizontal: 8,
-    borderWidth: 1,
-    borderColor: "rgba(103, 126, 234, 0.1)",
   },
   calendarLegend: {
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.1)",
   },
   legendTitle: {
     textAlign: "center",
     fontWeight: "600",
     marginBottom: 12,
-    color: "#2d3748",
   },
   legendItems: {
     flexDirection: "row",
@@ -739,7 +1009,6 @@ const styles = StyleSheet.create({
   insightValue: {
     fontWeight: "bold",
     marginBottom: 4,
-    color: "#2d3748",
   },
   insightLabel: {
     textAlign: "center",
@@ -760,7 +1029,6 @@ const styles = StyleSheet.create({
   },
   insightDivider: {
     marginVertical: 16,
-    backgroundColor: "rgba(0,0,0,0.1)",
   },
   smartInsights: {
     paddingTop: 8,
@@ -768,10 +1036,8 @@ const styles = StyleSheet.create({
   smartTitle: {
     fontWeight: "600",
     marginBottom: 12,
-    color: "#2d3748",
   },
   smartMessage: {
-    backgroundColor: "rgba(82, 196, 26, 0.1)",
     padding: 8,
     borderRadius: 6,
     marginBottom: 6,
@@ -801,7 +1067,6 @@ const styles = StyleSheet.create({
   streakHabitName: {
     fontWeight: "600",
     flex: 1,
-    color: "#2d3748",
   },
   streakChip: {
     backgroundColor: "rgba(255, 87, 34, 0.1)",
@@ -845,35 +1110,35 @@ const styles = StyleSheet.create({
   // Modal styles - Complete redesign
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     padding: 20,
   },
   modalCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 20,
-    width: '95%',
-    height: '85%',
+    width: "95%",
+    height: "85%",
     maxWidth: 450,
     elevation: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.25,
     shadowRadius: 20,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   modalHeader: {
-    backgroundColor: '#667eea',
+    backgroundColor: "#667eea",
     paddingVertical: 24,
     paddingHorizontal: 24,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalTitle: {
-    color: '#ffffff',
-    fontWeight: 'bold',
+    color: "#ffffff",
+    fontWeight: "bold",
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
   },
   modalContent: {
     flex: 1,
@@ -882,9 +1147,9 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   modalMood: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
     padding: 20,
     borderRadius: 16,
     marginBottom: 20,
@@ -893,9 +1158,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#ffffff",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
     elevation: 2,
   },
@@ -903,135 +1168,122 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   moodText: {
-    fontWeight: '600',
-    color: '#2d3748',
+    fontWeight: "600",
+    color: "#2d3748",
   },
   modalNote: {
-    backgroundColor: '#fff5f5',
+    backgroundColor: "#fff5f5",
     padding: 20,
     borderRadius: 16,
     marginBottom: 20,
     borderRightWidth: 4,
-    borderRightColor: '#667eea',
+    borderRightColor: "#667eea",
   },
   modalNoteText: {
-    fontStyle: 'italic',
-    color: '#4a5568',
+    fontStyle: "italic",
+    color: "#4a5568",
     lineHeight: 22,
   },
   modalProgress: {
-    backgroundColor: '#f0f9ff',
+    backgroundColor: "#f0f9ff",
     padding: 20,
     borderRadius: 16,
     marginBottom: 24,
   },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
   progressTitle: {
-    fontWeight: '600',
-    color: '#2d3748',
+    fontWeight: "600",
+    color: "#2d3748",
     fontSize: 16,
   },
   progressText: {
-    color: '#667eea',
-    fontWeight: '600',
+    color: "#667eea",
+    fontWeight: "600",
     fontSize: 15,
   },
   modalProgressBar: {
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: "#e2e8f0",
   },
   habitsSection: {
     marginBottom: 16,
   },
-  sectionTitle: {
-    fontWeight: '600',
-    color: '#2d3748',
-    marginBottom: 16,
-    fontSize: 16,
-  },
   habitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
     padding: 16,
     borderRadius: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: "#e2e8f0",
   },
   habitIcon: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
   completedIcon: {
     fontSize: 16,
-    color: '#ffffff',
-    backgroundColor: '#10b981',
+    color: "#ffffff",
+    backgroundColor: "#10b981",
     width: 32,
     height: 32,
     borderRadius: 16,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   incompleteIcon: {
     width: 32,
     height: 32,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#cbd5e0',
-    backgroundColor: '#f7fafc',
+    borderColor: "#cbd5e0",
+    backgroundColor: "#f7fafc",
   },
   habitInfo: {
     flex: 1,
   },
   habitName: {
-    fontWeight: '600',
-    color: '#2d3748',
+    fontWeight: "600",
+    color: "#2d3748",
     marginBottom: 4,
     fontSize: 15,
   },
   completedHabit: {
-    textDecorationLine: 'line-through',
+    textDecorationLine: "line-through",
     opacity: 0.7,
   },
   habitCategory: {
-    color: '#718096',
+    color: "#718096",
     fontSize: 13,
   },
   emptyHabits: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 32,
   },
-  emptyText: {
-    color: '#718096',
-    fontStyle: 'italic',
+  emptyHabitsText: {
+    fontStyle: "italic",
   },
   modalFooter: {
     paddingHorizontal: 24,
     paddingVertical: 20,
     borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-    backgroundColor: '#f8fafc',
+    borderTopColor: "#e2e8f0",
+    backgroundColor: "#f8fafc",
   },
   closeButton: {
-    backgroundColor: '#667eea',
+    backgroundColor: "#667eea",
     borderRadius: 12,
     paddingVertical: 8,
   },
   closeButtonText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontWeight: "600",
+    color: "#ffffff",
   },
 });

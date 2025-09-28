@@ -4,6 +4,7 @@ import { Text, Card } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { useHabitStore } from '@/store/habitStore';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface ProgressChartProps {
   type: 'line' | 'bar' | 'pie';
@@ -19,6 +20,7 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
   habitId
 }) => {
   const { t } = useTranslation();
+  const { colors, isDark } = useTheme();
   const { history, getHabitsForDate } = useHabitStore();
 
   const screenWidth = Dimensions.get('window').width;
@@ -26,27 +28,31 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
 
   // تنظیمات مشترک charts
   const chartConfig = {
-    backgroundColor: '#ffffff',
-    backgroundGradientFrom: '#ffffff',
-    backgroundGradientTo: '#ffffff',
+    backgroundColor: colors.elevation.level1,
+    backgroundGradientFrom: colors.elevation.level1,
+    backgroundGradientTo: colors.elevation.level1,
     decimalPlaces: 0,
-    color: (opacity = 1) => `rgba(103, 126, 234, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(45, 55, 72, ${opacity})`,
+    color: (opacity = 1) => isDark
+      ? `rgba(${colors.primary.slice(1).match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join(', ')}, ${opacity})`
+      : `rgba(103, 126, 234, ${opacity})`,
+    labelColor: (opacity = 1) => isDark
+      ? `rgba(255, 255, 255, ${opacity * 0.8})`
+      : `rgba(45, 55, 72, ${opacity})`,
     style: {
       borderRadius: 12,
     },
     propsForDots: {
       r: '4',
       strokeWidth: '2',
-      stroke: '#667eea'
+      stroke: colors.primary
     },
     propsForBackgroundLines: {
       strokeDasharray: '',
-      stroke: 'rgba(0,0,0,0.1)',
+      stroke: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
       strokeWidth: 1
     },
-    fillShadowGradient: '#667eea',
-    fillShadowGradientOpacity: 0.1,
+    fillShadowGradient: colors.primary,
+    fillShadowGradientOpacity: isDark ? 0.2 : 0.1,
   };
 
   // محاسبه داده‌های period
@@ -122,7 +128,13 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
 
     if (total === 0) {
       return [
-        { name: t('mood.noData'), population: 1, color: '#e0e0e0', legendFontColor: '#666' }
+        {
+          name: t('mood.noData'),
+          population: 1,
+          color: isDark ? '#555' : '#e0e0e0',
+          legendFontColor: colors.text.secondary,
+          legendFontSize: 12,
+        }
       ];
     }
 
@@ -131,21 +143,21 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
         name: `😊 ${t('mood.good')}`,
         population: moodCounts.good,
         color: '#4CAF50',
-        legendFontColor: '#2d3748',
+        legendFontColor: colors.text.primary,
         legendFontSize: 12,
       },
       {
         name: `😐 ${t('mood.ok')}`,
         population: moodCounts.ok,
         color: '#FF9800',
-        legendFontColor: '#2d3748',
+        legendFontColor: colors.text.primary,
         legendFontSize: 12,
       },
       {
         name: `😔 ${t('mood.bad')}`,
         population: moodCounts.bad,
         color: '#9C27B0',
-        legendFontColor: '#2d3748',
+        legendFontColor: colors.text.primary,
         legendFontSize: 12,
       },
     ].filter(item => item.population > 0);
@@ -180,6 +192,7 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
           height={200}
           chartConfig={chartConfig}
           style={styles.chart}
+          yAxisLabel=""
           yAxisSuffix={habitId ? '' : '%'}
           fromZero={true}
           showBarTops={false}
@@ -196,7 +209,9 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
           height={200}
           chartConfig={{
             ...chartConfig,
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            color: (opacity = 1) => isDark
+              ? `rgba(255, 255, 255, ${opacity})`
+              : `rgba(0, 0, 0, ${opacity})`,
           }}
           accessor="population"
           backgroundColor="transparent"
@@ -213,12 +228,26 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
   };
 
   return (
-    <Card style={[styles.chartCard, styles.whiteCard]} mode="elevated">
+    <Card style={[
+      styles.chartCard,
+      {
+        backgroundColor: colors.elevation.level1,
+        ...(isDark && {
+          borderWidth: 1,
+          borderColor: colors.border,
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.8,
+          shadowRadius: 4,
+          elevation: 8,
+        }),
+      }
+    ]} mode="elevated">
       <Card.Content>
-        <Text variant="titleMedium" style={styles.chartTitle}>
+        <Text variant="titleMedium" style={[styles.chartTitle, { color: colors.text.primary }]}>
           {title}
         </Text>
-        <Text variant="bodySmall" style={styles.chartSubtitle}>
+        <Text variant="bodySmall" style={[styles.chartSubtitle, { color: colors.text.secondary }]}>
           {period === 'week' ? t('charts.last7Days') :
            period === 'month' ? t('charts.last30Days') :
            t('charts.thisYear')}
@@ -229,7 +258,7 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
         </View>
 
         {habitId && (
-          <Text variant="bodySmall" style={styles.chartNote}>
+          <Text variant="bodySmall" style={[styles.chartNote, { color: colors.text.secondary }]}>
             💡 {t('charts.habitNote')}
           </Text>
         )}
@@ -242,19 +271,15 @@ const styles = StyleSheet.create({
   chartCard: {
     margin: 16,
     marginTop: 0,
-  },
-  whiteCard: {
-    backgroundColor: '#ffffff',
+    borderRadius: 12,
   },
   chartTitle: {
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 4,
-    color: '#2d3748',
   },
   chartSubtitle: {
     textAlign: 'center',
-    opacity: 0.7,
     marginBottom: 16,
   },
   chartContainer: {
@@ -267,7 +292,6 @@ const styles = StyleSheet.create({
   },
   chartNote: {
     textAlign: 'center',
-    opacity: 0.6,
     marginTop: 12,
     fontStyle: 'italic',
   },

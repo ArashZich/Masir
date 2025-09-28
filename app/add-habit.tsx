@@ -1,11 +1,12 @@
+import { useTheme } from "@/contexts/ThemeContext";
+import { useBoolean } from "@/hooks/useBoolean";
 import { useHabitStore } from "@/store/habitStore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, router, useLocalSearchParams } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useBoolean } from "@/hooks/useBoolean";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -83,6 +84,7 @@ const HABIT_CATEGORIES = [
 
 export default function AddHabitScreen() {
   const { t } = useTranslation();
+  const { colors, isDark } = useTheme();
   const { addHabit, updateHabit, habits } = useHabitStore();
   const { edit } = useLocalSearchParams();
 
@@ -95,25 +97,25 @@ export default function AddHabitScreen() {
   // Category
   const [category, setCategory] = useState(HABIT_CATEGORIES[0]);
   const [customCategory, setCustomCategory] = useState("");
-  const showCustomCategory = useBoolean(false, 'CustomCategory');
+  const showCustomCategory = useBoolean(false, "CustomCategory");
 
   // Settings
   const [target, setTarget] = useState("1");
   const [frequency, setFrequency] = useState("daily");
   const [estimatedDuration, setEstimatedDuration] = useState("15");
-  const isActive = useBoolean(true, 'IsActive');
-  const reminderEnabled = useBoolean(false, 'ReminderEnabled');
+  const isActive = useBoolean(true, "IsActive");
+  const reminderEnabled = useBoolean(false, "ReminderEnabled");
   const [reminderTime, setReminderTime] = useState(new Date());
-  const showTimePicker = useBoolean(false, 'TimePicker');
+  const showTimePicker = useBoolean(false, "TimePicker");
 
   // Reminder settings based on frequency
   const [dailyInterval, setDailyInterval] = useState(1); // هر چند روز
   const [weeklyDays, setWeeklyDays] = useState<number[]>([1]); // روزهای هفته (0=یکشنبه)
   const [monthlyDay, setMonthlyDay] = useState(1); // روز ماه (1-31)
-  const showErrorDialog = useBoolean(false, 'ErrorDialog');
+  const showErrorDialog = useBoolean(false, "ErrorDialog");
 
   const isEditing = !!edit;
-  const editingHabit = isEditing ? habits.find(h => h.id === edit) : null;
+  const editingHabit = isEditing ? habits.find((h) => h.id === edit) : null;
 
   // Load habit data when editing
   useEffect(() => {
@@ -128,7 +130,7 @@ export default function AddHabitScreen() {
 
       if (editingHabit.reminder) {
         reminderEnabled.setValue(editingHabit.reminder.enabled);
-        const [hours, minutes] = editingHabit.reminder.time.split(':');
+        const [hours, minutes] = editingHabit.reminder.time.split(":");
         const time = new Date();
         time.setHours(parseInt(hours), parseInt(minutes), 0, 0);
         setReminderTime(time);
@@ -194,7 +196,7 @@ export default function AddHabitScreen() {
       });
     }
 
-    router.replace('/');
+    router.replace("/");
   };
 
   const getTimeUnit = () => {
@@ -231,13 +233,13 @@ export default function AddHabitScreen() {
           headerShown: true,
           presentation: "modal",
           headerLeft: () => (
-            <IconButton icon="close" onPress={() => router.replace('/')} />
+            <IconButton icon="close" onPress={() => router.replace("/")} />
           ),
         }}
       />
 
       <KeyboardAvoidingView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
@@ -246,7 +248,19 @@ export default function AddHabitScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Preview Card */}
-          <Card style={[styles.previewCard, styles.whiteCard]} mode="elevated">
+          <Card
+            style={[
+              styles.previewCard,
+              {
+                backgroundColor: colors.elevation.level1,
+                ...(isDark && {
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }),
+              },
+            ]}
+            mode="elevated"
+          >
             <LinearGradient
               colors={[selectedColor, selectedColor + "90"]}
               style={styles.previewGradient}
@@ -268,9 +282,24 @@ export default function AddHabitScreen() {
           </Card>
 
           {/* Basic Information */}
-          <Card style={[styles.sectionCard, styles.whiteCard]} mode="elevated">
+          <Card
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: colors.elevation.level1,
+                ...(isDark && {
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }),
+              },
+            ]}
+            mode="elevated"
+          >
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text
+                variant="titleMedium"
+                style={[styles.sectionTitle, { color: colors.text.primary }]}
+              >
                 📝 {t("habit.basicInfo")}
               </Text>
 
@@ -283,6 +312,14 @@ export default function AddHabitScreen() {
                 placeholder={t("habit.namePlaceholder")}
                 maxLength={50}
                 dense
+                theme={{
+                  colors: {
+                    primary: colors.primary,
+                    onSurfaceVariant: colors.text.secondary,
+                    outline: colors.border,
+                    onSurface: colors.text.primary,
+                  },
+                }}
               />
 
               <TextInput
@@ -296,14 +333,37 @@ export default function AddHabitScreen() {
                 numberOfLines={3}
                 maxLength={200}
                 dense
+                theme={{
+                  colors: {
+                    primary: colors.primary,
+                    onSurfaceVariant: colors.text.secondary,
+                    outline: colors.border,
+                    onSurface: colors.text.primary,
+                  },
+                }}
               />
             </Card.Content>
           </Card>
 
           {/* Category */}
-          <Card style={[styles.sectionCard, styles.whiteCard]} mode="elevated">
+          <Card
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: colors.elevation.level1,
+                ...(isDark && {
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }),
+              },
+            ]}
+            mode="elevated"
+          >
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text
+                variant="titleMedium"
+                style={[styles.sectionTitle, { color: colors.text.primary }]}
+              >
                 🏷️ {t("habit.category")}
               </Text>
 
@@ -364,19 +424,45 @@ export default function AddHabitScreen() {
                   placeholder={t("habit.customCategoryPlaceholder")}
                   maxLength={30}
                   dense
+                  theme={{
+                    colors: {
+                      primary: colors.primary,
+                      onSurfaceVariant: colors.text.secondary,
+                      outline: colors.border,
+                      onSurface: colors.text.primary,
+                    },
+                  }}
                 />
               )}
             </Card.Content>
           </Card>
 
           {/* Appearance */}
-          <Card style={[styles.sectionCard, styles.whiteCard]} mode="elevated">
+          <Card
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: colors.elevation.level1,
+                ...(isDark && {
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }),
+              },
+            ]}
+            mode="elevated"
+          >
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text
+                variant="titleMedium"
+                style={[styles.sectionTitle, { color: colors.text.primary }]}
+              >
                 🎨 {t("habit.appearance")}
               </Text>
 
-              <Text variant="bodyMedium" style={styles.subSectionTitle}>
+              <Text
+                variant="bodyMedium"
+                style={[styles.subSectionTitle, { color: colors.text.primary }]}
+              >
                 {t("habit.selectIcon")}
               </Text>
               <View style={styles.iconGrid}>
@@ -411,7 +497,10 @@ export default function AddHabitScreen() {
                 ))}
               </View>
 
-              <Text variant="bodyMedium" style={styles.subSectionTitle}>
+              <Text
+                variant="bodyMedium"
+                style={[styles.subSectionTitle, { color: colors.text.primary }]}
+              >
                 {t("habit.selectColor")}
               </Text>
               <View style={styles.colorGrid}>
@@ -434,22 +523,52 @@ export default function AddHabitScreen() {
           </Card>
 
           {/* Settings */}
-          <Card style={[styles.sectionCard, styles.whiteCard]} mode="elevated">
+          <Card
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: colors.elevation.level1,
+                ...(isDark && {
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }),
+              },
+            ]}
+            mode="elevated"
+          >
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text
+                variant="titleMedium"
+                style={[styles.sectionTitle, { color: colors.text.primary }]}
+              >
                 ⚙️ {t("habit.settings")}
               </Text>
 
               {/* Frequency */}
               <View style={styles.settingRow}>
-                <Text variant="bodyLarge" style={styles.settingLabel}>
+                <Text
+                  variant="bodyLarge"
+                  style={[styles.settingLabel, { color: colors.text.primary }]}
+                >
                   {t("habit.frequency")}
                 </Text>
                 <View style={styles.frequencyButtons}>
                   {[
-                    { value: "daily", label: t("habit.daily"), icon: t("habit.dailyIcon") },
-                    { value: "weekly", label: t("habit.weekly"), icon: t("habit.weeklyIcon") },
-                    { value: "monthly", label: t("habit.monthly"), icon: t("habit.monthlyIcon") },
+                    {
+                      value: "daily",
+                      label: t("habit.daily"),
+                      icon: t("habit.dailyIcon"),
+                    },
+                    {
+                      value: "weekly",
+                      label: t("habit.weekly"),
+                      icon: t("habit.weeklyIcon"),
+                    },
+                    {
+                      value: "monthly",
+                      label: t("habit.monthly"),
+                      icon: t("habit.monthlyIcon"),
+                    },
                   ].map((freq) => (
                     <Pressable
                       key={freq.value}
@@ -459,6 +578,10 @@ export default function AddHabitScreen() {
                       }}
                       style={[
                         styles.frequencyButton,
+                        {
+                          backgroundColor: colors.elevation.level2,
+                          borderColor: colors.border,
+                        },
                         frequency === freq.value && {
                           backgroundColor: selectedColor + "20",
                           borderColor: selectedColor,
@@ -466,7 +589,13 @@ export default function AddHabitScreen() {
                       ]}
                     >
                       <Text style={styles.frequencyIcon}>{freq.icon}</Text>
-                      <Text variant="bodySmall" style={styles.frequencyLabel}>
+                      <Text
+                        variant="bodySmall"
+                        style={[
+                          styles.frequencyLabel,
+                          { color: colors.text.primary },
+                        ]}
+                      >
                         {freq.label}
                       </Text>
                     </Pressable>
@@ -476,7 +605,10 @@ export default function AddHabitScreen() {
 
               {/* Target */}
               <View style={styles.settingRow}>
-                <Text variant="bodyLarge" style={styles.settingLabel}>
+                <Text
+                  variant="bodyLarge"
+                  style={[styles.settingLabel, { color: colors.text.primary }]}
+                >
                   {t("habit.target")}
                 </Text>
                 <View style={styles.targetContainer}>
@@ -488,8 +620,22 @@ export default function AddHabitScreen() {
                     keyboardType="numeric"
                     maxLength={2}
                     dense
+                    theme={{
+                      colors: {
+                        primary: colors.primary,
+                        onSurfaceVariant: colors.text.secondary,
+                        outline: colors.border,
+                        onSurface: colors.text.primary,
+                      },
+                    }}
                   />
-                  <Text variant="bodyMedium" style={styles.targetUnit}>
+                  <Text
+                    variant="bodyMedium"
+                    style={[
+                      styles.targetUnit,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
                     {getTimeUnit()}
                   </Text>
                 </View>
@@ -497,7 +643,10 @@ export default function AddHabitScreen() {
 
               {/* Duration */}
               <View style={styles.settingRow}>
-                <Text variant="bodyLarge" style={styles.settingLabel}>
+                <Text
+                  variant="bodyLarge"
+                  style={[styles.settingLabel, { color: colors.text.primary }]}
+                >
                   {t("habit.estimatedDuration")}
                 </Text>
                 <View style={styles.targetContainer}>
@@ -509,8 +658,22 @@ export default function AddHabitScreen() {
                     keyboardType="numeric"
                     maxLength={3}
                     dense
+                    theme={{
+                      colors: {
+                        primary: colors.primary,
+                        onSurfaceVariant: colors.text.secondary,
+                        outline: colors.border,
+                        onSurface: colors.text.primary,
+                      },
+                    }}
                   />
-                  <Text variant="bodyMedium" style={styles.targetUnit}>
+                  <Text
+                    variant="bodyMedium"
+                    style={[
+                      styles.targetUnit,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
                     {getDurationUnit()}
                   </Text>
                 </View>
@@ -533,10 +696,19 @@ export default function AddHabitScreen() {
                   }}
                 />
                 <View style={styles.switchLabelContainer}>
-                  <Text variant="bodyLarge">
+                  <Text
+                    variant="bodyLarge"
+                    style={{ color: colors.text.primary }}
+                  >
                     🔔 {t("habit.enableReminder")}
                   </Text>
-                  <Text variant="bodySmall" style={styles.settingDescription}>
+                  <Text
+                    variant="bodySmall"
+                    style={[
+                      styles.settingDescription,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
                     {t("habit.reminderDescription")}
                   </Text>
                 </View>
@@ -544,8 +716,19 @@ export default function AddHabitScreen() {
 
               {/* Time Picker for Reminder */}
               {reminderEnabled.value && (
-                <View style={styles.timePickerContainer}>
-                  <Text variant="bodyMedium" style={styles.timePickerLabel}>
+                <View
+                  style={[
+                    styles.timePickerContainer,
+                    { backgroundColor: colors.elevation.level2 },
+                  ]}
+                >
+                  <Text
+                    variant="bodyMedium"
+                    style={[
+                      styles.timePickerLabel,
+                      { color: colors.text.primary },
+                    ]}
+                  >
                     ⏰ {t("habit.reminderTime")}
                   </Text>
 
@@ -553,10 +736,19 @@ export default function AddHabitScreen() {
                     onPress={() => showTimePicker.setTrue()}
                     style={[
                       styles.timePickerButton,
-                      { borderColor: selectedColor },
+                      {
+                        backgroundColor: colors.elevation.level1,
+                        borderColor: selectedColor,
+                      },
                     ]}
                   >
-                    <Text variant="bodyLarge" style={styles.timePickerText}>
+                    <Text
+                      variant="bodyLarge"
+                      style={[
+                        styles.timePickerText,
+                        { color: colors.text.primary },
+                      ]}
+                    >
                       {reminderTime.toLocaleTimeString("fa-IR", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -613,13 +805,41 @@ export default function AddHabitScreen() {
                       </Text>
                       <View style={styles.daysOfWeekContainer}>
                         {[
-                          { value: 0, label: t("habit.sunday"), short: t("habit.sundayShort") },
-                          { value: 1, label: t("habit.monday"), short: t("habit.mondayShort") },
-                          { value: 2, label: t("habit.tuesday"), short: t("habit.tuesdayShort") },
-                          { value: 3, label: t("habit.wednesday"), short: t("habit.wednesdayShort") },
-                          { value: 4, label: t("habit.thursday"), short: t("habit.thursdayShort") },
-                          { value: 5, label: t("habit.friday"), short: t("habit.fridayShort") },
-                          { value: 6, label: t("habit.saturday"), short: t("habit.saturdayShort") },
+                          {
+                            value: 0,
+                            label: t("habit.sunday"),
+                            short: t("habit.sundayShort"),
+                          },
+                          {
+                            value: 1,
+                            label: t("habit.monday"),
+                            short: t("habit.mondayShort"),
+                          },
+                          {
+                            value: 2,
+                            label: t("habit.tuesday"),
+                            short: t("habit.tuesdayShort"),
+                          },
+                          {
+                            value: 3,
+                            label: t("habit.wednesday"),
+                            short: t("habit.wednesdayShort"),
+                          },
+                          {
+                            value: 4,
+                            label: t("habit.thursday"),
+                            short: t("habit.thursdayShort"),
+                          },
+                          {
+                            value: 5,
+                            label: t("habit.friday"),
+                            short: t("habit.fridayShort"),
+                          },
+                          {
+                            value: 6,
+                            label: t("habit.saturday"),
+                            short: t("habit.saturdayShort"),
+                          },
                         ].map((day) => (
                           <Pressable
                             key={day.value}
@@ -729,10 +949,24 @@ export default function AddHabitScreen() {
               )}
 
               <View style={styles.switchRow}>
-                <Switch value={isActive.value} onValueChange={isActive.setValue} />
+                <Switch
+                  value={isActive.value}
+                  onValueChange={isActive.setValue}
+                />
                 <View style={styles.switchLabelContainer}>
-                  <Text variant="bodyLarge">{t("habit.activeHabit")}</Text>
-                  <Text variant="bodySmall" style={styles.settingDescription}>
+                  <Text
+                    variant="bodyLarge"
+                    style={{ color: colors.text.primary }}
+                  >
+                    {t("habit.activeHabit")}
+                  </Text>
+                  <Text
+                    variant="bodySmall"
+                    style={[
+                      styles.settingDescription,
+                      { color: colors.text.secondary },
+                    ]}
+                  >
                     {t("habit.activeDescription")}
                   </Text>
                 </View>
@@ -742,7 +976,13 @@ export default function AddHabitScreen() {
         </ScrollView>
 
         {/* Save Button */}
-        <Surface style={styles.saveButtonContainer} elevation={4}>
+        <Surface
+          style={[
+            styles.saveButtonContainer,
+            { backgroundColor: colors.elevation.level2 },
+          ]}
+          elevation={4}
+        >
           <Pressable
             onPress={handleSave}
             disabled={!name.trim()}
@@ -765,7 +1005,7 @@ export default function AddHabitScreen() {
                 style={styles.saveButtonIcon}
               />
               <Text variant="titleMedium" style={styles.saveButtonText}>
-                ✨ {isEditing ? t("common.save") : t("habit.createHabit")}
+                {isEditing ? t("common.save") : t("habit.createHabit")}
               </Text>
             </LinearGradient>
           </Pressable>
@@ -774,13 +1014,26 @@ export default function AddHabitScreen() {
 
       {/* Error Dialog */}
       <Portal>
-        <Dialog visible={showErrorDialog.value} onDismiss={showErrorDialog.setFalse}>
-          <Dialog.Title>{t("common.error")}</Dialog.Title>
+        <Dialog
+          visible={showErrorDialog.value}
+          onDismiss={showErrorDialog.setFalse}
+          style={{ backgroundColor: colors.elevation.level1 }}
+        >
+          <Dialog.Title style={{ color: colors.text.primary }}>
+            {t("common.error")}
+          </Dialog.Title>
           <Dialog.Content>
-            <Text variant="bodyMedium">{t("habit.nameRequired")}</Text>
+            <Text variant="bodyMedium" style={{ color: colors.text.primary }}>
+              {t("habit.nameRequired")}
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Text onPress={showErrorDialog.setFalse}>{t("common.confirm")}</Text>
+            <Text
+              onPress={showErrorDialog.setFalse}
+              style={{ color: colors.primary }}
+            >
+              {t("common.confirm")}
+            </Text>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -791,10 +1044,6 @@ export default function AddHabitScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
-  },
-  whiteCard: {
-    backgroundColor: '#ffffff',
   },
   scrollView: {
     flex: 1,
@@ -915,9 +1164,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
     alignItems: "center",
-    backgroundColor: "#ffffff",
   },
   frequencyIcon: {
     fontSize: 20,
@@ -934,9 +1181,7 @@ const styles = StyleSheet.create({
   targetInput: {
     width: 80,
   },
-  targetUnit: {
-    opacity: 0.7,
-  },
+  targetUnit: {},
   divider: {
     marginVertical: 16,
   },
@@ -945,7 +1190,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   settingDescription: {
-    opacity: 0.7,
     marginTop: 2,
   },
   saveButtonContainer: {
@@ -955,7 +1199,6 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: "#f8f9fa",
   },
   saveButton: {
     borderRadius: 16,
@@ -981,7 +1224,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 16,
     padding: 16,
-    backgroundColor: "#f5f5f5",
     borderRadius: 12,
   },
   timePickerLabel: {
@@ -993,7 +1235,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16,
-    backgroundColor: "#ffffff",
     borderRadius: 12,
     borderWidth: 2,
     marginBottom: 8,

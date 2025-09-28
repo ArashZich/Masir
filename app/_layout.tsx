@@ -3,7 +3,7 @@ import "@/i18n"; // راه‌اندازی i18next - باید اول باشه
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -15,6 +15,7 @@ import { RestartDialog } from "@/components/RestartDialog";
 import { getTheme } from "@/constants/themes";
 import { useBoolean } from "@/hooks/useBoolean";
 import { useSettingsStore } from "@/store/settingsStore";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { I18nManager, useColorScheme } from "react-native";
@@ -100,23 +101,25 @@ export default function RootLayout() {
   const paperTheme = getTheme(theme, isDarkMode);
 
   return (
-    <PaperProvider theme={paperTheme}>
-      <ThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="modal"
-            options={{ presentation: "modal", title: "Modal" }}
-          />
-        </Stack>
-        <StatusBar style={isDarkMode ? "light" : "dark"} />
+    <ThemeProvider>
+      <PaperProvider theme={paperTheme}>
+        <NavigationThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="modal"
+              options={{ presentation: "modal", title: "Modal" }}
+            />
+          </Stack>
+          <StatusBar style={isDarkMode ? "light" : "dark"} />
 
-        <RestartDialog
-          visible={restartDialog.value}
-          onRestart={handleRestart}
-        />
-        {/* <Portal.Host /> */}
-      </ThemeProvider>
-    </PaperProvider>
+          <RestartDialog
+            visible={restartDialog.value}
+            onRestart={handleRestart}
+          />
+          {/* <Portal.Host /> */}
+        </NavigationThemeProvider>
+      </PaperProvider>
+    </ThemeProvider>
   );
 }
