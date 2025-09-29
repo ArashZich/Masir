@@ -5,7 +5,7 @@ import { useBoolean } from "@/hooks/useBoolean";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useSettingsStore } from "@/store/settingsStore";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button, Divider, RadioButton, Switch, Text } from "react-native-paper";
@@ -29,8 +29,6 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
     notificationSupported,
   } = useNotifications();
 
-  const [debugInfo, setDebugInfo] = useState<any>(null);
-  const showDebug = useBoolean(false, "showDebug");
   const dailyTimePicker = useBoolean(false, "dailyTimePicker");
   const moodTimePicker = useBoolean(false, "moodTimePicker");
 
@@ -53,40 +51,31 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
       setNotifications({
         dailyReminder: { ...notifications.dailyReminder, time },
       });
-      scheduleHabitReminder("یادآوری روزانه", time);
+      scheduleHabitReminder(t("notifications.messages.dailyTitle"), time);
     } else {
       setNotifications({
         moodReminder: { ...notifications.moodReminder, time },
       });
-      scheduleHabitReminder("یادآوری حالت", time);
+      scheduleHabitReminder(t("notifications.messages.moodTitle"), time);
     }
   };
 
   const sendTestNotification = () => {
-    scheduleNotification("🔔 تست اعلان", "این یک اعلان تستی است");
+    scheduleNotification(
+      t("notifications.messages.testTitle"),
+      t("notifications.messages.testBody")
+    );
   };
 
   const sendDelayedTestNotification = async () => {
     await scheduleNotification(
-      "⏰ تست اعلان با تاخیر",
-      "این اعلان با 5 ثانیه تاخیر ارسال شد",
+      t("notifications.messages.testDelayedTitle"),
+      t("notifications.messages.testDelayedBody"),
       { seconds: 5 }
     );
     console.log("Delayed test notification scheduled for 5 seconds");
   };
 
-  const loadDebugInfo = async () => {
-    const info = {
-      permission: permission,
-      notificationSettings: notifications,
-      platform: "React Native",
-      isExpoGo: isExpoGo,
-      notificationSupported: notificationSupported,
-      environment: isExpoGo ? "Expo Go" : "Development Build",
-    };
-    setDebugInfo(info);
-    showDebug.setTrue();
-  };
 
   const soundOptions = NOTIFICATION_SOUNDS.map((option) => ({
     value: option.value,
@@ -383,31 +372,9 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
                   style={[styles.testButton, { flex: 1 }]}
                   icon="clock"
                 >
-                  Test (5s)
+                  {t("notifications.sendTestDelayed")}
                 </Button>
               </View>
-
-              <Button mode="text" onPress={loadDebugInfo} icon="bug" compact>
-                Debug Info
-              </Button>
-
-              {showDebug.value && debugInfo && (
-                <View
-                  style={{
-                    backgroundColor: colors.surface,
-                    padding: 12,
-                    borderRadius: 8,
-                    marginTop: 8,
-                  }}
-                >
-                  <Text variant="bodySmall" style={{ fontFamily: "monospace" }}>
-                    {JSON.stringify(debugInfo, null, 2)}
-                  </Text>
-                  <Button mode="text" onPress={showDebug.setFalse} compact>
-                    Hide
-                  </Button>
-                </View>
-              )}
             </View>
           </>
         )}

@@ -14,7 +14,7 @@ export const NOTIFICATION_SOUNDS = [
   { label: 'notifications.sounds.default', value: 'default' as const },
   { label: 'notifications.sounds.bell', value: 'bell' as const },
   { label: 'notifications.sounds.chime', value: 'chime' as const },
-  { label: 'notifications.sounds.ding', value: 'ding' as const },
+  { label: 'notifications.sounds.gentle', value: 'gentle' as const },
 ] as const;
 
 // Default notification times

@@ -312,13 +312,13 @@
       "default": "Default",
       "gentle": "Gentle",
       "chime": "Chime",
-      "ding": "Ding",
       "bell": "Bell",
       "none": "Silent"
     },
     "test": "Test Notifications",
     "testDesc": "Send test notifications to verify functionality",
     "sendTest": "Send Test",
+    "sendTestDelayed": "Test (5s)",
     "expoGoWarning": {
       "title": "Expo Go has limitations",
       "description": "For full notification functionality, use a development build."
@@ -330,8 +330,10 @@
       "moodTitle": "💭 Evening Reflection",
       "moodBody": "How was your day? Log your mood",
       "habitBody": "Time to do this habit!",
-      "testTitle": "🧪 Test Notification",
-      "testBody": "Notifications are working correctly!"
+      "testTitle": "🔔 Test Notification",
+      "testBody": "This is a test notification",
+      "testDelayedTitle": "⏰ Delayed Test Notification",
+      "testDelayedBody": "This notification was sent with a 5-second delay"
     }
   },
   "onboarding": {

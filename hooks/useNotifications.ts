@@ -2,6 +2,7 @@ import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
+import { useSettingsStore } from "@/store/settingsStore";
 
 // Check if we're in Expo Go environment
 const isExpoGo = Constants.executionEnvironment === "storeClient";
@@ -41,6 +42,7 @@ export interface NotificationPermission {
 }
 
 export function useNotifications() {
+  const { notifications: notificationSettings } = useSettingsStore();
   const [permission, setPermission] = useState<NotificationPermission>({
     granted: false,
     canAskAgain: true,
@@ -156,13 +158,20 @@ export function useNotifications() {
     trigger?: any
   ) => {
     if (!Notifications) return;
+
+    // تعیین صدای نوتیفیکیشن بر اساس تنظیمات کاربر
+    let sound = "default";
+    if (notificationSettings.sound !== "default") {
+      sound = `./assets/sounds/notification_${notificationSettings.sound}.wav`;
+    }
+
     await Notifications.scheduleNotificationAsync({
       content: {
         title,
         body,
-        sound: "default",
-        icon: "./assets/images/notification-icon.png",
+        sound,
         color: "#4CAF50",
+        // آیکون از app.json استفاده می‌شود، نه اینجا
       },
       trigger: trigger || null, // فوری اگه trigger نداشته باشه
     });
@@ -175,14 +184,21 @@ export function useNotifications() {
     weekdays?: number[] // 0 = یکشنبه، 6 = شنبه
   ) => {
     if (!Notifications) return;
+
+    // تعیین صدای نوتیفیکیشن بر اساس تنظیمات کاربر
+    let sound = "default";
+    if (notificationSettings.sound !== "default") {
+      sound = `./assets/sounds/notification_${notificationSettings.sound}.wav`;
+    }
+
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "🌱 یادآوری عادت",
         body: `وقت انجام "${habitName}" رسیده!`,
-        sound: "default",
+        sound,
         data: { habitName },
-        icon: "./assets/images/notification-icon.png",
         color: "#4CAF50",
+        // آیکون از app.json استفاده می‌شود
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
