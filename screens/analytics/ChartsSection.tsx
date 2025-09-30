@@ -1,6 +1,6 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { ProgressChart } from '@/components';
+import { ProgressChart } from "@/components";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 export const ChartsSection: React.FC = () => {
   const { t } = useTranslation();

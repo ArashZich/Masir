@@ -3,6 +3,7 @@ import * as Device from "expo-device";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useLanguage } from "./useLanguage";
 
 // Check if we're in Expo Go environment
 const isExpoGo = Constants.executionEnvironment === "storeClient";
@@ -42,7 +43,8 @@ export interface NotificationPermission {
 }
 
 export function useNotifications() {
-  const { notifications: notificationSettings } = useSettingsStore();
+  const { t } = useLanguage();
+  const { notifications: notificationSettings, enableNotificationsAfterPermission } = useSettingsStore();
   const [permission, setPermission] = useState<NotificationPermission>({
     granted: false,
     canAskAgain: true,
@@ -108,6 +110,12 @@ export function useNotifications() {
 
       console.log("Final permission data:", permissionData);
       setPermission(permissionData);
+
+      // اگه permission داده شد، notification ها رو فعال کن
+      if (granted) {
+        enableNotificationsAfterPermission();
+      }
+
       return permissionData;
     } catch (error) {
       console.error("Error requesting permissions:", error);
@@ -159,17 +167,11 @@ export function useNotifications() {
   ) => {
     if (!Notifications) return;
 
-    // تعیین صدای نوتیفیکیشن بر اساس تنظیمات کاربر
-    let sound = "default";
-    if (notificationSettings.sound !== "default") {
-      sound = `./assets/sounds/notification_${notificationSettings.sound}.wav`;
-    }
-
     await Notifications.scheduleNotificationAsync({
       content: {
         title,
         body,
-        sound,
+        sound: "default",
         color: "#4CAF50",
         // آیکون از app.json استفاده می‌شود، نه اینجا
       },
@@ -177,44 +179,46 @@ export function useNotifications() {
     });
   };
 
-  // ارسال notification روزانه برای یادآوری عادت
+  // Schedule daily habit reminder
   const scheduleHabitReminder = async (
     habitName: string,
     time: { hour: number; minute: number },
-    weekdays?: number[] // 0 = یکشنبه، 6 = شنبه
+    identifier?: string // برای شناسایی و کنسل کردن
   ) => {
-    if (!Notifications) return;
+    if (!Notifications) return null;
 
-    // تعیین صدای نوتیفیکیشن بر اساس تنظیمات کاربر
-    let sound = "default";
-    if (notificationSettings.sound !== "default") {
-      sound = `./assets/sounds/notification_${notificationSettings.sound}.wav`;
-    }
+    const title = habitName;
+    const body = t("notifications.messages.habitBody");
 
-    await Notifications.scheduleNotificationAsync({
+    // Create daily trigger for specific time
+    const trigger: any = {
+      hour: time.hour,
+      minute: time.minute,
+      repeats: true,
+    };
+
+    const notificationId = await Notifications.scheduleNotificationAsync({
       content: {
-        title: "🌱 یادآوری عادت",
-        body: `وقت انجام "${habitName}" رسیده!`,
-        sound,
-        data: { habitName },
+        title,
+        body,
+        sound: "default",
+        data: { habitName, identifier },
         color: "#4CAF50",
-        // آیکون از app.json استفاده می‌شود
       },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-        seconds: 60, // یک دقیقه (برای تست)
-        repeats: true,
-      },
+      trigger,
+      identifier, // استفاده از identifier برای کنسل آسان
     });
+
+    return notificationId;
   };
 
-  // لغو همه notification ها
+  // Cancel all notifications
   const cancelAllNotifications = async () => {
     if (!Notifications) return;
     await Notifications.cancelAllScheduledNotificationsAsync();
   };
 
-  // لغو notification خاص
+  // Cancel specific notification
   const cancelNotification = async (identifier: string) => {
     if (!Notifications) return;
     await Notifications.cancelScheduledNotificationAsync(identifier);
@@ -257,6 +261,11 @@ async function registerForPushNotificationsAsync(): Promise<
     if (existingStatus !== "granted") {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
+
+      // اگه permission داده شد، notification ها رو فعال کن
+      if (status === "granted") {
+        useSettingsStore.getState().enableNotificationsAfterPermission();
+      }
     }
 
     if (finalStatus !== "granted") {

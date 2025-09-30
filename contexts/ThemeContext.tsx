@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { useSettingsStore, type ThemeMode } from '@/store/settingsStore';
+import { useLanguage } from '@/hooks/useLanguage';
+
+export interface FontConfig {
+  regular: string;
+  medium: string;
+  bold: string;
+}
 
 export interface ThemeColors {
   // Primary colors
@@ -165,6 +172,8 @@ interface ThemeContextType {
   isDark: boolean;
   themeMode: ThemeMode;
   setTheme: (theme: ThemeMode) => void;
+  fonts: FontConfig;
+  formatNumber: (num: string | number) => string;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -184,6 +193,7 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const systemColorScheme = useColorScheme();
   const { theme: themeMode, setTheme } = useSettingsStore();
+  const { currentLanguage } = useLanguage();
 
   const [isDark, setIsDark] = useState(false);
 
@@ -203,11 +213,35 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const colors = isDark ? darkTheme : lightTheme;
 
+  // Font configuration based on language
+  const fonts: FontConfig = currentLanguage === 'fa'
+    ? {
+        regular: 'Vazirmatn-Regular',
+        medium: 'Vazirmatn-Medium',
+        bold: 'Vazirmatn-Bold',
+      }
+    : {
+        regular: 'Montserrat-Regular',
+        medium: 'Montserrat-Medium',
+        bold: 'Montserrat-Bold',
+      };
+
+  // Number formatting based on language
+  const formatNumber = (num: string | number): string => {
+    if (currentLanguage === 'fa') {
+      const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      return String(num).replace(/\d/g, (digit) => persianDigits[parseInt(digit)]);
+    }
+    return String(num);
+  };
+
   const value: ThemeContextType = {
     colors,
     isDark,
     themeMode,
     setTheme,
+    fonts,
+    formatNumber,
   };
 
   return (

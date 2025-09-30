@@ -1,9 +1,16 @@
 import { useMemo } from 'react';
-import moment from 'moment-jalaali';
+import dayjs from 'dayjs';
+import jalaliday from 'jalaliday';
 import { useLanguage } from './useLanguage';
 
-moment.loadPersian({ usePersianDigits: false, dialect: 'persian-modern' });
-moment.locale('fa');
+// Extend dayjs with jalali plugin
+dayjs.extend(jalaliday);
+
+// Helper function to convert English digits to Persian
+const toPersianDigits = (str: string | number): string => {
+  const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  return String(str).replace(/\d/g, (digit) => persianDigits[parseInt(digit)]);
+};
 
 export interface CalendarDate {
   dateString: string; // YYYY-MM-DD format for storage
@@ -24,8 +31,8 @@ export interface CalendarConfig {
 }
 
 export function useCalendar() {
-  const { isRTL } = useLanguage();
-  const isJalaali = isRTL; // Use Jalaali calendar for Persian (RTL)
+  const { currentLanguage } = useLanguage();
+  const isJalaali = currentLanguage === 'fa'; // Use Jalaali calendar for Persian
 
   const config: CalendarConfig = useMemo(() => {
     if (isJalaali) {
@@ -44,7 +51,7 @@ export function useCalendar() {
       return {
         locale: 'en',
         isJalaali: false,
-        firstDay: 1, // Monday for Gregorian calendar
+        firstDay: 0, // Sunday for Gregorian calendar
         monthNames: [
           'January', 'February', 'March', 'April', 'May', 'June',
           'July', 'August', 'September', 'October', 'November', 'December'
@@ -57,41 +64,46 @@ export function useCalendar() {
 
   // Get today's date in appropriate calendar
   const getTodayString = (): string => {
-    return moment().format('YYYY-MM-DD'); // Always return Gregorian for storage
+    return dayjs().format('YYYY-MM-DD'); // Always return Gregorian for storage
   };
 
   // Convert date string to display format
   const formatDateDisplay = (dateString: string): string => {
+    const date = dayjs(dateString);
+
     if (isJalaali) {
-      // Convert Gregorian date to Jalaali for display
-      const gregorianMoment = moment(dateString, 'YYYY-MM-DD');
-      return gregorianMoment.format('jYYYY/jMM/jDD');
+      // Convert Gregorian date to Jalaali for display with Persian digits
+      const jalaliDate = date.calendar('jalali');
+      const formatted = `${jalaliDate.year()}/${String(jalaliDate.month() + 1).padStart(2, '0')}/${String(jalaliDate.date()).padStart(2, '0')}`;
+      return toPersianDigits(formatted);
     } else {
-      return moment(dateString, 'YYYY-MM-DD').format('YYYY/MM/DD');
+      return date.format('YYYY/MM/DD');
     }
   };
 
   // Convert date to calendar date object
   const getCalendarDate = (dateString: string): CalendarDate => {
-    const gregorianMoment = moment(dateString, 'YYYY-MM-DD');
+    const date = dayjs(dateString);
 
     if (isJalaali) {
+      const jalaliDate = date.calendar('jalali');
+      const formatted = `${jalaliDate.year()}/${String(jalaliDate.month() + 1).padStart(2, '0')}/${String(jalaliDate.date()).padStart(2, '0')}`;
       return {
         dateString,
-        day: gregorianMoment.jDate(),
-        month: gregorianMoment.jMonth() + 1, // moment months are 0-indexed
-        year: gregorianMoment.jYear(),
-        displayString: gregorianMoment.format('jYYYY/jMM/jDD'),
-        timestamp: gregorianMoment.valueOf()
+        day: jalaliDate.date(),
+        month: jalaliDate.month() + 1, // month is 0-indexed
+        year: jalaliDate.year(),
+        displayString: toPersianDigits(formatted),
+        timestamp: date.valueOf()
       };
     } else {
       return {
         dateString,
-        day: gregorianMoment.date(),
-        month: gregorianMoment.month() + 1, // moment months are 0-indexed
-        year: gregorianMoment.year(),
-        displayString: gregorianMoment.format('YYYY/MM/DD'),
-        timestamp: gregorianMoment.valueOf()
+        day: date.date(),
+        month: date.month() + 1, // month is 0-indexed
+        year: date.year(),
+        displayString: date.format('YYYY/MM/DD'),
+        timestamp: date.valueOf()
       };
     }
   };
@@ -106,82 +118,93 @@ export function useCalendar() {
   const getCurrentMonthYear = (): string => {
     const today = getTodayString();
     const calendarDate = getCalendarDate(today);
-    return `${config.monthNames[calendarDate.month - 1]} ${calendarDate.year}`;
+    const year = isJalaali ? toPersianDigits(calendarDate.year) : String(calendarDate.year);
+    return `${config.monthNames[calendarDate.month - 1]} ${year}`;
   };
 
   // Get formatted date for today (for header display)
   const getTodayFormatted = (): string => {
+    const today = dayjs();
+
     if (isJalaali) {
-      return moment().format('dddd، jD jMMMM jYYYY');
+      const jalaliDate = today.calendar('jalali');
+      const dayOfWeek = config.dayNames[today.day()];
+      const monthName = config.monthNames[jalaliDate.month()];
+      const day = toPersianDigits(jalaliDate.date());
+      const year = toPersianDigits(jalaliDate.year());
+      return `${dayOfWeek}، ${day} ${monthName} ${year}`;
     } else {
-      return new Date().toLocaleDateString("en-US", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-      });
+      return today.format('dddd, MMMM D, YYYY');
     }
   };
 
   // Convert calendar date to Gregorian date string for storage
   const calendarDateToGregorian = (day: number, month: number, year: number): string => {
     if (isJalaali) {
-      return moment(`${year}/${month}/${day}`, 'jYYYY/jMM/jDD').format('YYYY-MM-DD');
+      // Create a Jalali date and convert to Gregorian
+      const jalaliDate = dayjs(`${year}/${month}/${day}`, { jalali: true });
+      return jalaliDate.format('YYYY-MM-DD');
     } else {
-      return moment(`${year}-${month}-${day}`, 'YYYY-MM-DD').format('YYYY-MM-DD');
+      return dayjs(`${year}-${month}-${day}`).format('YYYY-MM-DD');
     }
   };
 
   // Get days in current month for calendar grid
   const getMonthDays = (dateString: string) => {
-    const calendarDate = getCalendarDate(dateString);
-    const { year, month } = calendarDate;
+    const date = dayjs(dateString);
 
     if (isJalaali) {
-      const startOfMonth = moment(`${year}/${month}/1`, 'jYYYY/jMM/jDD');
-      const daysInMonth = moment.jDaysInMonth(year, month - 1);
-      const startDayOfWeek = startOfMonth.day(); // 0 = Sunday
+      const jalaliDate = date.calendar('jalali');
+      const year = jalaliDate.year();
+      const month = jalaliDate.month() + 1;
+
+      // Get first day of month
+      const firstDay = dayjs(`${year}/${month}/1`, { jalali: true });
+      const daysInMonth = jalaliDate.daysInMonth();
+      const startDayOfWeek = firstDay.day(); // 0 = Sunday
 
       return {
         daysInMonth,
         startDayOfWeek,
-        monthString: `${year}/${month}`
+        monthString: toPersianDigits(`${year}/${month}`)
       };
     } else {
-      const startOfMonth = moment(`${year}-${month}-1`, 'YYYY-MM-DD');
-      const daysInMonth = startOfMonth.daysInMonth();
+      const daysInMonth = date.daysInMonth();
+      const startOfMonth = date.startOf('month');
       const startDayOfWeek = startOfMonth.day(); // 0 = Sunday
 
       return {
         daysInMonth,
         startDayOfWeek,
-        monthString: `${year}-${month}`
+        monthString: date.format('YYYY-MM')
       };
     }
   };
 
   // Navigate months
   const getNextMonth = (dateString: string): string => {
+    const date = dayjs(dateString);
+
     if (isJalaali) {
-      const current = moment(dateString, 'YYYY-MM-DD');
-      const nextMonth = current.clone().add(1, 'jMonth');
-      return nextMonth.format('YYYY-MM-DD');
+      const jalaliDate = date.calendar('jalali');
+      const nextMonth = jalaliDate.add(1, 'month');
+      // Convert back to Gregorian
+      return dayjs(`${nextMonth.year()}/${nextMonth.month() + 1}/${nextMonth.date()}`, { jalali: true }).format('YYYY-MM-DD');
     } else {
-      const current = moment(dateString, 'YYYY-MM-DD');
-      const nextMonth = current.clone().add(1, 'month');
-      return nextMonth.format('YYYY-MM-DD');
+      return date.add(1, 'month').format('YYYY-MM-DD');
     }
   };
 
   const getPreviousMonth = (dateString: string): string => {
+    const date = dayjs(dateString);
+
     if (isJalaali) {
-      const current = moment(dateString, 'YYYY-MM-DD');
-      const prevMonth = current.clone().subtract(1, 'jMonth');
-      return prevMonth.format('YYYY-MM-DD');
+      const jalaliDate = date.calendar('jalali');
+      const prevMonth = jalaliDate.subtract(1, 'month');
+      // Convert back to Gregorian
+      return dayjs(`${prevMonth.year()}/${prevMonth.month() + 1}/${prevMonth.date()}`, { jalali: true }).format('YYYY-MM-DD');
     } else {
-      const current = moment(dateString, 'YYYY-MM-DD');
-      const prevMonth = current.clone().subtract(1, 'month');
-      return prevMonth.format('YYYY-MM-DD');
+      return date.subtract(1, 'month').format('YYYY-MM-DD');
     }
   };
 

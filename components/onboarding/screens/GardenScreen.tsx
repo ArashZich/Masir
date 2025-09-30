@@ -3,39 +3,37 @@ import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
-import { GardenIcon } from '../icons/GardenIcon';
-
-// const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-type GrowthStage = 'seed' | 'sprout' | 'leaf' | 'bud' | 'flower';
+import { GardenGrowth, calculateGrowthStage } from '@/components/garden/GardenGrowth';
 
 export default function GardenScreen() {
-  const { colors } = useTheme();
+  const { colors, formatNumber } = useTheme();
   const { t } = useTranslation();
-  const [currentStage, setCurrentStage] = useState<GrowthStage>('seed');
+  const [daysCompleted, setDaysCompleted] = useState(0);
 
   const stages = useMemo(() => [
-    { stage: 'seed' as const, emoji: '🌰', duration: 1000 },
-    { stage: 'sprout' as const, emoji: '🌱', duration: 1200 },
-    { stage: 'leaf' as const, emoji: '🌿', duration: 1000 },
-    { stage: 'bud' as const, emoji: '🌺', duration: 1200 },
-    { stage: 'flower' as const, emoji: '🌸', duration: 1500 },
+    { days: 0, duration: 1000 },
+    { days: 3, duration: 1000 },
+    { days: 7, duration: 1000 },
+    { days: 14, duration: 1000 },
+    { days: 21, duration: 1000 },
+    { days: 30, duration: 1000 },
+    { days: 40, duration: 1500 },
   ], []);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
     let currentIndex = 0;
 
     const advanceStage = () => {
       if (currentIndex < stages.length - 1) {
         currentIndex++;
-        setCurrentStage(stages[currentIndex].stage);
+        setDaysCompleted(stages[currentIndex].days);
         timeoutId = setTimeout(advanceStage, stages[currentIndex].duration);
       } else {
         // Reset after completing the cycle
         setTimeout(() => {
           currentIndex = 0;
-          setCurrentStage(stages[0].stage);
+          setDaysCompleted(stages[0].days);
           timeoutId = setTimeout(advanceStage, stages[0].duration);
         }, 2000);
       }
@@ -48,13 +46,10 @@ export default function GardenScreen() {
     };
   }, [stages]);
 
+  const currentStage = calculateGrowthStage(daysCompleted);
+
   return (
     <View style={[styles.container, { backgroundColor: colors.primary }]}>
-      {/* Garden Icon */}
-      <View style={styles.iconContainer}>
-        <GardenIcon size={100} color={colors.onPrimary} />
-      </View>
-
       {/* Title */}
       <View style={styles.titleContainer}>
         <Text variant="headlineLarge" style={[styles.title, { color: colors.onPrimary }]}>
@@ -71,26 +66,13 @@ export default function GardenScreen() {
           {t('onboarding.garden.watchGrowth')}
         </Text>
 
-        <View style={styles.growthStages}>
-          {stages.map((stage, index) => (
-            <View
-              key={stage.stage}
-              style={[
-                styles.stageItem,
-                {
-                  opacity: currentStage === stage.stage ? 1 : 0.3,
-                  transform: [{ scale: currentStage === stage.stage ? 1.2 : 1 }]
-                }
-              ]}
-            >
-              <Text variant="headlineLarge" style={styles.stageEmoji}>
-                {stage.emoji}
-              </Text>
-            </View>
-          ))}
+        <View style={styles.plantDisplay}>
+          <GardenGrowth stage={currentStage} size={120} />
         </View>
 
-        <GrowthAnimation currentStage={currentStage} colors={colors} />
+        <Text variant="bodyMedium" style={[styles.currentStageText, { color: colors.onPrimary }]}>
+          {daysCompleted > 0 ? `${formatNumber(daysCompleted)} ${t('common.days')}` : t('onboarding.garden.startJourney')}
+        </Text>
       </View>
 
       {/* Description */}
@@ -107,41 +89,12 @@ export default function GardenScreen() {
   );
 }
 
-interface GrowthAnimationProps {
-  currentStage: GrowthStage;
-  colors: any;
-}
-
-function GrowthAnimation({ currentStage, colors }: GrowthAnimationProps) {
-  const stageEmojis = {
-    seed: '🌰',
-    sprout: '🌱',
-    leaf: '🌿',
-    bud: '🌺',
-    flower: '🌸',
-  };
-
-  return (
-    <View style={styles.plantDisplay}>
-      <Text variant="displayLarge" style={styles.plantEmoji}>
-        {stageEmojis[currentStage]}
-      </Text>
-      <Text variant="bodyMedium" style={[styles.currentStageText, { color: colors.onPrimary }]}>
-        {currentStage.charAt(0).toUpperCase() + currentStage.slice(1)} Stage
-      </Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
-  },
-  iconContainer: {
-    marginBottom: 32,
   },
   titleContainer: {
     alignItems: 'center',
@@ -165,39 +118,16 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     opacity: 0.9,
   },
-  growthStages: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 32,
-    paddingHorizontal: 16,
-  },
-  stageItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 50,
-    height: 50,
-  },
-  stageEmoji: {
-    fontSize: 24,
-  },
   plantDisplay: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 120,
-    width: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     marginVertical: 16,
   },
-  plantEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
   currentStageText: {
-    fontSize: 12,
+    fontSize: 14,
     opacity: 0.8,
     textAlign: 'center',
+    marginTop: 16,
   },
   descriptionContainer: {
     paddingHorizontal: 16,

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Masir",
     "slug": "Masir",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "masir",
@@ -28,24 +28,12 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 150,
-          "resizeMode": "contain",
-          "backgroundColor": "#4CAF50",
-          "dark": {
-            "backgroundColor": "#2E7D32",
-            "image": "./assets/images/splash-icon.png"
-          }
-        }
-      ],
+      "expo-splash-screen",
       "expo-localization",
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/icon.png",
+          "icon": "https://bytebase.armogroup.tech/api/v1/files/public/masir.png",
           "color": "#ffffff",
           "defaultChannel": "default"
         }

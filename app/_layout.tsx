@@ -7,13 +7,13 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { PaperProvider } from "react-native-paper";
 import "react-native-reanimated";
 
 import { OnboardingScreen } from "@/components/onboarding";
 import { CustomSplashScreen } from "@/components/SplashScreen";
-import { getTheme } from "@/constants/themes";
+import { ThemedPaperProvider } from "@/components/ThemedPaperProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { useLanguage } from "@/hooks/useLanguage";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useEffect, useState } from "react";
@@ -26,30 +26,55 @@ export const unstable_settings = {
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
   const { theme, notifications, onboardingCompleted } = useSettingsStore();
-  const { scheduleHabitReminder } = useNotifications();
+  const { scheduleHabitReminder, cancelAllNotifications } = useNotifications();
+  const { t } = useLanguage();
   const [splashVisible, setSplashVisible] = useState(true);
 
   // Notification setup
   useEffect(() => {
-    if (!notifications.enabled) return;
+    const setupNotifications = async () => {
+      // اگه notification غیرفعاله، همه رو کنسل کن
+      if (!notifications.enabled) {
+        cancelAllNotifications();
+        return;
+      }
 
-    // Schedule notifications if enabled
-    if (notifications.dailyReminder.enabled) {
-      scheduleHabitReminder(
-        'یادآوری روزانه',
-        notifications.dailyReminder.time
-      );
-    }
+      // همیشه اول همه notification های قبلی رو کنسل کن
+      await cancelAllNotifications();
 
-    if (notifications.moodReminder.enabled) {
-      scheduleHabitReminder(
-        'یادآوری حالت',
-        notifications.moodReminder.time
-      );
-    }
+      // حالا notification های جدید رو بساز
+      if (notifications.dailyReminder.enabled) {
+        await scheduleHabitReminder(
+          t("notifications.messages.dailyTitle"),
+          notifications.dailyReminder.time,
+          "daily-reminder"
+        );
+      }
 
-    // Cleanup handled by useNotifications hook
-  }, [notifications, scheduleHabitReminder]);
+      if (notifications.moodReminder.enabled) {
+        await scheduleHabitReminder(
+          t("notifications.messages.moodTitle"),
+          notifications.moodReminder.time,
+          "mood-reminder"
+        );
+      }
+    };
+
+    setupNotifications();
+  }, [
+    notifications.enabled,
+    notifications.dailyReminder.enabled,
+    notifications.dailyReminder.time,
+    notifications.dailyReminder.time.hour,
+    notifications.dailyReminder.time.minute,
+    notifications.moodReminder.enabled,
+    notifications.moodReminder.time,
+    notifications.moodReminder.time.hour,
+    notifications.moodReminder.time.minute,
+    t,
+    cancelAllNotifications,
+    scheduleHabitReminder,
+  ]);
 
   const handleOnboardingComplete = () => {
     // Onboarding completion is handled in the OnboardingScreen itself
@@ -58,7 +83,6 @@ export default function RootLayout() {
 
   const isDarkMode =
     theme === "system" ? systemColorScheme === "dark" : theme === "dark";
-  const paperTheme = getTheme(theme, isDarkMode);
 
   // Show splash screen first
   if (splashVisible) {
@@ -69,21 +93,21 @@ export default function RootLayout() {
   if (!onboardingCompleted) {
     return (
       <ThemeProvider>
-        <PaperProvider theme={paperTheme}>
+        <ThemedPaperProvider>
           <NavigationThemeProvider
             value={isDarkMode ? DarkTheme : DefaultTheme}
           >
             <OnboardingScreen onComplete={handleOnboardingComplete} />
             <StatusBar style="light" />
           </NavigationThemeProvider>
-        </PaperProvider>
+        </ThemedPaperProvider>
       </ThemeProvider>
     );
   }
 
   return (
     <ThemeProvider>
-      <PaperProvider theme={paperTheme}>
+      <ThemedPaperProvider>
         <NavigationThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -95,7 +119,7 @@ export default function RootLayout() {
           <StatusBar style={isDarkMode ? "light" : "dark"} />
           {/* <Portal.Host /> */}
         </NavigationThemeProvider>
-      </PaperProvider>
+      </ThemedPaperProvider>
     </ThemeProvider>
   );
 }

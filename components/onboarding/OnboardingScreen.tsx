@@ -24,7 +24,7 @@ export default function OnboardingScreen({
 }: OnboardingScreenProps) {
   const { colors } = useTheme();
   const { setOnboardingCompleted } = useSettingsStore();
-  const { t, changeLanguage, getFlexDirection } = useLanguage();
+  const { t, getFlexDirection } = useLanguage();
   const [currentPage, setCurrentPage] = useState(0);
   const pagerRef = useRef<PagerView>(null);
 
@@ -34,15 +34,6 @@ export default function OnboardingScreen({
     StatusBar.setBarStyle("light-content");
     return () => StatusBar.setBarStyle("default");
   }, []);
-
-  const handleLanguageSelect = async (selectedLanguage: "fa" | "en") => {
-    await changeLanguage(selectedLanguage);
-
-    // Next page automatically after language selection
-    setTimeout(() => {
-      pagerRef.current?.setPage(1);
-    }, 500);
-  };
 
   const handleNext = () => {
     if (currentPage < totalPages - 1) {
@@ -75,10 +66,9 @@ export default function OnboardingScreen({
         style={styles.pager}
         initialPage={0}
         onPageSelected={(e: any) => setCurrentPage(e.nativeEvent.position)}
-        scrollEnabled={currentPage > 0} // Disable swipe on first page until language is selected
       >
         <View key="welcome">
-          <WelcomeScreen onLanguageSelect={handleLanguageSelect} />
+          <WelcomeScreen />
         </View>
 
         <View key="philosophy">
@@ -99,7 +89,7 @@ export default function OnboardingScreen({
       </PagerView>
 
       {/* Navigation Controls */}
-      {currentPage > 0 && currentPage < totalPages - 1 && (
+      {currentPage >= 0 && currentPage < totalPages - 1 && (
         <View
           style={[
             styles.navigationContainer,
@@ -120,14 +110,14 @@ export default function OnboardingScreen({
 
           {/* Page Indicators */}
           <View style={styles.indicatorContainer}>
-            {Array.from({ length: totalPages - 1 }, (_, index) => (
+            {Array.from({ length: totalPages }, (_, index) => (
               <View
                 key={index}
                 style={[
                   styles.indicator,
                   {
                     backgroundColor:
-                      index + 1 === currentPage
+                      index === currentPage
                         ? colors.onPrimary
                         : `${colors.onPrimary}40`,
                   },

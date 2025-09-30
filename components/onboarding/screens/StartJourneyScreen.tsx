@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, Button } from 'react-native-paper';
-import { useLanguage } from '@/hooks/useLanguage';
-import { useTheme } from '@/contexts/ThemeContext';
-import { StartJourneyIcon } from '../icons/StartJourneyIcon';
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLanguage } from "@/hooks/useLanguage";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { Button, Text } from "react-native-paper";
+import { StartJourneyIcon } from "../icons/StartJourneyIcon";
 
 // const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -11,8 +11,10 @@ interface StartJourneyScreenProps {
   onComplete: () => void;
 }
 
-export default function StartJourneyScreen({ onComplete }: StartJourneyScreenProps) {
-  const { colors } = useTheme();
+export default function StartJourneyScreen({
+  onComplete,
+}: StartJourneyScreenProps) {
+  const { colors, formatNumber } = useTheme();
   const { t, isRTL } = useLanguage();
 
   return (
@@ -24,36 +26,45 @@ export default function StartJourneyScreen({ onComplete }: StartJourneyScreenPro
 
       {/* Welcome Title */}
       <View style={styles.titleContainer}>
-        <Text variant="headlineLarge" style={[styles.title, { color: colors.onPrimary }]}>
-          {t('onboarding.start.title')}
+        <Text
+          variant="headlineLarge"
+          style={[styles.title, { color: colors.onPrimary }]}
+        >
+          {t("onboarding.start.title")}
         </Text>
-        <Text variant="bodyLarge" style={[styles.subtitle, { color: colors.onPrimary }]}>
-          {t('onboarding.start.subtitle')}
+        <Text
+          variant="bodyLarge"
+          style={[styles.subtitle, { color: colors.onPrimary }]}
+        >
+          {t("onboarding.start.subtitle")}
         </Text>
       </View>
 
       {/* Journey Steps */}
       <View style={styles.stepsContainer}>
-        <Text variant="titleMedium" style={[styles.stepsTitle, { color: colors.onPrimary }]}>
-          {t('onboarding.start.stepsTitle')}
+        <Text
+          variant="titleMedium"
+          style={[styles.stepsTitle, { color: colors.onPrimary }]}
+        >
+          {t("onboarding.start.stepsTitle")}
         </Text>
 
         <View style={styles.steps}>
           <StepItem
-            step="1"
-            text={t('onboarding.start.step1')}
+            step={formatNumber("1")}
+            text={t("onboarding.start.step1")}
             colors={colors}
             isRTL={isRTL}
           />
           <StepItem
-            step="2"
-            text={t('onboarding.start.step2')}
+            step={formatNumber("2")}
+            text={t("onboarding.start.step2")}
             colors={colors}
             isRTL={isRTL}
           />
           <StepItem
-            step="3"
-            text={t('onboarding.start.step3')}
+            step={formatNumber("3")}
+            text={t("onboarding.start.step3")}
             colors={colors}
             isRTL={isRTL}
           />
@@ -62,8 +73,11 @@ export default function StartJourneyScreen({ onComplete }: StartJourneyScreenPro
 
       {/* Encouragement */}
       <View style={styles.encouragementContainer}>
-        <Text variant="bodyMedium" style={[styles.encouragement, { color: colors.onPrimary }]}>
-          {t('onboarding.start.encouragement')}
+        <Text
+          variant="bodyMedium"
+          style={[styles.encouragement, { color: colors.onPrimary }]}
+        >
+          {t("onboarding.start.encouragement")}
         </Text>
       </View>
 
@@ -79,14 +93,29 @@ export default function StartJourneyScreen({ onComplete }: StartJourneyScreenPro
           labelStyle={styles.startButtonLabel}
           icon="rocket-launch"
         >
-          {t('onboarding.start.button')}
+          {t("onboarding.start.button")}
         </Button>
       </View>
 
       {/* Decorative Stars */}
-      <View style={[styles.decorativeStar1, { backgroundColor: `${colors.onPrimary}20` }]} />
-      <View style={[styles.decorativeStar2, { backgroundColor: `${colors.onPrimary}15` }]} />
-      <View style={[styles.decorativeStar3, { backgroundColor: `${colors.onPrimary}25` }]} />
+      <View
+        style={[
+          styles.decorativeStar1,
+          { backgroundColor: `${colors.onPrimary}20` },
+        ]}
+      />
+      <View
+        style={[
+          styles.decorativeStar2,
+          { backgroundColor: `${colors.onPrimary}15` },
+        ]}
+      />
+      <View
+        style={[
+          styles.decorativeStar3,
+          { backgroundColor: `${colors.onPrimary}25` },
+        ]}
+      />
     </View>
   );
 }
@@ -100,13 +129,24 @@ interface StepItemProps {
 
 function StepItem({ step, text, colors, isRTL }: StepItemProps) {
   return (
-    <View style={[styles.stepItem, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+    <View
+      style={[
+        styles.stepItem,
+        { flexDirection: isRTL ? "row" : "row-reverse" },
+      ]}
+    >
       <View style={[styles.stepNumber, { backgroundColor: colors.onPrimary }]}>
-        <Text variant="labelLarge" style={[styles.stepNumberText, { color: colors.primary }]}>
+        <Text
+          variant="labelLarge"
+          style={[styles.stepNumberText, { color: colors.primary }]}
+        >
           {step}
         </Text>
       </View>
-      <Text variant="bodyMedium" style={[styles.stepText, { color: colors.onPrimary }]}>
+      <Text
+        variant="bodyMedium"
+        style={[styles.stepText, { color: colors.onPrimary }]}
+      >
         {text}
       </Text>
     </View>
@@ -116,40 +156,40 @@ function StepItem({ step, text, colors, isRTL }: StepItemProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 32,
   },
   iconContainer: {
     marginBottom: 32,
   },
   titleContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
   },
   title: {
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
-    textAlign: 'center',
+    textAlign: "center",
     opacity: 0.9,
   },
   stepsContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
-    width: '100%',
+    width: "100%",
   },
   stepsTitle: {
     marginBottom: 24,
     opacity: 0.9,
   },
   steps: {
-    width: '100%',
+    width: "100%",
   },
   stepItem: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 12,
     paddingHorizontal: 16,
   },
@@ -157,12 +197,12 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: 16,
   },
   stepNumberText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 14,
   },
   stepText: {
@@ -175,13 +215,13 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   encouragement: {
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 22,
     opacity: 0.85,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
   buttonContainer: {
-    width: '100%',
+    width: "100%",
     paddingHorizontal: 16,
   },
   startButton: {
@@ -194,33 +234,33 @@ const styles = StyleSheet.create({
   },
   startButtonLabel: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   decorativeStar1: {
-    position: 'absolute',
+    position: "absolute",
     top: 80,
     right: 40,
     width: 8,
     height: 8,
     borderRadius: 4,
-    transform: [{ rotate: '45deg' }],
+    transform: [{ rotate: "45deg" }],
   },
   decorativeStar2: {
-    position: 'absolute',
+    position: "absolute",
     top: 150,
     left: 30,
     width: 6,
     height: 6,
     borderRadius: 3,
-    transform: [{ rotate: '45deg' }],
+    transform: [{ rotate: "45deg" }],
   },
   decorativeStar3: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 150,
     right: 60,
     width: 10,
     height: 10,
     borderRadius: 5,
-    transform: [{ rotate: '45deg' }],
+    transform: [{ rotate: "45deg" }],
   },
 });

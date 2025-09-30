@@ -1,5 +1,4 @@
 import { ThemedCard } from "@/components";
-import { NOTIFICATION_SOUNDS } from "@/constants/settings";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useBoolean } from "@/hooks/useBoolean";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -8,7 +7,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { Button, Divider, RadioButton, Switch, Text } from "react-native-paper";
+import { Button, Divider, Switch, Text } from "react-native-paper";
 
 interface NotificationSectionProps {
   styles: any; // Import styles from parent
@@ -24,9 +23,7 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
     permission,
     requestPermission,
     scheduleNotification,
-    scheduleHabitReminder,
-    isExpoGo,
-    notificationSupported,
+    cancelNotification,
   } = useNotifications();
 
   const dailyTimePicker = useBoolean(false, "dailyTimePicker");
@@ -43,20 +40,23 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
     });
   };
 
-  const handleTimeChange = (
+  const handleTimeChange = async (
     type: "daily" | "mood",
     time: { hour: number; minute: number }
   ) => {
+    // اول notification قبلی رو کنسل کن
+    const identifier = type === "daily" ? "daily-reminder" : "mood-reminder";
+    await cancelNotification(identifier);
+
+    // بعد settings رو آپدیت کن (این باعث re-schedule میشه در _layout.tsx)
     if (type === "daily") {
       setNotifications({
         dailyReminder: { ...notifications.dailyReminder, time },
       });
-      scheduleHabitReminder(t("notifications.messages.dailyTitle"), time);
     } else {
       setNotifications({
         moodReminder: { ...notifications.moodReminder, time },
       });
-      scheduleHabitReminder(t("notifications.messages.moodTitle"), time);
     }
   };
 
@@ -75,12 +75,6 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
     );
     console.log("Delayed test notification scheduled for 5 seconds");
   };
-
-
-  const soundOptions = NOTIFICATION_SOUNDS.map((option) => ({
-    value: option.value,
-    label: t(option.label),
-  }));
 
   return (
     <ThemedCard elevation={1}>
@@ -171,34 +165,6 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
 
         {notifications.enabled && permission.granted && (
           <>
-            {/* Sound Selection */}
-            <View style={styles.soundSection}>
-              <Text variant="bodyLarge" style={styles.soundTitle}>
-                {t("notifications.sound")}
-              </Text>
-              <Text variant="bodySmall" style={styles.soundDesc}>
-                {t("notifications.soundDesc")}
-              </Text>
-
-              <RadioButton.Group
-                onValueChange={(value) => {
-                  setNotifications({ sound: value });
-                }}
-                value={notifications.sound}
-              >
-                {soundOptions.map((option) => (
-                  <RadioButton.Item
-                    key={option.value}
-                    label={option.label}
-                    value={option.value}
-                    style={styles.radioItem}
-                  />
-                ))}
-              </RadioButton.Group>
-            </View>
-
-            <Divider style={styles.divider} />
-
             {/* Daily Reminder */}
             <View style={styles.reminderSection}>
               <View style={styles.reminderHeader}>

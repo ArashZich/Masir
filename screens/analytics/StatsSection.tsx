@@ -1,10 +1,10 @@
-import React from 'react';
-import { View } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { Avatar, Chip, ProgressBar, Text } from 'react-native-paper';
-import { ThemedCard } from '@/components';
-import { useTheme } from '@/contexts/ThemeContext';
-import { analyticsStyles as styles } from '@/styles/analytics.styles';
+import { ThemedCard } from "@/components";
+import { useTheme } from "@/contexts/ThemeContext";
+import { analyticsStyles as styles } from "@/styles/analytics.styles";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import { Avatar, Chip, ProgressBar, Text } from "react-native-paper";
 
 interface StatsSectionProps {
   totalHabits: number;
@@ -18,7 +18,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
   todayProgress,
 }) => {
   const { t } = useTranslation();
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, formatNumber } = useTheme();
 
   return (
     <ThemedCard elevation={1} style={styles.statsCard}>
@@ -41,7 +41,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
               variant="headlineSmall"
               style={[styles.statNumber, { color: colors.text.primary }]}
             >
-              {totalHabits}
+              {formatNumber(totalHabits)}
             </Text>
             <Text
               variant="bodyMedium"
@@ -61,7 +61,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
               variant="headlineSmall"
               style={[styles.statNumber, { color: colors.text.primary }]}
             >
-              {completedToday}
+              {formatNumber(completedToday)}
             </Text>
             <Text
               variant="bodyMedium"
@@ -92,7 +92,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
                 },
               ]}
             >
-              {Math.round(todayProgress * 100)}%
+              {formatNumber(Math.round(todayProgress * 100))}%
             </Chip>
           </View>
           <ProgressBar

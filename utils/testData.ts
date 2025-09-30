@@ -1,7 +1,11 @@
 import { useHabitStore } from '@/store/habitStore';
-import moment from 'moment-jalaali';
+import dayjs from 'dayjs';
+import jalaliday from 'jalaliday';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
-moment.loadPersian({ usePersianDigits: false, dialect: 'persian-modern' });
+// Extend dayjs with plugins
+dayjs.extend(jalaliday);
+dayjs.extend(isSameOrBefore);
 
 // Test data for development - uncomment to use
 export const loadTestData = async () => {
@@ -32,8 +36,8 @@ export const loadTestData = async () => {
       estimatedDuration: 30
     },
     {
-      name: 'مطالعه روزانه',
-      description: 'مطالعه کتاب یا مقاله تخصصی',
+      name: 'مطالعه',
+      description: 'مطالعه کتاب یا مقاله',
       icon: 'book-open',
       color: '#2196F3',
       category: 'learning',
@@ -46,8 +50,8 @@ export const loadTestData = async () => {
     },
     {
       name: 'مدیتیشن',
-      description: 'مدیتیشن و تنفس عمیق',
-      icon: 'heart',
+      description: 'آرامش ذهن',
+      icon: 'spa',
       color: '#9C27B0',
       category: 'mindfulness',
       target: 1,
@@ -59,11 +63,11 @@ export const loadTestData = async () => {
     },
     {
       name: 'نوشیدن آب',
-      description: '8 لیوان آب در روز',
-      icon: 'water',
+      description: '۸ لیوان آب در روز',
+      icon: 'water-outline',
       color: '#00BCD4',
       category: 'health',
-      target: 8,
+      target: 1,
       frequency: 'daily' as const,
       isActive: true,
       reminderEnabled: false,
@@ -71,56 +75,30 @@ export const loadTestData = async () => {
       estimatedDuration: 1
     },
     {
-      name: 'یوگا',
-      description: 'تمرینات یوگا و کشش',
-      icon: 'leaf',
-      color: '#8BC34A',
-      category: 'fitness',
-      target: 3,
-      frequency: 'weekly' as const,
-      isActive: true,
-      reminderEnabled: true,
-      reminderTime: '18:00',
-      estimatedDuration: 60
-    },
-    {
-      name: 'نوشتن خلاقانه',
-      description: 'نوشتن داستان یا شعر',
-      icon: 'lightbulb',
+      name: 'یادگیری زبان',
+      description: 'تمرین و یادگیری زبان جدید',
+      icon: 'school-outline',
       color: '#FF9800',
-      category: 'creativity',
+      category: 'learning',
       target: 1,
       frequency: 'daily' as const,
       isActive: true,
       reminderEnabled: true,
-      reminderTime: '21:30',
+      reminderTime: '19:00',
       estimatedDuration: 30
     },
     {
-      name: 'تماس با خانواده',
-      description: 'صحبت با اعضای خانواده',
-      icon: 'heart',
-      color: '#E91E63',
-      category: 'health',
-      target: 1,
-      frequency: 'daily' as const,
-      isActive: true,
-      reminderEnabled: false,
-      reminderTime: '19:00',
-      estimatedDuration: 20
-    },
-    {
-      name: 'مرتب کردن اتاق',
-      description: 'تمیز و مرتب نگه داشتن محیط',
-      icon: 'star',
-      color: '#FF5722',
+      name: 'کدنویسی',
+      description: 'تمرین و پروژه‌های شخصی',
+      icon: 'code-tags',
+      color: '#607D8B',
       category: 'productivity',
       target: 1,
       frequency: 'daily' as const,
       isActive: true,
-      reminderEnabled: false,
-      reminderTime: '08:00',
-      estimatedDuration: 15
+      reminderEnabled: true,
+      reminderTime: '21:00',
+      estimatedDuration: 60
     }
   ];
 
@@ -135,10 +113,11 @@ export const loadTestData = async () => {
   const habitIds = habits.map(h => h.id);
 
   // Generate test data for last 45 days
-  const today = moment();
-  const startDate = moment().subtract(45, 'days');
+  const today = dayjs();
+  const startDate = dayjs().subtract(45, 'days');
 
-  for (let date = startDate.clone(); date.isSameOrBefore(today); date.add(1, 'day')) {
+  let date = startDate;
+  while (date.isSameOrBefore(today, 'day')) {
     const dateString = date.format('YYYY-MM-DD');
 
     // Random mood (70% good, 20% ok, 10% bad)
@@ -150,21 +129,27 @@ export const loadTestData = async () => {
 
     setDayMood(dateString, mood);
 
-    // Random notes (60% of days have notes)
-    if (Math.random() < 0.6) {
+    // Random notes (50% of days have notes)
+    if (Math.random() < 0.5) {
       const notes = [
         'روز خوبی بود، انرژی زیادی داشتم',
         'کمی خسته بودم ولی کارهایم رو انجام دادم',
-        'روز پرتنشی بود اما در نهایت خوب تموم شد',
+        'روز پرتنشی بود اما نهایتا خوب تموم شد',
         'احساس بهتری نسبت به دیروز داشتم',
         'امروز خیلی خوب پیش رفت، راضی هستم',
         'کمی استرس داشتم ولی مدیریتش کردم',
-        'روز آرامی بود، وقت بیشتری برای خودم داشتم',
-        'چالش‌هایی داشت ولی یاد گرفتن‌های خوبی هم بود',
-        'انگیزه بالایی داشتم امروز',
+        'روز آرومی بود، وقت بیشتری برای خودم داشتم',
+        'چالش‌هایی بود ولی یاد گرفتن‌های خوبی داشتم',
+        'انگیزه بالایی داشتم',
         'روز معمولی بود، هیچ اتفاق خاصی نیفتاد',
-        'خیلی لذت بردم از کارهایی که کردم',
-        'کمی پایین بودم ولی سعی کردم مثبت بمونم'
+        'لذت بردم از کارهایی که کردم',
+        'کمی بی‌حال بودم ولی تلاش کردم مثبت بمونم',
+        'پروژه‌ام خوب پیش رفت امروز',
+        'خیلی خوابم نیومد، فردا باید بهتر باشم',
+        'وقت خوبی با دوستام گذروندم',
+        'یه کتاب جدید شروع کردم، جالبه',
+        'ورزش امروز سخت بود ولی احساس خوبی بهم داد',
+        'کلی کار داشتم اما همشو انجام دادم'
       ];
       const randomNote = notes[Math.floor(Math.random() * notes.length)];
       setDayNote(dateString, randomNote);
@@ -175,65 +160,61 @@ export const loadTestData = async () => {
       const habit = testHabits[index];
 
       // Base completion rate based on mood
-      let completionRate = 0.5; // 50% base rate
-      if (mood === 'good') completionRate = 0.8; // 80% on good days
-      else if (mood === 'ok') completionRate = 0.6; // 60% on ok days
-      else completionRate = 0.3; // 30% on bad days
+      let completionRate = 0.55; // 55% base rate
+      if (mood === 'good') completionRate = 0.85; // 85% on good days
+      else if (mood === 'ok') completionRate = 0.65; // 65% on ok days
+      else completionRate = 0.35; // 35% on bad days
 
       // Adjust based on habit type
       if (habit.category === 'health') completionRate += 0.1;
       if (habit.category === 'learning') completionRate += 0.05;
-      if (habit.target > 1) completionRate -= 0.1; // Multi-target habits are harder
+      if (habit.category === 'mindfulness') completionRate += 0.08;
+      if (habit.category === 'productivity') completionRate += 0.07;
 
-      // Weekly frequency habits (less frequent)
-      if (habit.frequency === 'weekly') {
-        completionRate *= 0.4; // Much less frequent
-      }
-
-      // Simulate realistic patterns
+      // Simulate realistic day patterns
       const dayOfWeek = date.day();
-      if (dayOfWeek === 0 || dayOfWeek === 6) { // Weekend
-        if (habit.name.includes('ورزش') || habit.name.includes('یوگا')) {
-          completionRate += 0.2; // More exercise on weekends
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+      if (isWeekend) {
+        if (habit.name.includes('ورزش')) {
+          completionRate += 0.15; // More exercise on weekends
+        } else if (habit.name.includes('کدنویسی') || habit.name.includes('یادگیری')) {
+          completionRate += 0.1; // More learning time on weekends
         } else if (habit.name.includes('مطالعه')) {
-          completionRate -= 0.1; // Less study on weekends
+          completionRate += 0.05;
+        }
+      } else {
+        // Weekday adjustments
+        if (habit.name.includes('مدیتیشن')) {
+          completionRate += 0.1; // Morning meditation on work days
         }
       }
 
       // Add some randomness and streaks
       const random = Math.random();
 
-      // Create some streaks (if previous day was completed, higher chance)
-      const previousDay = date.clone().subtract(1, 'day').format('YYYY-MM-DD');
+      // Create streaks (if previous day was completed, higher chance)
+      const previousDay = date.subtract(1, 'day').format('YYYY-MM-DD');
       const prevDayCompleted = useHabitStore.getState().getHabitsForDate(previousDay)
         .find(h => h.id === habitId)?.completed;
 
-      if (prevDayCompleted) completionRate += 0.15; // Streak bonus
+      if (prevDayCompleted) completionRate += 0.2; // Strong streak bonus
+
+      // Ensure rate is between 0 and 1
+      completionRate = Math.min(Math.max(completionRate, 0), 0.95);
 
       // Implement the completion
       if (random < completionRate) {
-        // For multi-target habits, sometimes complete partially
-        if (habit.target > 1) {
-          const completions = Math.floor(Math.random() * habit.target) + 1;
-          for (let i = 0; i < completions; i++) {
-            toggleHabitForDay(habitId, dateString);
-          }
-        } else {
-          toggleHabitForDay(habitId, dateString);
-        }
+        toggleHabitForDay(habitId, dateString);
       }
     });
-  }
 
-  console.log('✅ Test data loaded successfully!');
-  console.log(`📊 Generated data for ${habitIds.length} habits over 45 days`);
-  console.log('🎯 Habit IDs:', habitIds);
-  console.log('📅 Date range:', startDate.format('YYYY-MM-DD'), 'to', today.format('YYYY-MM-DD'));
+    date = date.add(1, 'day');
+  }
 };
 
 // Export function to clear test data
 export const clearTestData = () => {
   const { resetAllData } = useHabitStore.getState();
   resetAllData();
-  console.log('🗑️ All test data cleared!');
 };

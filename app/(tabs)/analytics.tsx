@@ -1,14 +1,15 @@
 import { ThemedCard } from "@/components";
-import {
-  AnalyticsHeader,
-  StatsSection,
-  CalendarSection,
-  ChartsSection,
-} from "@/screens/analytics";
+import { DayDetailsModal } from "@/components/analytics/DayDetailsModal";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useBoolean } from "@/hooks/useBoolean";
-import { useLanguage } from "@/hooks/useLanguage";
+import {
+  AnalyticsHeader,
+  CalendarSection,
+  ChartsSection,
+  StatsSection,
+} from "@/screens/analytics";
 import { useHabitStore } from "@/store/habitStore";
+import { analyticsStyles as styles } from "@/styles/analytics.styles";
 import {
   AnalyticsService,
   type MonthlyInsights,
@@ -17,27 +18,12 @@ import {
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
-import {
-  Avatar,
-  Button,
-  Chip,
-  Divider,
-  Modal,
-  Portal,
-  ProgressBar,
-  Text,
-} from "react-native-paper";
-import { analyticsStyles as styles } from "@/styles/analytics.styles";
-import moment from "moment-jalaali";
-
-// Configure moment-jalaali
-moment.loadPersian({ usePersianDigits: false, dialect: 'persian-modern' });
+import { Avatar, Chip, Divider, ProgressBar, Text } from "react-native-paper";
 
 export default function AnalyticsScreen() {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
   const { habits, getHabitsForDate, history } = useHabitStore();
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, formatNumber } = useTheme();
 
   // Modal state for day details
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -94,7 +80,6 @@ export default function AnalyticsScreen() {
   const todayProgress =
     todayHabits.length > 0 ? completedToday / todayHabits.length : 0;
 
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
@@ -132,7 +117,7 @@ export default function AnalyticsScreen() {
                   variant="headlineSmall"
                   style={[styles.insightValue, { color: colors.text.primary }]}
                 >
-                  {monthlyInsights.avgCompletionRate}%
+                  {formatNumber(monthlyInsights.avgCompletionRate)}%
                 </Text>
                 <Text variant="bodySmall" style={styles.insightLabel}>
                   {t("insights.avgCompletion")}
@@ -149,7 +134,7 @@ export default function AnalyticsScreen() {
                   variant="headlineSmall"
                   style={[styles.insightValue, { color: colors.text.primary }]}
                 >
-                  {monthlyInsights.totalHabits}
+                  {formatNumber(monthlyInsights.totalHabits)}
                 </Text>
                 <Text variant="bodySmall" style={styles.insightLabel}>
                   {t("overview.totalHabits")}
@@ -164,7 +149,7 @@ export default function AnalyticsScreen() {
                   {new Date(monthlyInsights.bestDay.date).toLocaleDateString()}
                 </Text>
                 <Text variant="bodySmall" style={styles.dayInsightValue}>
-                  {Math.round(monthlyInsights.bestDay.rate)}%{" "}
+                  {formatNumber(Math.round(monthlyInsights.bestDay.rate))}%{" "}
                   {t("today.completed")}
                 </Text>
               </View>
@@ -250,7 +235,7 @@ export default function AnalyticsScreen() {
                           { color: "#FF5722" },
                         ]}
                       >
-                        {streak.currentStreak}
+                        {formatNumber(streak.currentStreak)}
                       </Chip>
                     </View>
 
@@ -272,7 +257,8 @@ export default function AnalyticsScreen() {
                             { color: colors.text.primary },
                           ]}
                         >
-                          {streak.longestStreak} {t("habits.days")}
+                          {formatNumber(streak.longestStreak)}{" "}
+                          {t("habits.days")}
                         </Text>
                       </View>
 
@@ -293,7 +279,7 @@ export default function AnalyticsScreen() {
                             { color: colors.text.primary },
                           ]}
                         >
-                          {streak.successRate}%
+                          {formatNumber(streak.successRate)}%
                         </Text>
                       </View>
                     </View>
@@ -329,243 +315,11 @@ export default function AnalyticsScreen() {
       </ScrollView>
 
       {/* Day Details Modal */}
-      <Portal>
-        <Modal
-          visible={modal.value}
-          onDismiss={modal.setFalse}
-          contentContainerStyle={styles.modalContainer}
-        >
-          {selectedDayData && (
-            <View
-              style={[
-                styles.modalCard,
-                { backgroundColor: colors.elevation.level1 },
-              ]}
-            >
-              {/* Header */}
-              <View
-                style={[
-                  styles.modalHeader,
-                  { backgroundColor: colors.primary },
-                ]}
-              >
-                <Text
-                  variant="headlineSmall"
-                  style={[styles.modalTitle, { color: colors.onPrimary }]}
-                >
-                  {isRTL
-                    ? moment(selectedDayData.date).format('dddd، jD jMMMM jYYYY')
-                    : moment(selectedDayData.date).format('dddd، MMMM D، YYYY')
-                  }
-                </Text>
-              </View>
-
-              {/* Content */}
-              <ScrollView
-                style={styles.modalContent}
-                showsVerticalScrollIndicator={false}
-              >
-                {/* Mood Display */}
-                {selectedDayData.mood && (
-                  <View
-                    style={[
-                      styles.modalMood,
-                      { backgroundColor: colors.elevation.level2 },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.moodIcon,
-                        { backgroundColor: colors.elevation.level1 },
-                      ]}
-                    >
-                      <Text style={styles.moodEmoji}>
-                        {selectedDayData.mood === "good" && "😊"}
-                        {selectedDayData.mood === "ok" && "😐"}
-                        {selectedDayData.mood === "bad" && "😔"}
-                      </Text>
-                    </View>
-                    <Text
-                      variant="bodyLarge"
-                      style={[styles.moodText, { color: colors.text.primary }]}
-                    >
-                      {selectedDayData.mood === "good" && t("mood.good")}
-                      {selectedDayData.mood === "ok" && t("mood.ok")}
-                      {selectedDayData.mood === "bad" && t("mood.bad")}
-                    </Text>
-                  </View>
-                )}
-
-                {/* Note Display */}
-                {selectedDayData.note && (
-                  <View
-                    style={[
-                      styles.modalNote,
-                      {
-                        backgroundColor: isDark
-                          ? colors.elevation.level2
-                          : "#fff5f5",
-                        borderRightColor: colors.primary,
-                      },
-                    ]}
-                  >
-                    <Text
-                      variant="bodyMedium"
-                      style={[
-                        styles.modalNoteText,
-                        { color: colors.text.primary },
-                      ]}
-                    >
-                      &ldquo;{selectedDayData.note}&rdquo;
-                    </Text>
-                  </View>
-                )}
-
-                {/* Progress Summary */}
-                <View
-                  style={[
-                    styles.modalProgress,
-                    {
-                      backgroundColor: isDark
-                        ? colors.elevation.level2
-                        : "#f0f9ff",
-                    },
-                  ]}
-                >
-                  <View style={styles.progressHeader}>
-                    <Text
-                      variant="titleSmall"
-                      style={[
-                        styles.progressTitle,
-                        { color: colors.text.primary },
-                      ]}
-                    >
-                      {t("calendar.todayProgress")}
-                    </Text>
-                    <Text
-                      variant="bodyMedium"
-                      style={[styles.progressText, { color: colors.primary }]}
-                    >
-                      {selectedDayData.completedCount} از{" "}
-                      {selectedDayData.totalCount}
-                    </Text>
-                  </View>
-                  <ProgressBar
-                    progress={
-                      selectedDayData.totalCount > 0
-                        ? selectedDayData.completedCount /
-                          selectedDayData.totalCount
-                        : 0
-                    }
-                    color={colors.primary}
-                    style={styles.modalProgressBar}
-                  />
-                </View>
-
-                {/* Habits List */}
-                {selectedDayData.habits.length > 0 && (
-                  <View style={styles.habitsSection}>
-                    <Text
-                      variant="titleSmall"
-                      style={[
-                        styles.sectionTitle,
-                        { color: colors.text.primary },
-                      ]}
-                    >
-                      {t("habits.title")}
-                    </Text>
-
-                    {selectedDayData.habits.map((habit) => (
-                      <View
-                        key={habit.id}
-                        style={[
-                          styles.habitItem,
-                          {
-                            backgroundColor: colors.elevation.level1,
-                            borderColor: colors.border,
-                          },
-                        ]}
-                      >
-                        <View style={styles.habitIcon}>
-                          {habit.completed ? (
-                            <Text style={styles.completedIcon}>✓</Text>
-                          ) : (
-                            <View style={styles.incompleteIcon} />
-                          )}
-                        </View>
-                        <View style={styles.habitInfo}>
-                          <Text
-                            variant="bodyMedium"
-                            style={[
-                              styles.habitName,
-                              { color: colors.text.primary },
-                              habit.completed && styles.completedHabit,
-                            ]}
-                          >
-                            {habit.name}
-                          </Text>
-                          {habit.description && (
-                            <Text
-                              variant="bodySmall"
-                              style={[
-                                styles.habitCategory,
-                                { color: colors.text.secondary },
-                              ]}
-                            >
-                              {habit.description}
-                            </Text>
-                          )}
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                )}
-
-                {selectedDayData.habits.length === 0 && (
-                  <View style={styles.emptyHabits}>
-                    <Text
-                      variant="bodyMedium"
-                      style={[
-                        styles.emptyHabitsText,
-                        { color: colors.text.secondary },
-                      ]}
-                    >
-                      {t("calendar.noHabitsForDay")}
-                    </Text>
-                  </View>
-                )}
-              </ScrollView>
-
-              {/* Footer */}
-              <View
-                style={[
-                  styles.modalFooter,
-                  {
-                    backgroundColor: colors.elevation.level2,
-                    borderTopColor: colors.border,
-                  },
-                ]}
-              >
-                <Button
-                  mode="contained"
-                  onPress={modal.setFalse}
-                  style={[
-                    styles.closeButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                  labelStyle={[
-                    styles.closeButtonText,
-                    { color: colors.onPrimary },
-                  ]}
-                >
-                  {t("calendar.close")}
-                </Button>
-              </View>
-            </View>
-          )}
-        </Modal>
-      </Portal>
+      <DayDetailsModal
+        visible={modal.value}
+        onDismiss={modal.setFalse}
+        dayData={selectedDayData}
+      />
     </View>
   );
 }
-

@@ -19,7 +19,8 @@
     "previous": "Previous",
     "back": "Back",
     "skip": "Skip",
-    "of": "of"
+    "of": "of",
+    "days": "days"
   },
   "navigation": {
     "todayPath": "Today's Path",
@@ -171,7 +172,15 @@
     "avgCompletion": "Avg Completion",
     "topHabits": "Top Habits",
     "monthly": "Monthly",
-    "weekly": "Weekly"
+    "weekly": "Weekly",
+    "message1": "🎉 Amazing! You're completing over 80% of your habits!",
+    "message2": "💪 Good progress! You're on the right track.",
+    "message3": "📈 Keep pushing! Small improvements lead to big results.",
+    "message4": "🌱 Every journey starts with a single step. You've got this!",
+    "streakMessage1": "🔥 Incredible {{days}}-day streak with {{habit}}!",
+    "streakMessage2": "✨ Great {{days}}-day streak building up!",
+    "moodMessage1": "😊 Your mood has been consistently positive this month!",
+    "moodMessage2": "🌤️ Your mood seems balanced overall."
   },
   "overview": {
     "title": "Overview",
@@ -359,6 +368,7 @@
       "title": "Your Habits Grow Like Plants",
       "subtitle": "Each habit starts small and grows over time",
       "watchGrowth": "See how it works:",
+      "startJourney": "Start journey",
       "stages": "Growth stages:",
       "seed": "Start",
       "sprout": "Try",

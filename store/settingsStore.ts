@@ -7,7 +7,6 @@ export type Language = 'fa' | 'en';
 
 export interface NotificationSettings {
   enabled: boolean;
-  sound: string;
   dailyReminder: {
     enabled: boolean;
     time: { hour: number; minute: number };
@@ -20,7 +19,6 @@ export interface NotificationSettings {
 
 const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   enabled: false,
-  sound: 'default',
   dailyReminder: {
     enabled: false,
     time: { hour: 9, minute: 0 },
@@ -42,6 +40,7 @@ interface SettingsState {
   setTheme: (theme: ThemeMode) => void;
   setLanguage: (language: Language) => void;
   setNotifications: (notifications: Partial<NotificationSettings>) => void;
+  enableNotificationsAfterPermission: () => void;
   setOnboardingCompleted: (completed: boolean) => void;
   resetSettings: () => void;
 }
@@ -69,6 +68,19 @@ export const useSettingsStore = create<SettingsState>()(
       setNotifications: (notifications) => {
         set((state) => ({
           notifications: { ...state.notifications, ...notifications }
+        }));
+      },
+
+      enableNotificationsAfterPermission: () => {
+        set((state) => ({
+          notifications: {
+            ...state.notifications,
+            enabled: true,
+            dailyReminder: {
+              ...state.notifications.dailyReminder,
+              enabled: true,
+            },
+          },
         }));
       },
 

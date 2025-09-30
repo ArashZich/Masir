@@ -1,37 +1,50 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Avatar, Text } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ThemedCard } from '@/components';
+import { Surface, Text } from 'react-native-paper';
 import { useTheme } from '@/contexts/ThemeContext';
-import { analyticsStyles as styles } from '@/styles/analytics.styles';
 
 export const AnalyticsHeader: React.FC = () => {
   const { t } = useTranslation();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   return (
-    <ThemedCard elevation={2} style={styles.headerCard}>
-      <LinearGradient
-        colors={
-          isDark
-            ? [colors.primary, colors.secondary]
-            : ["#667eea", "#764ba2"]
-        }
-        style={styles.headerGradient}
+    <Surface
+      style={[
+        styles.simpleHeader,
+        { backgroundColor: colors.elevation.level2 },
+      ]}
+      elevation={4}
+    >
+      <Text
+        variant="headlineLarge"
+        style={[styles.title, { color: colors.text.primary }]}
       >
-        <Avatar.Icon
-          size={64}
-          icon="chart-line"
-          style={styles.headerIcon}
-        />
-        <Text variant="headlineMedium" style={styles.headerTitle}>
-          {t("overview.title")}
-        </Text>
-        <Text variant="bodyLarge" style={styles.headerSubtitle}>
-          {t("overview.subtitle")}
-        </Text>
-      </LinearGradient>
-    </ThemedCard>
+        {t("overview.title")}
+      </Text>
+      <Text
+        variant="bodyLarge"
+        style={[styles.subtitle, { color: colors.text.secondary }]}
+      >
+        {t("overview.subtitle")}
+      </Text>
+    </Surface>
   );
 };
+
+const styles = StyleSheet.create({
+  simpleHeader: {
+    padding: 24,
+    marginBottom: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: 8,
+    fontWeight: "bold",
+  },
+  subtitle: {
+    textAlign: "center",
+  },
+});

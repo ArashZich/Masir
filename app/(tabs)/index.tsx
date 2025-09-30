@@ -29,7 +29,7 @@ import {
 
 export default function HomeScreen() {
   const { t } = useLanguage();
-  const { colors } = useTheme();
+  const { colors, formatNumber } = useTheme();
   const { getTodayFormatted } = useCalendar();
   const {
     getHabitsForDate,
@@ -198,7 +198,7 @@ export default function HomeScreen() {
                         { color: colors.secondary },
                       ]}
                     >
-                      {completedDays} {t("garden.days")}
+                      {formatNumber(completedDays)} {t("garden.days")}
                     </Text>
                   </View>
                 );
@@ -232,7 +232,7 @@ export default function HomeScreen() {
                 {t("today.progress")}
               </Text>
               <Chip icon="target" mode="flat" textStyle={styles.chipText}>
-                {completedCount}/{totalCount}
+                {formatNumber(completedCount)}/{formatNumber(totalCount)}
               </Chip>
             </View>
 
@@ -248,7 +248,7 @@ export default function HomeScreen() {
                   variant="headlineSmall"
                   style={[styles.statNumber, { color: colors.text.primary }]}
                 >
-                  {completedCount}
+                  {formatNumber(completedCount)}
                 </Text>
                 <Text
                   variant="bodyMedium"
@@ -262,7 +262,7 @@ export default function HomeScreen() {
                   variant="headlineSmall"
                   style={[styles.statNumber, { color: colors.text.primary }]}
                 >
-                  {totalCount - completedCount}
+                  {formatNumber(totalCount - completedCount)}
                 </Text>
                 <Text
                   variant="bodyMedium"

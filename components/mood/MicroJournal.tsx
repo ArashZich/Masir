@@ -20,7 +20,7 @@ export const MicroJournal: React.FC<MicroJournalProps> = ({
   compact = false,
 }) => {
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, formatNumber } = useTheme();
   const isFocused = useBoolean(false, "journalFocus");
 
   return (
@@ -72,13 +72,13 @@ export const MicroJournal: React.FC<MicroJournalProps> = ({
 
       {!compact && (
         <Text style={[styles.characterCount, { color: colors.text.secondary }]}>
-          {note.length}/150 {t("journal.characterCount")}
+          {formatNumber(note.length)}/{formatNumber(150)} {t("journal.characterCount")}
         </Text>
       )}
       {compact && (
         <View style={styles.compactFooter}>
           <Text style={[styles.compactCount, { color: colors.text.secondary }]}>
-            {note.length}/150
+            {formatNumber(note.length)}/{formatNumber(150)}
           </Text>
           <IconButton
             icon="history"

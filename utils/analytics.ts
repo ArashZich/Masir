@@ -1,4 +1,5 @@
 import { DayEntry, Habit } from '@/store/habitStore';
+import i18n from '@/i18n';
 
 export interface StreakData {
   habitId: string;
@@ -227,13 +228,13 @@ export class AnalyticsService {
 
     // Completion rate insights
     if (insights.avgCompletionRate >= 80) {
-      messages.push('🎉 Amazing! You\'re completing over 80% of your habits!');
+      messages.push(i18n.t('insights.message1'));
     } else if (insights.avgCompletionRate >= 60) {
-      messages.push('💪 Good progress! You\'re on the right track.');
+      messages.push(i18n.t('insights.message2'));
     } else if (insights.avgCompletionRate >= 40) {
-      messages.push('📈 Keep pushing! Small improvements lead to big results.');
+      messages.push(i18n.t('insights.message3'));
     } else {
-      messages.push('🌱 Every journey starts with a single step. You\'ve got this!');
+      messages.push(i18n.t('insights.message4'));
     }
 
     // Streak insights
@@ -243,9 +244,14 @@ export class AnalyticsService {
     );
 
     if (bestStreak.currentStreak >= 7) {
-      messages.push(`🔥 Incredible ${bestStreak.currentStreak}-day streak with ${bestStreak.habitName}!`);
+      messages.push(i18n.t('insights.streakMessage1', {
+        days: bestStreak.currentStreak,
+        habit: bestStreak.habitName
+      }));
     } else if (bestStreak.currentStreak >= 3) {
-      messages.push(`✨ Great ${bestStreak.currentStreak}-day streak building up!`);
+      messages.push(i18n.t('insights.streakMessage2', {
+        days: bestStreak.currentStreak
+      }));
     }
 
     // Mood insights
@@ -256,9 +262,9 @@ export class AnalyticsService {
     if (totalMoodEntries > 0) {
       const goodPercentage = (insights.moodDistribution.good / totalMoodEntries) * 100;
       if (goodPercentage >= 70) {
-        messages.push('😊 Your mood has been consistently positive this month!');
+        messages.push(i18n.t('insights.moodMessage1'));
       } else if (goodPercentage >= 50) {
-        messages.push('🌤️ Your mood seems balanced overall.');
+        messages.push(i18n.t('insights.moodMessage2'));
       }
     }
 

@@ -1,15 +1,35 @@
 import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
 import type { MD3Theme } from 'react-native-paper';
 
-// فونت‌های سفارشی (در صورت نیاز)
-const fontConfig = {
-  fontFamily: 'System',
+// فونت‌های سفارشی بر اساس زبان
+const getFontConfig = (language: 'fa' | 'en' = 'en') => {
+  const fontFamily = language === 'fa' ? 'Vazirmatn-Regular' : 'Montserrat-Regular';
+  const fontFamilyMedium = language === 'fa' ? 'Vazirmatn-Medium' : 'Montserrat-Medium';
+  const fontFamilyBold = language === 'fa' ? 'Vazirmatn-Bold' : 'Montserrat-Bold';
+
+  return {
+    displayLarge: { fontFamily: fontFamilyBold },
+    displayMedium: { fontFamily: fontFamilyBold },
+    displaySmall: { fontFamily: fontFamilyBold },
+    headlineLarge: { fontFamily: fontFamilyBold },
+    headlineMedium: { fontFamily: fontFamilyBold },
+    headlineSmall: { fontFamily: fontFamilyMedium },
+    titleLarge: { fontFamily: fontFamilyMedium },
+    titleMedium: { fontFamily: fontFamilyMedium },
+    titleSmall: { fontFamily: fontFamilyMedium },
+    bodyLarge: { fontFamily },
+    bodyMedium: { fontFamily },
+    bodySmall: { fontFamily },
+    labelLarge: { fontFamily: fontFamilyMedium },
+    labelMedium: { fontFamily: fontFamilyMedium },
+    labelSmall: { fontFamily },
+  };
 };
 
 // تم روشن (Light Theme)
-export const lightTheme: MD3Theme = {
+const createLightTheme = (language: 'fa' | 'en' = 'en'): MD3Theme => ({
   ...MD3LightTheme,
-  fonts: configureFonts({ config: fontConfig }),
+  fonts: configureFonts({ config: getFontConfig(language) }),
   colors: {
     ...MD3LightTheme.colors,
     primary: '#667eea', // آبی مسیر - جذاب اما حرفه‌ای
@@ -53,12 +73,12 @@ export const lightTheme: MD3Theme = {
       level5: '#94a3b8',
     },
   },
-};
+});
 
 // تم تاریک (Dark Theme)
-export const darkTheme: MD3Theme = {
+const createDarkTheme = (language: 'fa' | 'en' = 'en'): MD3Theme => ({
   ...MD3DarkTheme,
-  fonts: configureFonts({ config: fontConfig }),
+  fonts: configureFonts({ config: getFontConfig(language) }),
   colors: {
     ...MD3DarkTheme.colors,
     primary: '#8c9eff', // آبی روشن‌تر در dark mode
@@ -102,21 +122,25 @@ export const darkTheme: MD3Theme = {
       level5: '#404040',
     },
   },
-};
+});
+
+// Export themes for backward compatibility
+export const lightTheme = createLightTheme('en');
+export const darkTheme = createDarkTheme('en');
 
 // نوع تم (light, dark, system)
 export type ThemeMode = 'light' | 'dark' | 'system';
 
-// انتخاب تم بر اساس حالت
-export const getTheme = (mode: ThemeMode, systemIsDark: boolean): MD3Theme => {
+// انتخاب تم بر اساس حالت و زبان
+export const getTheme = (mode: ThemeMode, systemIsDark: boolean, language: 'fa' | 'en' = 'en'): MD3Theme => {
   switch (mode) {
     case 'light':
-      return lightTheme;
+      return createLightTheme(language);
     case 'dark':
-      return darkTheme;
+      return createDarkTheme(language);
     case 'system':
-      return systemIsDark ? darkTheme : lightTheme;
+      return systemIsDark ? createDarkTheme(language) : createLightTheme(language);
     default:
-      return lightTheme;
+      return createLightTheme(language);
   }
 };
