@@ -33,7 +33,7 @@
       [
         "expo-notifications",
         {
-          "icon": "https://bytebase.armogroup.tech/api/v1/files/public/masir.png",
+          "icon": "./assets/images/react-logo.png",
           "color": "#ffffff",
           "defaultChannel": "default"
         }
