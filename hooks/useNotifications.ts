@@ -176,14 +176,12 @@ export function useNotifications() {
 
   // Schedule daily habit reminder
   const scheduleHabitReminder = async (
-    habitName: string,
+    title: string,
+    body: string,
     time: { hour: number; minute: number },
     identifier?: string // برای شناسایی و کنسل کردن
   ) => {
     if (!Notifications) return null;
-
-    const title = habitName;
-    const body = t("notifications.messages.habitBody");
 
     // Create daily trigger for specific time
     const trigger: any = {
@@ -197,7 +195,7 @@ export function useNotifications() {
         title,
         body,
         sound: "default",
-        data: { habitName, identifier },
+        data: { identifier },
         color: "#4CAF50",
       },
       trigger,

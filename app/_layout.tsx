@@ -26,16 +26,32 @@ export const unstable_settings = {
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
   const { theme, notifications, onboardingCompleted } = useSettingsStore();
-  const { scheduleHabitReminder, cancelAllNotifications } = useNotifications();
+  const { scheduleHabitReminder, cancelAllNotifications, permission, requestPermission } = useNotifications();
   const { t } = useLanguage();
   const [splashVisible, setSplashVisible] = useState(true);
+
+  // Request permission on first launch
+  useEffect(() => {
+    const requestInitialPermission = async () => {
+      if (!permission.granted && permission.canAskAgain) {
+        await requestPermission();
+      }
+    };
+
+    requestInitialPermission();
+  }, []);
 
   // Notification setup
   useEffect(() => {
     const setupNotifications = async () => {
+      // اگه permission نداریم، هیچ کاری نکن
+      if (!permission.granted) {
+        return;
+      }
+
       // اگه notification غیرفعاله، همه رو کنسل کن
       if (!notifications.enabled) {
-        cancelAllNotifications();
+        await cancelAllNotifications();
         return;
       }
 
@@ -46,6 +62,7 @@ export default function RootLayout() {
       if (notifications.dailyReminder.enabled) {
         await scheduleHabitReminder(
           t("notifications.messages.dailyTitle"),
+          t("notifications.messages.dailyBody"),
           notifications.dailyReminder.time,
           "daily-reminder"
         );
@@ -54,6 +71,7 @@ export default function RootLayout() {
       if (notifications.moodReminder.enabled) {
         await scheduleHabitReminder(
           t("notifications.messages.moodTitle"),
+          t("notifications.messages.moodBody"),
           notifications.moodReminder.time,
           "mood-reminder"
         );
@@ -62,6 +80,7 @@ export default function RootLayout() {
 
     setupNotifications();
   }, [
+    permission.granted,
     notifications.enabled,
     notifications.dailyReminder.enabled,
     notifications.dailyReminder.time.hour,
