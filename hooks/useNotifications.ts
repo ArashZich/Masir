@@ -44,7 +44,7 @@ export interface NotificationPermission {
 
 export function useNotifications() {
   const { t } = useLanguage();
-  const { notifications: notificationSettings, enableNotificationsAfterPermission } = useSettingsStore();
+  const { notifications: notificationSettings } = useSettingsStore();
   const [permission, setPermission] = useState<NotificationPermission>({
     granted: false,
     canAskAgain: true,
@@ -110,11 +110,6 @@ export function useNotifications() {
 
       console.log("Final permission data:", permissionData);
       setPermission(permissionData);
-
-      // اگه permission داده شد، notification ها رو فعال کن
-      if (granted) {
-        enableNotificationsAfterPermission();
-      }
 
       return permissionData;
     } catch (error) {
@@ -261,11 +256,6 @@ async function registerForPushNotificationsAsync(): Promise<
     if (existingStatus !== "granted") {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
-
-      // اگه permission داده شد، notification ها رو فعال کن
-      if (status === "granted") {
-        useSettingsStore.getState().enableNotificationsAfterPermission();
-      }
     }
 
     if (finalStatus !== "granted") {

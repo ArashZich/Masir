@@ -40,7 +40,6 @@ interface SettingsState {
   setTheme: (theme: ThemeMode) => void;
   setLanguage: (language: Language) => void;
   setNotifications: (notifications: Partial<NotificationSettings>) => void;
-  enableNotificationsAfterPermission: () => void;
   setOnboardingCompleted: (completed: boolean) => void;
   resetSettings: () => void;
 }
@@ -68,19 +67,6 @@ export const useSettingsStore = create<SettingsState>()(
       setNotifications: (notifications) => {
         set((state) => ({
           notifications: { ...state.notifications, ...notifications }
-        }));
-      },
-
-      enableNotificationsAfterPermission: () => {
-        set((state) => ({
-          notifications: {
-            ...state.notifications,
-            enabled: true,
-            dailyReminder: {
-              ...state.notifications.dailyReminder,
-              enabled: true,
-            },
-          },
         }));
       },
 

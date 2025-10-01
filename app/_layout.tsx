@@ -64,16 +64,11 @@ export default function RootLayout() {
   }, [
     notifications.enabled,
     notifications.dailyReminder.enabled,
-    notifications.dailyReminder.time,
     notifications.dailyReminder.time.hour,
     notifications.dailyReminder.time.minute,
     notifications.moodReminder.enabled,
-    notifications.moodReminder.time,
     notifications.moodReminder.time.hour,
     notifications.moodReminder.time.minute,
-    t,
-    cancelAllNotifications,
-    scheduleHabitReminder,
   ]);
 
   const handleOnboardingComplete = () => {
