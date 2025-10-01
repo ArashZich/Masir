@@ -197,6 +197,18 @@ export function useNotifications() {
 
       console.log(`🔔 Scheduling notification "${identifier}" for ${time.hour}:${time.minute}`);
 
+      // محاسبه زمان بعدی که باید notification trigger بشه
+      const now = new Date();
+      const scheduledTime = new Date();
+      scheduledTime.setHours(time.hour, time.minute, 0, 0);
+
+      // اگه ساعت فعلی از ساعت تنظیم شده گذشته، برای فردا schedule کن
+      if (now >= scheduledTime) {
+        scheduledTime.setDate(scheduledTime.getDate() + 1);
+      }
+
+      console.log(`📅 Next trigger time: ${scheduledTime.toLocaleString()}`);
+
       // Create daily trigger with CalendarTriggerInput
       // IMPORTANT: Must include 'repeats: true' for daily notifications
       const trigger = {

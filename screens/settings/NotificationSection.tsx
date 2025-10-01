@@ -95,9 +95,14 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
     getAllScheduledNotifications,
   ]);
 
-  // Run schedule whenever settings change
+  // Run schedule whenever settings change with debounce
   useEffect(() => {
-    scheduleNotifications();
+    // Debounce to prevent rapid re-scheduling
+    const timeoutId = setTimeout(() => {
+      scheduleNotifications();
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
   }, [scheduleNotifications]);
 
   const handleRequestPermission = async () => {
