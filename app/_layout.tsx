@@ -28,15 +28,15 @@ export default function RootLayout() {
   const { permission, requestPermission } = useNotifications();
   const [splashVisible, setSplashVisible] = useState(true);
 
-  // Request permission on first launch
+  // Check permission on first launch (don't automatically request)
   useEffect(() => {
-    const requestInitialPermission = async () => {
-      if (!permission.granted && permission.canAskAgain) {
-        await requestPermission();
-      }
+    const checkInitialPermission = async () => {
+      // Just check permission status, don't request automatically
+      // User will request permission from settings when they enable notifications
+      console.log("📱 App launched - Permission status:", permission.status);
     };
 
-    requestInitialPermission();
+    checkInitialPermission();
   }, []);
 
   const handleOnboardingComplete = () => {

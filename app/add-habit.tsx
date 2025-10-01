@@ -197,13 +197,15 @@ export default function AddHabitScreen() {
     // Schedule notification if reminder is enabled
     if (reminderEnabled.value && permission.granted) {
       try {
+        const habitIdentifier = `habit-${isEditing ? editingHabit.id : Date.now()}`;
         await scheduleHabitReminder(
           name.trim(),
+          `${name.trim()} را انجام دهید`, // body text
           {
             hour: reminderTime.getHours(),
             minute: reminderTime.getMinutes(),
           },
-          frequency === "weekly" ? weeklyDays : undefined
+          habitIdentifier
         );
       } catch (error) {
         console.log('Error scheduling notification:', error);
@@ -213,13 +215,15 @@ export default function AddHabitScreen() {
       const newPermission = await requestPermission();
       if (newPermission.granted) {
         try {
+          const habitIdentifier = `habit-${isEditing ? editingHabit.id : Date.now()}`;
           await scheduleHabitReminder(
             name.trim(),
+            `${name.trim()} را انجام دهید`, // body text
             {
               hour: reminderTime.getHours(),
               minute: reminderTime.getMinutes(),
             },
-            frequency === "weekly" ? weeklyDays : undefined
+            habitIdentifier
           );
         } catch (error) {
           console.log('Error scheduling notification after permission:', error);

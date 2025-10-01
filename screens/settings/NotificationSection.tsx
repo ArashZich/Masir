@@ -34,21 +34,25 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
 
   // Schedule notifications based on settings
   const scheduleNotifications = useCallback(async () => {
+    console.log("📋 scheduleNotifications called");
+
     if (!permission.granted) {
-      console.log("Permission not granted, skipping notification setup");
+      console.log("❌ Permission not granted, skipping notification setup");
       return;
     }
 
     // اگر notifications غیرفعال باشد، همه را کنسل کن
     if (!notifications.enabled) {
-      console.log("Notifications disabled, cancelling all");
+      console.log("🔕 Notifications disabled, cancelling all");
       await cancelAllNotifications();
       return;
     }
 
+    console.log("⚙️ Processing notification settings...");
+
     // Schedule daily reminder
     if (notifications.dailyReminder.enabled) {
-      console.log("Scheduling daily reminder");
+      console.log("📅 Scheduling daily reminder for", notifications.dailyReminder.time);
       await scheduleHabitReminder(
         t("notifications.messages.dailyTitle"),
         t("notifications.messages.dailyBody"),
@@ -56,13 +60,13 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
         "daily-reminder"
       );
     } else {
-      console.log("Cancelling daily reminder");
+      console.log("🗑️ Daily reminder disabled, cancelling");
       await cancelNotification("daily-reminder");
     }
 
     // Schedule mood reminder
     if (notifications.moodReminder.enabled) {
-      console.log("Scheduling mood reminder");
+      console.log("😊 Scheduling mood reminder for", notifications.moodReminder.time);
       await scheduleHabitReminder(
         t("notifications.messages.moodTitle"),
         t("notifications.messages.moodBody"),
@@ -70,11 +74,12 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
         "mood-reminder"
       );
     } else {
-      console.log("Cancelling mood reminder");
+      console.log("🗑️ Mood reminder disabled, cancelling");
       await cancelNotification("mood-reminder");
     }
 
     // Debug: Show all scheduled notifications
+    console.log("📊 Getting all scheduled notifications...");
     await getAllScheduledNotifications();
   }, [
     permission.granted,
@@ -84,6 +89,10 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
     notifications.moodReminder.enabled,
     notifications.moodReminder.time,
     t,
+    scheduleHabitReminder,
+    cancelNotification,
+    cancelAllNotifications,
+    getAllScheduledNotifications,
   ]);
 
   // Run schedule whenever settings change
@@ -93,10 +102,9 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
 
   const handleRequestPermission = async () => {
     const result = await requestPermission();
-    if (result.granted) {
-      // Schedule notifications after permission is granted
-      await scheduleNotifications();
-    }
+    console.log("🔐 Permission request result:", result);
+    // Don't automatically schedule notifications here
+    // They will be scheduled by useEffect when user enables them
   };
 
   const handleNotificationToggle = async (field: string, value: boolean) => {

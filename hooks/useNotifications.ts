@@ -162,16 +162,22 @@ export function useNotifications() {
   ) => {
     if (!Notifications) return;
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title,
-        body,
-        sound: "default",
-        color: "#4CAF50",
-        // آیکون از app.json استفاده می‌شود، نه اینجا
-      },
-      trigger: trigger || null, // فوری اگه trigger نداشته باشه
-    });
+    try {
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          sound: "default",
+          color: "#4CAF50",
+        },
+        trigger: trigger || null, // فوری اگه trigger نداشته باشه
+      });
+      console.log("Test notification scheduled:", notificationId);
+      return notificationId;
+    } catch (error) {
+      console.error("Error scheduling test notification:", error);
+      return null;
+    }
   };
 
   // Schedule daily habit reminder
@@ -189,19 +195,10 @@ export function useNotifications() {
         await cancelNotification(identifier);
       }
 
-      // محاسبه زمان بعدی برای trigger
-      const now = new Date();
-      const scheduledTime = new Date();
-      scheduledTime.setHours(time.hour, time.minute, 0, 0);
-
-      // اگر زمان تنظیم شده قبل از الان است، برای فردا تنظیم کن
-      if (scheduledTime <= now) {
-        scheduledTime.setDate(scheduledTime.getDate() + 1);
-      }
-
-      console.log(`Scheduling notification "${identifier}" for:`, scheduledTime.toLocaleString());
+      console.log(`🔔 Scheduling notification "${identifier}" for ${time.hour}:${time.minute}`);
 
       // Create daily trigger with CalendarTriggerInput
+      // IMPORTANT: Must include 'repeats: true' for daily notifications
       const trigger = {
         hour: time.hour,
         minute: time.minute,
@@ -220,10 +217,10 @@ export function useNotifications() {
         identifier, // استفاده از identifier برای کنسل آسان
       });
 
-      console.log(`Notification "${identifier}" scheduled with ID:`, notificationId);
+      console.log(`✅ Notification "${identifier}" scheduled successfully with ID:`, notificationId);
       return notificationId;
     } catch (error) {
-      console.error(`Error scheduling notification "${identifier}":`, error);
+      console.error(`❌ Error scheduling notification "${identifier}":`, error);
       return null;
     }
   };
