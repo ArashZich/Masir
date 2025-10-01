@@ -4,7 +4,7 @@ import { useBoolean } from "@/hooks/useBoolean";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useSettingsStore } from "@/store/settingsStore";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React from "react";
+import React, { useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button, Divider, Switch, Text } from "react-native-paper";
@@ -23,32 +23,94 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
     permission,
     requestPermission,
     scheduleNotification,
+    scheduleHabitReminder,
     cancelNotification,
+    cancelAllNotifications,
+    getAllScheduledNotifications,
   } = useNotifications();
 
   const dailyTimePicker = useBoolean(false, "dailyTimePicker");
   const moodTimePicker = useBoolean(false, "moodTimePicker");
 
+  // Schedule notifications based on settings
+  const scheduleNotifications = useCallback(async () => {
+    if (!permission.granted) {
+      console.log("Permission not granted, skipping notification setup");
+      return;
+    }
+
+    // اگر notifications غیرفعال باشد، همه را کنسل کن
+    if (!notifications.enabled) {
+      console.log("Notifications disabled, cancelling all");
+      await cancelAllNotifications();
+      return;
+    }
+
+    // Schedule daily reminder
+    if (notifications.dailyReminder.enabled) {
+      console.log("Scheduling daily reminder");
+      await scheduleHabitReminder(
+        t("notifications.messages.dailyTitle"),
+        t("notifications.messages.dailyBody"),
+        notifications.dailyReminder.time,
+        "daily-reminder"
+      );
+    } else {
+      console.log("Cancelling daily reminder");
+      await cancelNotification("daily-reminder");
+    }
+
+    // Schedule mood reminder
+    if (notifications.moodReminder.enabled) {
+      console.log("Scheduling mood reminder");
+      await scheduleHabitReminder(
+        t("notifications.messages.moodTitle"),
+        t("notifications.messages.moodBody"),
+        notifications.moodReminder.time,
+        "mood-reminder"
+      );
+    } else {
+      console.log("Cancelling mood reminder");
+      await cancelNotification("mood-reminder");
+    }
+
+    // Debug: Show all scheduled notifications
+    await getAllScheduledNotifications();
+  }, [
+    permission.granted,
+    notifications.enabled,
+    notifications.dailyReminder.enabled,
+    notifications.dailyReminder.time,
+    notifications.moodReminder.enabled,
+    notifications.moodReminder.time,
+    t,
+  ]);
+
+  // Run schedule whenever settings change
+  useEffect(() => {
+    scheduleNotifications();
+  }, [scheduleNotifications]);
+
   const handleRequestPermission = async () => {
-    await requestPermission();
+    const result = await requestPermission();
+    if (result.granted) {
+      // Schedule notifications after permission is granted
+      await scheduleNotifications();
+    }
   };
 
-  const handleNotificationToggle = (field: string, value: boolean) => {
+  const handleNotificationToggle = async (field: string, value: boolean) => {
     setNotifications({
       ...notifications,
       [field]: value,
     });
+    // scheduleNotifications will be called automatically via useEffect
   };
 
   const handleTimeChange = async (
     type: "daily" | "mood",
     time: { hour: number; minute: number }
   ) => {
-    // اول notification قبلی رو کنسل کن
-    const identifier = type === "daily" ? "daily-reminder" : "mood-reminder";
-    await cancelNotification(identifier);
-
-    // بعد settings رو آپدیت کن (این باعث re-schedule میشه در _layout.tsx)
     if (type === "daily") {
       setNotifications({
         dailyReminder: { ...notifications.dailyReminder, time },
@@ -58,6 +120,7 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
         moodReminder: { ...notifications.moodReminder, time },
       });
     }
+    // scheduleNotifications will be called automatically via useEffect
   };
 
   const sendTestNotification = () => {
@@ -341,6 +404,15 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
                   {t("notifications.sendTestDelayed")}
                 </Button>
               </View>
+
+              <Button
+                mode="outlined"
+                onPress={getAllScheduledNotifications}
+                style={[styles.testButton, { marginTop: 8 }]}
+                icon="calendar-clock"
+              >
+                Show Scheduled (Check Console)
+              </Button>
             </View>
           </>
         )}

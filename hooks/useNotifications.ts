@@ -183,38 +183,84 @@ export function useNotifications() {
   ) => {
     if (!Notifications) return null;
 
-    // Create daily trigger for specific time
-    const trigger: any = {
-      hour: time.hour,
-      minute: time.minute,
-      repeats: true,
-    };
+    try {
+      // ابتدا نوتیفیکیشن قبلی با همین identifier را کنسل کنیم
+      if (identifier) {
+        await cancelNotification(identifier);
+      }
 
-    const notificationId = await Notifications.scheduleNotificationAsync({
-      content: {
-        title,
-        body,
-        sound: "default",
-        data: { identifier },
-        color: "#4CAF50",
-      },
-      trigger,
-      identifier, // استفاده از identifier برای کنسل آسان
-    });
+      // محاسبه زمان بعدی برای trigger
+      const now = new Date();
+      const scheduledTime = new Date();
+      scheduledTime.setHours(time.hour, time.minute, 0, 0);
 
-    return notificationId;
+      // اگر زمان تنظیم شده قبل از الان است، برای فردا تنظیم کن
+      if (scheduledTime <= now) {
+        scheduledTime.setDate(scheduledTime.getDate() + 1);
+      }
+
+      console.log(`Scheduling notification "${identifier}" for:`, scheduledTime.toLocaleString());
+
+      // Create daily trigger with CalendarTriggerInput
+      const trigger = {
+        hour: time.hour,
+        minute: time.minute,
+        repeats: true, // روزانه تکرار شود
+      };
+
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          sound: "default",
+          data: { identifier },
+          color: "#4CAF50",
+        },
+        trigger,
+        identifier, // استفاده از identifier برای کنسل آسان
+      });
+
+      console.log(`Notification "${identifier}" scheduled with ID:`, notificationId);
+      return notificationId;
+    } catch (error) {
+      console.error(`Error scheduling notification "${identifier}":`, error);
+      return null;
+    }
   };
 
   // Cancel all notifications
   const cancelAllNotifications = async () => {
     if (!Notifications) return;
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      console.log("All notifications cancelled");
+    } catch (error) {
+      console.error("Error cancelling all notifications:", error);
+    }
   };
 
   // Cancel specific notification
   const cancelNotification = async (identifier: string) => {
     if (!Notifications) return;
-    await Notifications.cancelScheduledNotificationAsync(identifier);
+    try {
+      await Notifications.cancelScheduledNotificationAsync(identifier);
+      console.log(`Notification "${identifier}" cancelled`);
+    } catch (error) {
+      console.error(`Error cancelling notification "${identifier}":`, error);
+    }
+  };
+
+  // Get all scheduled notifications for debugging
+  const getAllScheduledNotifications = async () => {
+    if (!Notifications) return [];
+    try {
+      const notifications = await Notifications.getAllScheduledNotificationsAsync();
+      console.log("All scheduled notifications:", notifications);
+      return notifications;
+    } catch (error) {
+      console.error("Error getting scheduled notifications:", error);
+      return [];
+    }
   };
 
   return {
@@ -226,6 +272,7 @@ export function useNotifications() {
     scheduleHabitReminder,
     cancelAllNotifications,
     cancelNotification,
+    getAllScheduledNotifications,
     isExpoGo,
     notificationSupported,
   };
