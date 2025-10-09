@@ -4,10 +4,10 @@ import { useBoolean } from "@/hooks/useBoolean";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useSettingsStore } from "@/store/settingsStore";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { Button, Divider, Switch, Text } from "react-native-paper";
+import { Button, Divider, Snackbar, Switch, Text } from "react-native-paper";
 
 interface NotificationSectionProps {
   styles: any; // Import styles from parent
@@ -32,56 +32,92 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
   const dailyTimePicker = useBoolean(false, "dailyTimePicker");
   const moodTimePicker = useBoolean(false, "moodTimePicker");
 
+  // Snackbar state for visual feedback
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // Guard to prevent multiple simultaneous schedules
+  const [isScheduling, setIsScheduling] = useState(false);
+
   // Schedule notifications based on settings
   const scheduleNotifications = useCallback(async () => {
+    // Guard: prevent multiple simultaneous schedules
+    if (isScheduling) {
+      console.log("⏸️ Already scheduling, skipping...");
+      return;
+    }
+
     console.log("📋 scheduleNotifications called");
+    setIsScheduling(true);
 
-    if (!permission.granted) {
-      console.log("❌ Permission not granted, skipping notification setup");
-      return;
+    try {
+      if (!permission.granted) {
+        console.log("❌ Permission not granted, skipping notification setup");
+        return;
+      }
+
+      // اگر notifications غیرفعال باشد، همه را کنسل کن
+      if (!notifications.enabled) {
+        console.log("🔕 Notifications disabled, cancelling all");
+        await cancelAllNotifications();
+        setSnackbarMessage(t("notifications.disabled"));
+        setSnackbarVisible(true);
+        return;
+      }
+
+      console.log("⚙️ Processing notification settings...");
+
+      // Schedule daily reminder
+      if (notifications.dailyReminder.enabled) {
+        console.log(
+          "📅 Scheduling daily reminder for",
+          notifications.dailyReminder.time
+        );
+        await scheduleHabitReminder(
+          t("notifications.messages.dailyTitle"),
+          t("notifications.messages.dailyBody"),
+          notifications.dailyReminder.time,
+          "daily-reminder"
+        );
+      } else {
+        console.log("🗑️ Daily reminder disabled, cancelling");
+        await cancelNotification("daily-reminder");
+      }
+
+      // Schedule mood reminder
+      if (notifications.moodReminder.enabled) {
+        console.log(
+          "😊 Scheduling mood reminder for",
+          notifications.moodReminder.time
+        );
+        await scheduleHabitReminder(
+          t("notifications.messages.moodTitle"),
+          t("notifications.messages.moodBody"),
+          notifications.moodReminder.time,
+          "mood-reminder"
+        );
+      } else {
+        console.log("🗑️ Mood reminder disabled, cancelling");
+        await cancelNotification("mood-reminder");
+      }
+
+      // Show success message
+      if (
+        notifications.dailyReminder.enabled ||
+        notifications.moodReminder.enabled
+      ) {
+        setSnackbarMessage(t("notifications.scheduled"));
+        setSnackbarVisible(true);
+      }
+
+      // Debug: Show all scheduled notifications
+      console.log("📊 Getting all scheduled notifications...");
+      await getAllScheduledNotifications();
+    } finally {
+      setIsScheduling(false);
     }
-
-    // اگر notifications غیرفعال باشد، همه را کنسل کن
-    if (!notifications.enabled) {
-      console.log("🔕 Notifications disabled, cancelling all");
-      await cancelAllNotifications();
-      return;
-    }
-
-    console.log("⚙️ Processing notification settings...");
-
-    // Schedule daily reminder
-    if (notifications.dailyReminder.enabled) {
-      console.log("📅 Scheduling daily reminder for", notifications.dailyReminder.time);
-      await scheduleHabitReminder(
-        t("notifications.messages.dailyTitle"),
-        t("notifications.messages.dailyBody"),
-        notifications.dailyReminder.time,
-        "daily-reminder"
-      );
-    } else {
-      console.log("🗑️ Daily reminder disabled, cancelling");
-      await cancelNotification("daily-reminder");
-    }
-
-    // Schedule mood reminder
-    if (notifications.moodReminder.enabled) {
-      console.log("😊 Scheduling mood reminder for", notifications.moodReminder.time);
-      await scheduleHabitReminder(
-        t("notifications.messages.moodTitle"),
-        t("notifications.messages.moodBody"),
-        notifications.moodReminder.time,
-        "mood-reminder"
-      );
-    } else {
-      console.log("🗑️ Mood reminder disabled, cancelling");
-      await cancelNotification("mood-reminder");
-    }
-
-    // Debug: Show all scheduled notifications
-    console.log("📊 Getting all scheduled notifications...");
-    await getAllScheduledNotifications();
   }, [
+    isScheduling,
     permission.granted,
     notifications.enabled,
     notifications.dailyReminder.enabled,
@@ -141,6 +177,8 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
       t("notifications.messages.testTitle"),
       t("notifications.messages.testBody")
     );
+    setSnackbarMessage(t("notifications.testSent"));
+    setSnackbarVisible(true);
   };
 
   const sendDelayedTestNotification = async () => {
@@ -150,6 +188,8 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
       { seconds: 5 }
     );
     console.log("Delayed test notification scheduled for 5 seconds");
+    setSnackbarMessage(t("notifications.testDelayed"));
+    setSnackbarVisible(true);
   };
 
   return (
@@ -430,6 +470,19 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({
           </>
         )}
       </ThemedCard.Content>
+
+      {/* Snackbar for visual feedback */}
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+        action={{
+          label: t("common.ok"),
+          onPress: () => setSnackbarVisible(false),
+        }}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </ThemedCard>
   );
 };

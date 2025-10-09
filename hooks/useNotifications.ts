@@ -1,8 +1,8 @@
+import { useSettingsStore } from "@/store/settingsStore";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
-import { useSettingsStore } from "@/store/settingsStore";
 import { useLanguage } from "./useLanguage";
 
 // Check if we're in Expo Go environment
@@ -18,10 +18,15 @@ if (!isExpoGo) {
     notificationSupported = true;
     console.log("Notifications module loaded successfully", !!Notifications);
   } catch (error) {
-    console.warn("expo-notifications not available in this environment:", error);
+    console.warn(
+      "expo-notifications not available in this environment:",
+      error
+    );
   }
 } else {
-  console.warn("⚠️ Expo Go detected: Notifications disabled. Use 'npx expo run:android' for full functionality.");
+  console.warn(
+    "⚠️ Expo Go detected: Notifications disabled. Use 'npx expo run:android' for full functionality."
+  );
 }
 
 // تنظیمات پیش‌فرض notification
@@ -154,7 +159,7 @@ export function useNotifications() {
     }
   };
 
-  // ارسال notification محلی
+  // ارسال notification محلی (فقط برای تست)
   const scheduleNotification = async (
     title: string,
     body: string,
@@ -170,12 +175,12 @@ export function useNotifications() {
           sound: "default",
           color: "#4CAF50",
         },
-        trigger: trigger || null, // فوری اگه trigger نداشته باشه
+        trigger: trigger || null, // فوری اگه trigger نداشته باشه (فقط برای test)
       });
-      console.log("Test notification scheduled:", notificationId);
+      console.log("✅ Test notification scheduled/sent:", notificationId);
       return notificationId;
     } catch (error) {
-      console.error("Error scheduling test notification:", error);
+      console.error("❌ Error scheduling test notification:", error);
       return null;
     }
   };
@@ -195,7 +200,9 @@ export function useNotifications() {
         await cancelNotification(identifier);
       }
 
-      console.log(`🔔 Scheduling notification "${identifier}" for ${time.hour}:${time.minute}`);
+      console.log(
+        `🔔 Scheduling notification "${identifier}" for ${time.hour}:${time.minute}`
+      );
 
       // محاسبه زمان بعدی که باید notification trigger بشه
       const now = new Date();
@@ -229,7 +236,10 @@ export function useNotifications() {
         identifier, // استفاده از identifier برای کنسل آسان
       });
 
-      console.log(`✅ Notification "${identifier}" scheduled successfully with ID:`, notificationId);
+      console.log(
+        `✅ Notification "${identifier}" scheduled successfully with ID:`,
+        notificationId
+      );
       return notificationId;
     } catch (error) {
       console.error(`❌ Error scheduling notification "${identifier}":`, error);
@@ -263,7 +273,8 @@ export function useNotifications() {
   const getAllScheduledNotifications = async () => {
     if (!Notifications) return [];
     try {
-      const notifications = await Notifications.getAllScheduledNotificationsAsync();
+      const notifications =
+        await Notifications.getAllScheduledNotificationsAsync();
       console.log("All scheduled notifications:", notifications);
       return notifications;
     } catch (error) {
@@ -305,15 +316,18 @@ async function registerForPushNotificationsAsync(): Promise<
   if (Device.isDevice) {
     const { status: existingStatus } =
       await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
+    const finalStatus = existingStatus;
 
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
+    // Don't automatically request permission - user should do it from settings
+    // if (existingStatus !== "granted") {
+    //   const { status } = await Notifications.requestPermissionsAsync();
+    //   finalStatus = status;
+    // }
 
     if (finalStatus !== "granted") {
-      console.log("Failed to get push token for push notification!");
+      console.log(
+        "❌ Push notification permission not granted. Request from settings."
+      );
       return;
     }
 

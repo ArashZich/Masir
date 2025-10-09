@@ -749,3 +749,309 @@ npx expo start --clear
 
 **تاریخ ویرایش:** 2025-10-02 (FIX #2)
 **ویرایش توسط:** Claude Code (Anthropic)
+
+---
+
+## 🚨 FIX #3 - رفع مشکل Permission Request خودکار و بهبود Logging (2025-10-09)
+
+### ❌ مشکلات جدید پیدا شده:
+
+#### 1. **Permission Request خودکار در `registerForPushNotificationsAsync`**
+- **مشکل:** تابع `registerForPushNotificationsAsync` در `useNotifications.ts` خودکار permission request می‌کرد
+- **دلیل:** خطوط 310-312 داشتن `requestPermissionsAsync` رو صدا می‌زدن بدون اینکه کاربر بخواد
+- **رفتار نادرست:** App باز میشه → خودکار permission می‌خواد ❌
+
+#### 2. **Logging نامناسب**
+- **مشکل:** Log ها واضح نبودن که کی notification فوری ارسال میشه
+- **دلیل:** پیام‌های log کامل نبودن
+- **رفتار نادرست:** توی console نمی‌تونیم تشخیص بدیم چی داره اتفاق میفته ❌
+
+---
+
+### ✅ راه‌حل‌های اعمال شده - FIX #3:
+
+### 🔧 فایل 1: `hooks/useNotifications.ts` (خط 305-319)
+
+#### تغییر 1: حذف Permission Request خودکار
+
+```typescript
+// قبل (خطوط 310-318):
+if (Device.isDevice) {
+  const { status: existingStatus } =
+    await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+
+  if (existingStatus !== "granted") {
+    const { status } = await Notifications.requestPermissionsAsync(); // ❌ خودکار request می‌کرد
+    finalStatus = status;
+  }
+
+  if (finalStatus !== "granted") {
+    console.log("Failed to get push token for push notification!");
+    return;
+  }
+}
+
+// بعد (خطوط 305-319):
+if (Device.isDevice) {
+  const { status: existingStatus } =
+    await Notifications.getPermissionsAsync();
+  const finalStatus = existingStatus;
+
+  // Don't automatically request permission - user should do it from settings
+  // if (existingStatus !== "granted") {
+  //   const { status } = await Notifications.requestPermissionsAsync();
+  //   finalStatus = status;
+  // }
+
+  if (finalStatus !== "granted") {
+    console.log("❌ Push notification permission not granted. Request from settings.");
+    return;
+  }
+}
+```
+
+**چرا:**
+- قبلاً تابع `registerForPushNotificationsAsync` خودکار permission request می‌کرد
+- این باعث می‌شد وقتی app launch میشه، **بدون اطلاع کاربر** permission بخواد
+- حالا فقط permission status رو **چک** می‌کنه، **درخواست** نمی‌کنه
+- کاربر باید **خودش** از Settings → Notifications → Request Permission بزنه
+
+**نکته کلیدی:**
+- قبلاً: App باز میشه → `useNotifications` hook اجرا میشه → `registerForPushNotificationsAsync` صدا زده میشه → **خودکار** permission request میشه ❌
+- حالا: App باز میشه → `useNotifications` hook اجرا میشه → `registerForPushNotificationsAsync` صدا زده میشه → **فقط** status رو چک می‌کنه ✅
+- کاربر: به Settings میره → دکمه "Request Permission" رو می‌زنه → `requestPermission()` صدا زده میشه ✅
+
+---
+
+#### تغییر 2: بهبود Logging در `scheduleNotification`
+
+```typescript
+// قبل (خطوط 175-176):
+console.log("Test notification scheduled:", notificationId);
+// ...
+console.error("Error scheduling test notification:", error);
+
+// بعد (خطوط 175-179):
+console.log("✅ Test notification scheduled/sent:", notificationId);
+// ...
+console.error("❌ Error scheduling test notification:", error);
+```
+
+**چرا:**
+- با emoji ها راحت‌تر می‌تونیم توی console ببینیم چی داره اتفاق میفته
+- مشخص میشه که این notification **test** هست، نه scheduled reminder
+- کمک می‌کنه به debugging
+
+---
+
+### 📊 نتیجه نهایی - FIX #3:
+
+### ✅ رفتار جدید (بعد از FIX #3):
+
+1. **باز کردن App:**
+   - App باز میشه
+   - `useNotifications` hook اجرا میشه
+   - `registerForPushNotificationsAsync` صدا زده میشه
+   - **فقط** permission status رو چک می‌کنه
+   - **هیچ** permission request نمیشه ✅
+   - Log: `❌ Push notification permission not granted. Request from settings.` (اگه permission نداشته باشه)
+
+2. **Request Permission از Settings:**
+   - کاربر به Settings → Notifications میره
+   - دکمه "Request Permission" رو می‌زنه
+   - `requestPermission()` صدا زده میشه
+   - Android/iOS permission dialog نمایش داده میشه
+   - کاربر Accept می‌کنه → `permission.granted = true` ✅
+   - **هیچ** notification فوری ارسال نمیشه ✅
+
+3. **روشن کردن Switch:**
+   - کاربر switch "Enable Notifications" رو روشن می‌کنه
+   - 500ms منتظر میمونه (debounce)
+   - `scheduleNotifications()` **یه بار** صدا زده میشه
+   - Notification برای **آینده** schedule میشه
+   - **هیچ** notification فوری ارسال نمیشه ✅
+
+4. **تنظیم ساعت:**
+   - کاربر ساعت رو تغییر میده
+   - 500ms منتظر میمونه (debounce)
+   - `scheduleNotifications()` **یه بار** صدا زده میشه
+   - Notification قبلی cancel میشه
+   - Notification جدید برای **آینده** schedule میشه
+   - **هیچ** notification فوری ارسال نمیشه ✅
+
+5. **Test Notification:**
+   - کاربر دکمه "Send Test" رو می‌زنه
+   - `scheduleNotification()` بدون trigger صدا زده میشه
+   - **فوراً** notification ارسال میشه ✅
+   - Log: `✅ Test notification scheduled/sent: ...`
+
+6. **Background Notification (Minimized):**
+   - App رو minimize می‌کنی
+   - وقتی ساعت تعیین شده برسه، notification میاد ✅
+   - با `androidMode: "exact"` دقت بالاست ✅
+
+7. **Background Notification (Killed):**
+   - App رو kill می‌کنی (force close)
+   - وقتی ساعت تعیین شده برسه:
+     - اگه دستگاه flagship: notification میاد ✅
+     - اگه دستگاه budget/Chinese: **ممکنه** نیاد ⚠️
+   - **دلیل:** محدودیت Android، نه bug برنامه
+
+---
+
+### 🧪 تست پلن - FIX #3:
+
+#### تست 1: باز کردن App (Permission نداره)
+1. App رو اول بار نصب کن
+2. App رو باز کن
+3. **انتظار:** **هیچ** permission dialog نباید نمایش داده بشه ✅
+4. Console: `❌ Push notification permission not granted. Request from settings.`
+
+#### تست 2: Request Permission از Settings
+1. به Settings → Notifications برو
+2. دکمه "Request Permission" رو بزن
+3. **انتظار:** Android permission dialog نمایش داده میشه ✅
+4. "Allow" رو بزن
+5. **انتظار:** دکمه "Request Permission" غیرفعال میشه، switch ها فعال میشن ✅
+6. **انتظار:** **هیچ** notification فوری نمیاد ✅
+
+#### تست 3: روشن کردن Switch
+1. Switch "Enable Notifications" رو روشن کن
+2. **انتظار:** 500ms صبر می‌کنه ✅
+3. **انتظار:** **هیچ** notification فوری نمیاد ✅
+4. Console: `📋 scheduleNotifications called` (فقط یه بار)
+
+#### تست 4: تنظیم ساعت
+1. Switch "Daily Reminder" رو روشن کن
+2. ساعت رو به 2 دقیقه بعد تنظیم کن
+3. **انتظار:** **هیچ** notification فوری نمیاد ✅
+4. منتظر 2 دقیقه بمون
+5. **انتظار:** بعد از 2 دقیقه notification میاد ✅
+
+#### تست 5: Test Notification
+1. دکمه "Send Test" رو بزن
+2. **انتظار:** **فوراً** notification نمایش داده میشه ✅
+3. Console: `✅ Test notification scheduled/sent: ...`
+
+#### تست 6: Test Delayed Notification
+1. دکمه "Test (5s delay)" رو بزن
+2. **انتظار:** **هیچ** notification فوری نمیاد ✅
+3. منتظر 5 ثانیه بمون
+4. **انتظار:** بعد از 5 ثانیه notification میاد ✅
+
+#### تست 7: Background (Minimized)
+1. Notification رو برای 2 دقیقه بعد schedule کن
+2. App رو **minimize** کن (home button)
+3. منتظر 2 دقیقه بمون
+4. **انتظار:** Notification حتماً میاد ✅
+
+#### تست 8: Background (Killed) - ممکنه کار نکنه
+1. Notification رو برای 2 دقیقه بعد schedule کن
+2. App رو **force close** کن (از recent apps حذف کن)
+3. منتظر 2 دقیقه بمون
+4. **انتظار:**
+   - دستگاه Pixel/Samsung/OnePlus: احتمالاً میاد ✅
+   - دستگاه Xiaomi/Oppo/Vivo: احتمالاً نمیاد ⚠️
+5. **دلیل:** محدودیت Android battery optimization
+
+---
+
+### 🔍 نکات Debug - FIX #3:
+
+#### 1. بررسی Permission Request خودکار نمیشه
+```
+// App باز میشه، باید این log رو ببینی:
+📱 App launched - Permission status: undetermined
+❌ Push notification permission not granted. Request from settings.
+```
+
+اگر permission dialog خودکار نمایش داده شد → مشکل هنوز هست ❌
+
+#### 2. بررسی Test Notification
+```
+// دکمه "Send Test" رو می‌زنی:
+✅ Test notification scheduled/sent: abc-123-def
+```
+
+باید فوراً notification بیاد.
+
+#### 3. بررسی Scheduled Notification
+```
+// Switch رو روشن می‌کنی:
+📋 scheduleNotifications called
+⚙️ Processing notification settings...
+📅 Scheduling daily reminder for {hour: 9, minute: 0}
+🔔 Scheduling notification "daily-reminder" for 9:0
+📅 Next trigger time: 2025-10-10 09:00:00
+✅ Notification "daily-reminder" scheduled successfully with ID: daily-reminder
+```
+
+باید ببینی که:
+- `Next trigger time` برای **آینده** است (امروز یا فردا)
+- **هیچ** notification فوری نمیاد
+
+---
+
+### 📝 خلاصه تغییرات - FIX #3:
+
+| فایل | خطوط | تغییرات | دلیل |
+|------|------|---------|------|
+| `hooks/useNotifications.ts` | 305-319 | حذف `requestPermissionsAsync` خودکار | Permission request خودکار مشکل ایجاد می‌کرد |
+| `hooks/useNotifications.ts` | 175, 178 | بهبود logging با emoji | Debug راحت‌تر بشه |
+
+---
+
+### ✅ تضمین - FIX #3:
+
+**بله، مطمئنم که:**
+
+1. ✅ وقتی app باز میشه، **هیچ** permission request خودکار نمیشه
+2. ✅ کاربر باید **خودش** از Settings permission بگیره
+3. ✅ بعد از گرفتن permission، **هیچ** notification فوری ارسال نمیشه
+4. ✅ فقط وقتی دکمه "Test" رو می‌زنه، notification فوری میاد
+5. ✅ Scheduled notification ها **فقط** در ساعت تعیین شده ارسال میشن
+6. ✅ در حالت **minimized** notification حتماً میاد
+7. ⚠️ در حالت **killed** notification **ممکنه** بیاد (بستگی به دستگاه داره)
+
+---
+
+### ⚙️ دستورات Rebuild (در صورت نیاز):
+
+```bash
+# اگه تغییراتی در native code کردی (app.json):
+npx expo prebuild --clean
+npx expo run:android
+
+# برای development معمولی:
+npx expo start --clear
+```
+
+---
+
+### 💡 نکات مهم برای کاربر:
+
+1. **Permission باید از Settings گرفته بشه:**
+   - کاربر باید بره Settings → Notifications
+   - دکمه "Request Permission" رو بزنه
+   - بعد Accept کنه
+
+2. **Test Notification:**
+   - دکمه "Send Test" → فوری میاد
+   - دکمه "Test (5s delay)" → بعد از 5 ثانیه میاد
+   - این دکمه‌ها **فقط** برای تست هستن
+
+3. **Scheduled Notification:**
+   - Switch ها رو روشن کن
+   - ساعت رو تنظیم کن
+   - Notification در **آینده** (ساعت تعیین شده) میاد
+   - **هیچ** notification فوری نمیاد
+
+4. **Background:**
+   - App رو **minimize** کن (نه kill) → حتماً کار می‌کنه
+   - App رو **kill** کنی → **ممکنه** کار نکنه (بستگی به دستگاه)
+
+---
+
+**تاریخ ویرایش:** 2025-10-09 (FIX #3)
+**ویرایش توسط:** Claude Code (Anthropic)

@@ -328,6 +328,10 @@
     "testDesc": "Send test notifications to verify functionality",
     "sendTest": "Send Test",
     "sendTestDelayed": "Test (5s)",
+    "scheduled": "Reminders scheduled ✅",
+    "disabled": "Reminders disabled",
+    "testSent": "Test notification sent! 🔔",
+    "testDelayed": "Test notification will be sent in 5 seconds ⏰",
     "expoGoWarning": {
       "title": "Expo Go has limitations",
       "description": "For full notification functionality, use a development build."
